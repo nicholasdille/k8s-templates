@@ -1,0 +1,14 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+probe:
+  liveness:
+    httpGet:
+      path: /
+      port: 80
+      scheme: HTTP
+  readiness:
+    httpGet:
+      path: /
+      port: 80
+      scheme: HTTP

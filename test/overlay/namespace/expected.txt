@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+  namespace: qa
+spec:
+  selector:
+    app: test
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test2
+  namespace: qa
+spec:
+  selector:
+    app: test2
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

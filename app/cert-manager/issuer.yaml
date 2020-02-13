@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  namespace: #@ data.values.certmanager.namespace
+spec:
+  acme:
+    email: #@ data.values.certmanager.cloudflare.email
+    server: #@ data.values.certmanager.api.staging
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - dns01:
+        cloudflare:
+          email: #@ data.values.certmanager.cloudflare.email
+          apiKeySecretRef:
+            name: cloudflare-token
+            key: token
+      selector:
+        dnsZones: #@ data.values.certmanager.domains
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+  namespace: #@ data.values.certmanager.namespace
+spec:
+  acme:
+    email: #@ data.values.certmanager.cloudflare.email
+    server: #@ data.values.certmanager.api.production
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+    - dns01:
+        cloudflare:
+          email: #@ data.values.certmanager.cloudflare.email
+          apiKeySecretRef:
+            name: cloudflare-token
+            key: token
+      selector:
+        dnsZones: #@ data.values.certmanager.domains

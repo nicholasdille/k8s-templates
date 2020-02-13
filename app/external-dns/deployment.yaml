@@ -1,0 +1,32 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+  namespace: #@ data.values.externaldns.namespace
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: #@ data.values.externaldns.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.externaldns.matchLabels
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        args:
+          - --txt-owner-id=external-dns-crd
+          - --source=crd
+          - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+          - --crd-source-kind=DNSEndpoint
+          - #@ "--domain-filter={}".format(data.values.externaldns.domain)
+          - --provider=cloudflare
+        env:
+          - name: CF_API_EMAIL
+            value: #@ data.values.externaldns.cloudflare.email
+          - name: CF_API_KEY
+            value: #@ data.values.externaldns.cloudflare.key

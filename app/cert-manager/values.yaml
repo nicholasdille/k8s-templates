@@ -1,0 +1,15 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+certmanager:
+  namespace: cert-manager
+  matchLabels:
+    app: cert-manager
+  domains:
+  - dille.io
+  api:
+    staging: https://acme-staging-v02.api.letsencrypt.org/directory
+    production: https://acme-v02.api.letsencrypt.org/directory
+  cloudflare:
+    email: cf-api-email
+    key: cf-api-key

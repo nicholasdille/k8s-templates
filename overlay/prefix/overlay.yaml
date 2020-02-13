@@ -1,0 +1,8 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+metadata:
+  #@overlay/replace via=lambda a,b: data.values.prefix+a+data.values.suffix
+  name:

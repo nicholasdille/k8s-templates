@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      tolerations:
+      - key: #@ "{}/node-type".format(data.values.domain)
+        operator: "Equal"
+        value: #@ data.values.node.type
+        effect: "NoSchedule"
+      - key: #@ "{}/node-type".format(data.values.domain)
+        operator: "Equal"
+        value: #@ data.values.node.type
+        effect: "NoExecute"

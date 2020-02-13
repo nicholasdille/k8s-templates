@@ -1,0 +1,6 @@
+#@data/values
+---
+port: 80
+tag: latest
+matchLabels:
+  pod: nginx

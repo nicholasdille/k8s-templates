@@ -1,0 +1,12 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.all,expects="1+"
+---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    ci-system: #@ data.values.ci_system
+    ci-pipeline: #@ data.values.ci_pipeline
+    ci-job: #@ data.values.ci_job
+    ci-url: #@ data.values.ci_url

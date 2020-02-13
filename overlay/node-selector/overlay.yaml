@@ -1,0 +1,11 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      nodeSelector:
+        dille.io/node-type: #@ data.values.node.type

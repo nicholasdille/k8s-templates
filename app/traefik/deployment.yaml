@@ -1,0 +1,45 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+  namespace: #@ data.values.traefik.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.traefik.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.traefik.matchLabels
+    spec:
+      serviceAccountName: traefik-ingress-controller
+      containers:
+      - image: traefik:v2.0
+        name: main
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /etc/traefik
+          name: config
+        ports:
+        - name: http
+          containerPort: 80
+          hostPort: 80
+          protocol: TCP
+        - name: https
+          containerPort: 443
+          hostPort: 443
+          protocol: TCP
+        - name: dashboard
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          hostPort: 8082
+          containerPort: 8082
+          protocol: TCP
+        args:
+        - --configfile=/config/traefik.yaml
+      volumes:
+      - name: config
+        configMap:
+          name: traefik

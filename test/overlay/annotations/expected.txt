@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+  annotations:
+    ci-system: unknown
+    ci-pipeline: unknwon
+    ci-job: unknown
+    ci-url: unknown
+spec:
+  selector:
+    app: test
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test2
+  annotations:
+    ci-system: unknown
+    ci-pipeline: unknwon
+    ci-job: unknown
+    ci-url: unknown
+spec:
+  selector:
+    app: test2
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80

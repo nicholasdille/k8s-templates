@@ -1,0 +1,94 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  type: ClusterIP
+  selector:
+    app: traefik
+  ports:
+  - name: dashboard
+    port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-dashboard
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+type: Opaque
+data:
+  traefik: "${TRAEFIK_HTPASSWD}"
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-redirect
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  redirectScheme:
+    scheme: https
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-auth
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  basicAuth:
+    secret: traefik-dashboard
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-redirect
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  entryPoints:
+    - http
+  routes:
+    - match: Host(`traefik.dille.io`)
+      kind: Rule
+      priority: 12
+      services:
+      - name: traefik-dashboard
+        port: 80
+        strategy: RoundRobin
+      middlewares:
+      - name: traefik-dashboard-redirect
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  entryPoints:
+    - https
+  routes:
+    - match: Host(`traefik.dille.io`)
+      kind: Rule
+      priority: 12
+      services:
+      - name: traefik-dashboard
+        port: 80
+        strategy: RoundRobin
+      middlewares:
+      - name: traefik-dashboard-auth
+  tls:
+    secretName: traefik.dille.io

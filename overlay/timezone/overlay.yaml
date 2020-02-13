@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by="name"
+      - name: main
+        #@overlay/match missing_ok=True
+        volumeMounts:
+        #@overlay/match by="name",missing_ok=True
+        - name: tz-config
+          mountPath: /etc/localtime
+      #@overlay/match missing_ok=True
+      volumes:
+      #@overlay/match by="name",missing_ok=True
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

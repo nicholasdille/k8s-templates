@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by="name",missing_ok=True
+      - name: main
+        #@overlay/match missing_ok=True
+        livenessProbe: #@ data.values.probe.liveness
+        #@overlay/match missing_ok=True
+        readinessProbe: #@ data.values.probe.readiness

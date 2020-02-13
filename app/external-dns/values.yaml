@@ -1,0 +1,11 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+externaldns:
+  namespace: external-dns
+  matchLabels:
+    app: external-dns
+  domain: dille.io
+  cloudflare:
+    email: cf-api-email
+    key: cf-api-key
