@@ -1,6 +1,11 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.certmanager.namespace
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: cert-manager
@@ -8,9 +13,9 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
 spec:
   type: ClusterIP
   ports:
@@ -19,7 +24,7 @@ spec:
       targetPort: 9402
   selector:
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
 ---
 apiVersion: v1
 kind: Service
@@ -29,19 +34,19 @@ metadata:
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
 spec:
   type: ClusterIP
   ports:
   - name: https
     port: 443
-    targetPort: 10250
+    targetPort: 6443
   selector:
     app: webhook
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
 ---
 apiVersion: apps/v1
@@ -52,31 +57,31 @@ metadata:
   labels:
     app: cainjector
     app.kubernetes.io/name: cainjector
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cainjector-v0.11.1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: cainjector
       app.kubernetes.io/name: cainjector
-      app.kubernetes.io/instance: cert-manager
+      app.kubernetes.io/instance:  cert-manager
       app.kubernetes.io/managed-by: Tiller
   template:
     metadata:
       labels:
         app: cainjector
         app.kubernetes.io/name: cainjector
-        app.kubernetes.io/instance: cert-manager
+        app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cert-manager-v0.13.0
+        helm.sh/chart: cainjector-v0.11.1
       annotations:
     spec:
       serviceAccountName: cert-manager-cainjector
       containers:
-        - name: cert-manager
-          image: "quay.io/jetstack/cert-manager-cainjector:v0.13.0"
+        - name: cainjector
+          image: "quay.io/jetstack/cert-manager-cainjector:v0.11.1"
           imagePullPolicy: IfNotPresent
           args:
           - --v=2
@@ -97,25 +102,25 @@ metadata:
   labels:
     app: cert-manager
     app.kubernetes.io/name: cert-manager
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: cert-manager
       app.kubernetes.io/name: cert-manager
-      app.kubernetes.io/instance: cert-manager
+      app.kubernetes.io/instance:  cert-manager
       app.kubernetes.io/managed-by: Tiller
   template:
     metadata:
       labels:
         app: cert-manager
         app.kubernetes.io/name: cert-manager
-        app.kubernetes.io/instance: cert-manager
+        app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cert-manager-v0.13.0
+        helm.sh/chart: cert-manager-v0.11.1
       annotations:
         prometheus.io/path: "/metrics"
         prometheus.io/scrape: 'true'
@@ -124,7 +129,7 @@ spec:
       serviceAccountName: cert-manager
       containers:
         - name: cert-manager
-          image: "quay.io/jetstack/cert-manager-controller:v0.13.0"
+          image: "quay.io/jetstack/cert-manager-controller:v0.11.1"
           imagePullPolicy: IfNotPresent
           args:
           - --v=2
@@ -136,7 +141,6 @@ spec:
           - --webhook-dns-names=cert-manager-webhook,cert-manager-webhook.cert-manager,cert-manager-webhook.cert-manager.svc
           ports:
           - containerPort: 9402
-            protocol: TCP
           env:
           - name: POD_NAMESPACE
             valueFrom:
@@ -155,47 +159,37 @@ metadata:
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: webhook
       app.kubernetes.io/name: webhook
-      app.kubernetes.io/instance: cert-manager
+      app.kubernetes.io/instance:  cert-manager
       app.kubernetes.io/managed-by: Tiller
   template:
     metadata:
       labels:
         app: webhook
         app.kubernetes.io/name: webhook
-        app.kubernetes.io/instance: cert-manager
+        app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cert-manager-v0.13.0
+        helm.sh/chart: cert-manager-v0.11.1
       annotations:
     spec:
       serviceAccountName: cert-manager-webhook
       containers:
         - name: cert-manager
-          image: "quay.io/jetstack/cert-manager-webhook:v0.13.0"
+          image: "quay.io/jetstack/cert-manager-webhook:v0.11.1"
           imagePullPolicy: IfNotPresent
           args:
           - --v=2
-          - --secure-port=10250
+          - --secure-port=6443
           - --tls-cert-file=/certs/tls.crt
           - --tls-private-key-file=/certs/tls.key
-          livenessProbe:
-            httpGet:
-              path: /livez
-              port: 6080
-              scheme: HTTP
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 6080
-              scheme: HTTP
           env:
           - name: POD_NAMESPACE
             valueFrom:
@@ -212,6 +206,27 @@ spec:
         secret:
           secretName: cert-manager-webhook-tls
 ---
+apiVersion: apiregistration.k8s.io/v1beta1
+kind: APIService
+metadata:
+  name: v1beta1.webhook.cert-manager.io
+  labels:
+    app: webhook
+    app.kubernetes.io/name: webhook
+    app.kubernetes.io/instance:  cert-manager
+    app.kubernetes.io/managed-by: Tiller
+    helm.sh/chart: cert-manager-v0.11.1
+  annotations:
+    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-tls"
+spec:
+  group: webhook.cert-manager.io
+  groupPriorityMinimum: 1000
+  versionPriority: 15
+  service:
+    name: cert-manager-webhook
+    namespace: "cert-manager"
+  version: v1beta1
+---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
@@ -219,31 +234,35 @@ metadata:
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
   annotations:
-    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-tls"
+    cert-manager.io/inject-apiserver-ca: "true"
 webhooks:
   - name: webhook.cert-manager.io
     rules:
       - apiGroups:
           - "cert-manager.io"
-          - "acme.cert-manager.io"
         apiVersions:
           - v1alpha2
         operations:
           - CREATE
           - UPDATE
         resources:
-          - "*/*"
+          - certificates
+          - issuers
+          - clusterissuers
+          - orders
+          - challenges
+          - certificaterequests
     failurePolicy: Fail
     sideEffects: None
     clientConfig:
       service:
-        name: cert-manager-webhook
-        namespace: "cert-manager"
-        path: /mutate
+        name: kubernetes
+        namespace: default
+        path: /apis/webhook.cert-manager.io/v1beta1/mutations
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: ValidatingWebhookConfiguration
@@ -252,11 +271,11 @@ metadata:
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
-    app.kubernetes.io/instance: cert-manager
+    app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.13.0
+    helm.sh/chart: cert-manager-v0.11.1
   annotations:
-    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-tls"
+    cert-manager.io/inject-apiserver-ca: "true"
 webhooks:
   - name: webhook.cert-manager.io
     namespaceSelector:
@@ -272,18 +291,20 @@ webhooks:
     rules:
       - apiGroups:
           - "cert-manager.io"
-          - "acme.cert-manager.io"
         apiVersions:
           - v1alpha2
         operations:
           - CREATE
           - UPDATE
         resources:
-          - "*/*"
+          - certificates
+          - issuers
+          - clusterissuers
+          - certificaterequests
     failurePolicy: Fail
     sideEffects: None
     clientConfig:
       service:
-        name: cert-manager-webhook
-        namespace: "cert-manager"
-        path: /mutate
+        name: kubernetes
+        namespace: default
+        path: /apis/webhook.cert-manager.io/v1beta1/validations

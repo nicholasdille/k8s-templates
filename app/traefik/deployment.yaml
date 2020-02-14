@@ -1,5 +1,10 @@
 #@ load("@ytt:data", "data")
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.traefik.namespace
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,7 +18,7 @@ spec:
     metadata:
       labels: #@ data.values.traefik.matchLabels
     spec:
-      serviceAccountName: traefik-ingress-controller
+      serviceAccountName: traefik
       containers:
       - image: traefik:v2.0
         name: main
@@ -34,7 +39,6 @@ spec:
           containerPort: 8080
           protocol: TCP
         - name: metrics
-          hostPort: 8082
           containerPort: 8082
           protocol: TCP
         args:

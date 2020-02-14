@@ -2,6 +2,8 @@
 
 XXX
 
+XXX based on 0.11 (0.13 has issues with TLS secret which is fixed in 0.14)
+
 ## Variables
 
 XXX

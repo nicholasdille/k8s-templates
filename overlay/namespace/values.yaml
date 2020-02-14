@@ -1,4 +1,4 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
-stage: qa
+namespace: qa

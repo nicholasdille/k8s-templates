@@ -22,6 +22,10 @@ Adding an overlay:
 ytt -f app/nginx -f overlay/namespace -v stage=nginx-qa
 ```
 
+## Writing apps and overlays
+
+Note that files are processed in alphanumeric order.
+
 ## Testing
 
 Test folders can contains a file `run.sh` which is executed instead of a generic test.

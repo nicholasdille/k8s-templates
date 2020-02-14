@@ -5,4 +5,4 @@
 ---
 metadata:
   #@overlay/match missing_ok=True
-  namespace: #@ data.values.stage
+  namespace: #@ data.values.namespace

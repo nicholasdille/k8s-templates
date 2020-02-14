@@ -6,3 +6,5 @@ traefik:
   matchLabels:
     app: traefik
   domain: dille.io
+  dashboard:
+    htpasswd: ""
