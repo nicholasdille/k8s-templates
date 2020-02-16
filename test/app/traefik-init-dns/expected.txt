@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik
+      containers:
+      - image: traefik:v2.0
+        name: main
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /etc/traefik
+          name: config
+        ports:
+        - name: http
+          containerPort: 80
+          hostPort: 80
+          protocol: TCP
+        - name: https
+          containerPort: 443
+          hostPort: 443
+          protocol: TCP
+        - name: dashboard
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 8082
+          protocol: TCP
+        args:
+        - --configfile=/config/traefik.yaml
+      volumes:
+      - name: config
+        configMap:
+          name: traefik
+      initContainers:
+      - image: alpine
+        name: traefik-init-dns
+        command:
+        - sh
+        args:
+        - -c
+        - |
+          curl -sLo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
+          chmod +x /usr/local/bin/kubectl; \
+          kubectl config set-cluster self --server=${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT} --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt; \
+          kubectl config set-credentials self --token=/var/run/secrets/kubernetes.io/serviceaccount/token; \
+          kubectl config set-context self --cluster=self --user=self; \
+          NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
+          NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output '.metadata.labels."dille.io/public-ip"'); \
+          echo Update DNS with ${PUBLIC_IP}; \
+          flarectl dns create-or-update --zone dille.io --name lb --type A --content ${PUBLIC_IP}
+        env:
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare
+  namespace: traefik
+type: Opaque
+stringData:
+  CF_API_EMAIL: cf-api-key
+  CF_API_KEY: cf-api-key

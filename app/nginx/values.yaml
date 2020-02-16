@@ -1,6 +1,9 @@
 #@data/values
 ---
-port: 80
-tag: latest
-matchLabels:
-  pod: nginx
+nginx:
+  port: 80
+  tag: latest
+  matchLabels:
+    pod: nginx
+  fqdn: nginx.dille.io
+  lb: lb.dille.io

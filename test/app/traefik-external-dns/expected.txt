@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        args:
+        - --txt-owner-id=traefik
+        - --source=service
+        - --namespace=default
+        - --domain-filter=dille.io.
+        - --provider=cloudflare
+        - --publish-host-ip
+        env:
+        - name: CF_API_KEY
+          value: $CLOUDFLARE_API_KEY
+        - name: CF_API_EMAIL
+          value: $CLOUDFLARE_EMAIL
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-dns
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: external-dns
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: external-dns-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: external-dns
+subjects:
+- kind: ServiceAccount
+  name: external-dns
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: lb.dille.io
+spec:
+  selector:
+    app: traefik
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  clusterIP: None

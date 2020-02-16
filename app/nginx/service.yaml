@@ -9,5 +9,5 @@ spec:
     app: nginx
   ports:
     - protocol: TCP
-      port: #@ data.values.port
-      targetPort: #@ data.values.port
+      port: #@ data.values.nginx.port
+      targetPort: #@ data.values.nginx.port

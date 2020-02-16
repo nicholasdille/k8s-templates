@@ -7,10 +7,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: #@ data.values.matchLabels
+    matchLabels: #@ data.values.nginx.matchLabels
   template:
     metadata:
-      labels: #@ data.values.matchLabels
+      labels: #@ data.values.nginx.matchLabels
     spec:
       volumes:
       - name: data
@@ -18,9 +18,9 @@ spec:
           name: nginx
       containers:
       - name: main
-        image: #@ "nginx:{}".format(data.values.tag)
+        image: #@ "nginx:{}".format(data.values.nginx.tag)
         ports:
-        - containerPort: #@ data.values.port
+        - containerPort: #@ data.values.nginx.port
         volumeMounts:
         - name: data
           mountPath: /var/share/nginx/html

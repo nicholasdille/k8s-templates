@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: nginx
+spec:
+  endpoints:
+  - dnsName: #@ data.values.nginx.fqdn
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - #@ data.values.nginx.lb

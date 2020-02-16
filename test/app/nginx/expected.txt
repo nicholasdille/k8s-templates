@@ -1,3 +1,25 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: nginx
+spec:
+  secretName: certificate-nginx
+  duration: 2160h
+  renewBefore: 360h
+  commonName: nginx.dille.io
+  isCA: false
+  keySize: 2048
+  keyAlgorithm: rsa
+  keyEncoding: pkcs1
+  usages:
+  - server auth
+  - client auth
+  dnsNames:
+  - nginx.dille.io
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -35,6 +57,38 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /var/share/nginx/html
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: nginx
+spec:
+  endpoints:
+  - dnsName: nginx.dille.io
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - lb.dille.io
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard-redirect
+  labels:
+    dille.io/loadbalancer: default
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`traefik.nginx.dille.io`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: traefik-dashboard
+      port: 80
+      strategy: RoundRobin
+    middlewares:
+    - name: traefik-dashboard-redirect
 ---
 apiVersion: v1
 kind: Service

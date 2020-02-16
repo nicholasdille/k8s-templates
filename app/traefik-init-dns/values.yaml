@@ -1,0 +1,9 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+traefikinitdns:
+  namespace: traefik
+  domain: dille.io
+  cloudflare:
+    email: cf-api-email
+    key: cf-api-key
