@@ -5341,11 +5341,6 @@ status:
   storedVersions: []
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: cert-manager
----
-apiVersion: v1
 kind: Service
 metadata:
   name: cert-manager
@@ -5501,6 +5496,8 @@ metadata:
     app.kubernetes.io/instance: cert-manager
     app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: cert-manager-v0.11.1
+  annotations:
+    kapp.k14s.io/apps-v1-deployment-wait-minimum-replicas-available: "1"
 spec:
   replicas: 1
   selector:
@@ -5646,49 +5643,10 @@ webhooks:
       namespace: default
       path: /apis/webhook.cert-manager.io/v1beta1/validations
 ---
-apiVersion: cert-manager.io/v1alpha2
-kind: ClusterIssuer
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: letsencrypt-staging
-  namespace: cert-manager
-spec:
-  acme:
-    email: cf-api-email
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: letsencrypt-staging
-    solvers:
-    - dns01:
-        cloudflare:
-          email: cf-api-email
-          apiKeySecretRef:
-            name: cloudflare-token
-            key: token
-      selector:
-        dnsZones:
-        - dille.io
----
-apiVersion: cert-manager.io/v1alpha2
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt
-  namespace: cert-manager
-spec:
-  acme:
-    email: cf-api-email
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: letsencrypt
-    solvers:
-    - dns01:
-        cloudflare:
-          email: cf-api-email
-          apiKeySecretRef:
-            name: cloudflare-token
-            key: token
-      selector:
-        dnsZones:
-        - dille.io
+  name: cert-manager
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -6484,12 +6442,3 @@ rules:
   - deletecollection
   - patch
   - update
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-token
-  namespace: cert-manager
-type: Opaque
-stringData:
-  token: cf-api-key

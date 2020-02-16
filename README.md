@@ -2,7 +2,7 @@
 
 This repository contains templates for applications and overlay to use with [ytt](https://github.com/k14s/ytt) and [kapp](https://github.com/k14s/kapp)
 
-## Usage
+## Compiling manifests
 
 Creating manifests for an app:
 
@@ -20,6 +20,16 @@ Adding an overlay:
 
 ```bash
 ytt -f app/nginx -f overlay/namespace -v stage=nginx-qa
+```
+
+## Applying manifests
+
+It is highly recommended to use [kapp](https://github.com/k14s/kapp) for applying template in a k8s cluster because it automatically applies manifests in the correct order and waits for resources to become ready.
+
+Example:
+
+```bash
+ytt -f app/nginx/ | kapp deploy --app nginx --file -
 ```
 
 ## Writing apps and overlays
