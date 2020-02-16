@@ -1,11 +1,6 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: #@ data.values.certmanager.namespace
----
-apiVersion: v1
 kind: Service
 metadata:
   name: cert-manager
@@ -162,6 +157,8 @@ metadata:
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
     helm.sh/chart: cert-manager-v0.11.1
+  annotations:
+    kapp.k14s.io/apps-v1-deployment-wait-minimum-replicas-available: "1"
 spec:
   replicas: 1
   selector:
@@ -197,7 +194,7 @@ spec:
                 fieldPath: metadata.namespace
           resources:
             {}
-            
+
           volumeMounts:
           - name: certs
             mountPath: /certs

@@ -1,6 +1,6 @@
 # App Templates
 
-This repository contains templates for applications and overlay to use with [ytt](https://github.com/k14s/ytt)
+This repository contains templates for applications and overlay to use with [ytt](https://github.com/k14s/ytt) and [kapp](https://github.com/k14s/kapp)
 
 ## Usage
 

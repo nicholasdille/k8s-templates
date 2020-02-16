@@ -3,8 +3,6 @@
 #@overlay/match missing_ok=True
 certmanager:
   namespace: cert-manager
-  matchLabels:
-    app: cert-manager
   domains:
   - dille.io
   api:

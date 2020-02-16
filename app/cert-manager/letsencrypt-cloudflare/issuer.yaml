@@ -4,7 +4,6 @@ apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-staging
-  namespace: #@ data.values.certmanager.namespace
 spec:
   acme:
     email: #@ data.values.certmanager.cloudflare.email
@@ -25,7 +24,6 @@ apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
   name: letsencrypt
-  namespace: #@ data.values.certmanager.namespace
 spec:
   acme:
     email: #@ data.values.certmanager.cloudflare.email
