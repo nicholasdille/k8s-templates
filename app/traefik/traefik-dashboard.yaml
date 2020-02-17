@@ -6,7 +6,8 @@ metadata:
   name: traefik-dashboard
   namespace: #@ data.values.traefik.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.traefik.domain @)/loadbalancer: default
 spec:
   type: ClusterIP
   selector:
@@ -22,7 +23,8 @@ metadata:
   name: traefik-dashboard
   namespace: #@ data.values.traefik.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.traefik.domain @)/loadbalancer: default
 type: Opaque
 stringData:
   traefik: #@ data.values.traefik.dashboard.htpasswd
@@ -33,7 +35,8 @@ metadata:
   name: traefik-dashboard-redirect
   namespace: #@ data.values.traefik.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.traefik.domain @)/loadbalancer: default
 spec:
   redirectScheme:
     scheme: https
@@ -44,7 +47,8 @@ metadata:
   name: traefik-dashboard-auth
   namespace: #@ data.values.traefik.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.traefik.domain @)/loadbalancer: default
 spec:
   basicAuth:
     secret: traefik-dashboard
@@ -55,7 +59,8 @@ metadata:
   name: traefik-dashboard-redirect
   namespace: #@ data.values.traefik.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.traefik.domain @)/loadbalancer: default
 spec:
   entryPoints:
     - http

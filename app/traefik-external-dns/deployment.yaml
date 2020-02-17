@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,7 +23,7 @@ spec:
           - --txt-owner-id=traefik
           - --source=service
           - --namespace=default
-          - --domain-filter=dille.io.
+          - #@ "--domain-filter={}.".format(data.values.traefik.domain)
           - --provider=cloudflare
           - --publish-host-ip
         env:

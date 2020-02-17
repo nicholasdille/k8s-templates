@@ -5,7 +5,8 @@ kind: IngressRoute
 metadata:
   name: traefik-dashboard-redirect
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.nginx.domain @)/loadbalancer: default
 spec:
   entryPoints:
     - http

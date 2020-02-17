@@ -8,4 +8,5 @@ spec:
     spec:
       #@overlay/match missing_ok=True
       nodeSelector:
-        dille.io/node-type: #@ data.values.node.type
+        #@yaml/text-templated-strings
+        (@= data.values.nodeselector.domain @)/node-type: #@ data.values.nodeselector.node.type
