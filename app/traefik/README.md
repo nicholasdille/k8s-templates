@@ -1,6 +1,30 @@
 # App for Traefik
 
-XXX
+XXX base
+
+XXX external-dns
+
+XXX init-dns
+
+## Usage
+
+Apply base:
+
+```bash
+ytt -f app/traefik/base/
+```
+
+Apply base with automatically updated DNS record from host IP address:
+
+```bash
+ytt -f app/traefik/base/ -f app/traefik/external-dns/
+```
+
+Apply base with autoamtically updated DNS record from host label:
+
+```bash
+ytt -f app/traefik/base/ -f app/traefik/init-dns/
+```
 
 ## Variables
 
