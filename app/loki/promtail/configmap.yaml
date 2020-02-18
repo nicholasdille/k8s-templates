@@ -1,0 +1,18 @@
+apiVersion: v1
+data:
+  promtail.yaml: "client:\n  backoff_config:\n    maxbackoff: 5s\n    maxretries:
+    20\n    minbackoff: 100ms\n  batchsize: 102400\n  batchwait: 1s\n  external_labels:
+    {}\n  timeout: 10s\npositions:\n  filename: /run/promtail/positions.yaml\nserver:\n
+    \ http_listen_port: 3101\ntarget_config:\n  sync_period: 10s\n\nscrape_configs:\n-
+    job_name: system          \n  entry_parser: raw          \n  static_configs:\n
+    \   - targets:\n        - localhost\n      labels:\n        namespace: maas-dev
+    \               \n        app: maas\n        service: chronograf               \n
+    \       __path__: /var/log/pods/maas-dev_chronograf-*/chronograf/*\n"
+kind: ConfigMap
+metadata:
+  labels:
+    app: maas
+    instance: dev
+    service: chronograf
+  name: promtail
+  namespace: maas-dev
