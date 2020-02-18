@@ -1,6 +1,10 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
+foo:
+  domain: dille.io
+#@overlay/match missing_ok=True
 labels:
   foo: bar
-  blarg: blubb
+  dille.io/node-type: loadbalancer
+  dille.io/public-ip: 10.1.2.3

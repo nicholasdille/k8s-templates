@@ -4,7 +4,8 @@ metadata:
   name: test
   labels:
     foo: bar
-    blarg: blubb
+    dille.io/node-type: loadbalancer
+    dille.io/public-ip: 10.1.2.3
 spec:
   selector:
     app: test
@@ -19,7 +20,8 @@ metadata:
   name: test2
   labels:
     foo: bar
-    blarg: blubb
+    dille.io/node-type: loadbalancer
+    dille.io/public-ip: 10.1.2.3
 spec:
   selector:
     app: test2
