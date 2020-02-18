@@ -8,11 +8,11 @@ spec:
     spec:
       #@overlay/match missing_ok=True
       tolerations:
-      - key: #@ "{}/node-type".format(data.values.domain)
+      - key: #@ "{}/node-type".format(data.values.tolerations.domain)
         operator: "Equal"
-        value: #@ data.values.node.type
+        value: #@ data.values.tolerations.node.type
         effect: "NoSchedule"
-      - key: #@ "{}/node-type".format(data.values.domain)
+      - key: #@ "{}/node-type".format(data.values.tolerations.domain)
         operator: "Equal"
-        value: #@ data.values.node.type
+        value: #@ data.values.tolerations.node.type
         effect: "NoExecute"
