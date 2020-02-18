@@ -43,8 +43,8 @@ spec:
         configMap:
           name: traefik
       initContainers:
-      - image: alpine
-        name: traefik-init-dns
+      - name: traefik-init-dns
+        image: alpine
         command:
         - sh
         args:
@@ -57,10 +57,14 @@ spec:
           kubectl config set-context self --cluster=self --user=self; \
           NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
           NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
-          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output '.metadata.labels."dille.io/public-ip"'); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.'${DOMAIN}/${LABEL_NAME}'"); \
           echo Update DNS with ${PUBLIC_IP}; \
-          flarectl dns create-or-update --zone dille.io --name lb --type A --content ${PUBLIC_IP}
+          flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
         env:
+        - name: LABEL_NAME
+          value: public-ip
+        - name: DOMAIN
+          value: dille.io
         - name: CF_API_KEY
           valueFrom:
             secretKeyRef:

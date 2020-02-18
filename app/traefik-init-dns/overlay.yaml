@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
 #@overlay/match by=overlay.subset({"kind":"Deployment"})
@@ -8,8 +9,8 @@ spec:
       #@overlay/match missing_ok=True
       initContainers:
       #@overlay/match by="name",missing_ok=True
-      - image: alpine
-        name: traefik-init-dns
+      - name: traefik-init-dns
+        image: alpine
         command:
         - sh
         args:
@@ -22,10 +23,14 @@ spec:
           kubectl config set-context self --cluster=self --user=self; \
           NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
           NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
-          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output '.metadata.labels."dille.io/public-ip"'); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.'${DOMAIN}/${LABEL_NAME}'"); \
           echo Update DNS with ${PUBLIC_IP}; \
-          flarectl dns create-or-update --zone dille.io --name lb --type A --content ${PUBLIC_IP}
+          flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
         env:
+          - name: LABEL_NAME
+            value: #@ data.values.traefikinitdns.label_name
+          - name: DOMAIN
+            value: #@ data.values.traefikinitdns.domain
           - name: CF_API_KEY
             valueFrom:
               secretKeyRef:

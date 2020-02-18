@@ -4,6 +4,7 @@
 traefikinitdns:
   namespace: traefik
   domain: dille.io
+  label_name: public-ip
   cloudflare:
     email: cf-api-email
     key: cf-api-key
