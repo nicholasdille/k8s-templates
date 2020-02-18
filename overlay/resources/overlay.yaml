@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
 #@overlay/match by=overlay.subset({"kind":"Deployment"})
@@ -9,10 +10,4 @@ spec:
       #@overlay/match by="name"
       - name: main
         #@overlay/match missing_ok=True
-        resources:
-          requests:
-            memory: 1Gi
-            cpu: 100m
-          limits:
-            memory: 1Gi
-            cpu: 100m
+        resources: #@ data.values.resources
