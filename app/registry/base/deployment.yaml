@@ -1,0 +1,56 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry
+  template:
+    metadata:
+      labels:
+        app: registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2
+          imagePullPolicy: Always
+          ports:
+          - name: api
+            containerPort: 5000
+          volumeMounts:
+          - name: registry-data
+            mountPath: "/var/lib/registry"
+      volumes:
+        - name: registry-data
+          hostPath:
+            path: /data/registry-data
+            type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: registry
+spec:
+  selector:
+    app: registry
+  ports:
+  - name: api
+    port: 5000
+    targetPort: 5000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: registry-host
+spec:
+  selector:
+    app: registry
+  ports:
+  - name: api
+    port: 5000
+    nodePort: 5000
+    targetPort: 5000
+  type: NodePort

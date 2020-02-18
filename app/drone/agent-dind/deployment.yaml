@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: drone-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drone-agent
+  template:
+    metadata:
+      labels:
+        app: drone-agent
+    spec:
+      containers:
+        - name: drone-agent
+          image: drone/agent:0.8
+          imagePullPolicy: Always
+          env:
+          - name: DRONE_SERVER
+            value: "drone:9000"
+          - name: DRONE_SECRET
+            value: "mydronesecret"
+          - name: DOCKER_HOST
+            value: "tcp://localhost:2375"
+        - name: dind
+          image: docker:stable-dind
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          ports:
+            - name: http
+              containerPort: 2375
+          volumeMounts:
+          - name: config
+            mountPath: /etc/docker/daemon.json
+            subPath: daemon.json
+      volumes:
+      - name: config
+        configMap:
+          name: dind

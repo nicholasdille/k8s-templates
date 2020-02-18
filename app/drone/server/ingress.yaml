@@ -1,0 +1,17 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: drone
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+spec:
+  rules:
+  - host: ci${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: drone
+          servicePort: web

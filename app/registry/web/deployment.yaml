@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: registry-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: registry-web
+  template:
+    metadata:
+      labels:
+        app: registry-web
+    spec:
+      containers:
+        - name: registry-web
+          image: konradkleine/docker-registry-frontend:v2
+          imagePullPolicy: Always
+          ports:
+          - name: web
+            containerPort: 80
+          env:
+          - name: ENV_DOCKER_REGISTRY_HOST
+            value: "registry"
+          - name: ENV_DOCKER_REGISTRY_PORT
+            value: "5000"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: registry-web
+spec:
+  selector:
+    app: registry-web
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80

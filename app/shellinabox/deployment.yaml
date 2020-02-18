@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: shellinabox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shellinabox
+  template:
+    metadata:
+      labels:
+        app: shellinabox
+    spec:
+      containers:
+        - name: shellinabox
+          image: localhost:5000/groot/shellinabox:dev
+          imagePullPolicy: Always
+          ports:
+          - name: web
+            containerPort: 4200
+          env:
+          - name: USERNAME
+            value: "user"
+          - name: PASSWORD
+            value: "'Tismeilap00"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: shellinabox
+spec:
+  selector:
+    app: shellinabox
+  ports:
+  - name: web
+    port: 80
+    targetPort: 4200

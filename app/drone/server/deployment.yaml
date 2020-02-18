@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: drone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drone
+  template:
+    metadata:
+      labels:
+        app: drone
+    spec:
+      containers:
+        - name: drone
+          image: drone/drone:0.8
+          imagePullPolicy: Always
+          ports:
+          - name: web
+            containerPort: 8000
+          - name: other
+            containerPort: 9000
+          env:
+          - name: DRONE_OPEN
+            value: "true"
+          - name: DRONE_HOST
+            value: "http://127.0.0.1"
+          - name: DRONE_GITEA
+            value: "true"
+          - name: DRONE_GITEA_URL
+            value: "https://git${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}"
+          - name: DRONE_SECRET
+            value: "mydronesecret"
+          - name: DRONE_ADMIN
+            value: "admin,groot"
+          volumeMounts:
+          - name: drone-data
+            mountPath: "/var/lib/drone"
+      volumes:
+        - name: drone-data
+          hostPath:
+            path: /data/drone-data
+            type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: drone
+spec:
+  selector:
+    app: drone
+  ports:
+  - name: web
+    port: 80
+    targetPort: 8000
+  - name: other
+    port: 9000
+    targetPort: 9000
