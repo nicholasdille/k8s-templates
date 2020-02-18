@@ -1,0 +1,80 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: maas
+    instance: dev
+    service: influxdb
+  name: influxdb
+  namespace: maas-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: influxdb
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: maas
+        instance: dev
+        service: influxdb
+    spec:
+      containers:
+      - env:
+        - name: INFLUXDB_HTTP_AUTH_ENABLED
+          value: "true"
+        - name: INFLUXDB_DB
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-db-name
+              name: maas-dev
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-name
+              name: maas-dev
+        - name: INFLUXDB_ADMIN_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-pass
+              name: maas-dev
+        - name: INFLUXDB_USER
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-user-name
+              name: maas-dev
+        - name: INFLUXDB_USER_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-user-pass
+              name: maas-dev
+        image: influxdb:latest
+        imagePullPolicy: Always
+        name: influxdb
+        ports:
+        - containerPort: 8086
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: 250m
+            memory: 1Gi
+        volumeMounts:
+        - mountPath: /var/lib/influxdb
+          name: nfs-influx-db
+          subPath: influxdb
+        - mountPath: /etc/localtime
+          name: tz-config
+      restartPolicy: Always
+      volumes:
+      - name: nfs-influx-db
+        persistentVolumeClaim:
+          claimName: nfs-storage-dev
+      - hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
+          type: ""
+        name: tz-config

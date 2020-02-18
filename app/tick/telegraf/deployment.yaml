@@ -1,0 +1,102 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    app: monitoring
+  name: monitoring
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: monitoring
+  template:
+    metadata:
+      labels:
+        app: monitoring
+      name: monitoring
+    spec:
+      containers:
+      - env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: HOST_PROC
+          value: /rootfs/proc
+        - name: HOST_SYS
+          value: /rootfs/sys
+        - name: MONITOR_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: monitor_username
+              name: monitoring
+        - name: MONITOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: monitor_password
+              name: monitoring
+        - name: MONITOR_HOST
+          valueFrom:
+            secretKeyRef:
+              key: monitor_host
+              name: monitoring
+        - name: MONITOR_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: monitor_database
+              name: monitoring
+        image: telegraf:1.13
+        imagePullPolicy: IfNotPresent
+        name: telegraf
+        resources:
+          limits:
+            cpu: "1"
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 250Mi
+        volumeMounts:
+        - mountPath: /rootfs/sys
+          name: sys
+          readOnly: true
+        - mountPath: /rootfs/proc
+          name: proc
+          readOnly: true
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        - mountPath: /var/run/utmp
+          name: utmp
+          readOnly: true
+        - mountPath: /etc/telegraf
+          name: config
+        - mountPath: /etc/localtime
+          name: tz-config
+      restartPolicy: Always
+      serviceAccount: monitoring
+      serviceAccountName: monitoring
+      volumes:
+      - hostPath:
+          path: /sys
+          type: ""
+        name: sys
+      - hostPath:
+          path: /var/run/docker.sock
+          type: ""
+        name: docker-socket
+      - hostPath:
+          path: /proc
+          type: ""
+        name: proc
+      - hostPath:
+          path: /var/run/utmp
+          type: ""
+        name: utmp
+      - configMap:
+          defaultMode: 420
+          name: monitoring
+        name: config
+      - hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
+          type: ""
+        name: tz-config

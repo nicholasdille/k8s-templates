@@ -1,0 +1,38 @@
+apiVersion: v1
+data:
+  telegraf.conf: |
+    [global_tags]
+    [agent]
+    hostname = "$HOSTNAME"
+    [[outputs.influxdb]]
+    urls = ["$MONITOR_HOST"]
+    database = "$MONITOR_DATABASE"
+    retention_policy = "30_days"
+    timeout = "5s"
+    username = "$MONITOR_USERNAME"
+    password = "$MONITOR_PASSWORD"
+    [[inputs.cpu]]
+    percpu = true
+    totalcpu = true
+    collect_cpu_time = false
+    report_active = false
+    [[inputs.disk]]
+    ignore_fs = ["tmpfs", "devtmpfs", "devfs"]
+    [[inputs.diskio]]
+    [[inputs.kernel]]
+    [[inputs.mem]]
+    [[inputs.processes]]
+    [[inputs.swap]]
+    [[inputs.system]]
+    [[inputs.docker]]
+    endpoint = "unix:///var/run/docker.sock"
+    [[inputs.kubernetes]]
+    url = "https://$HOSTNAME:10250"
+    insecure_skip_verify = true
+    bearer_token = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+kind: ConfigMap
+metadata:
+  labels:
+    app: monitoring
+  name: monitoring
+  namespace: default

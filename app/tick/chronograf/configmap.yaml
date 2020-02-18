@@ -1,0 +1,23 @@
+apiVersion: v1
+data:
+  maas.src: |
+    {
+      "id": "1",
+      "name":"MaaS InfluxDB",
+      "username": "{{ .INFLUXDB_USERNAME }}",
+      "password": "{{ .INFLUXDB_PASSWORD }}",
+      "url": "{{ .INFLUXDB_HOSTNAME }}",
+      "type": "influx",
+      "insecureSkipVerify": false,
+      "default": true,
+      "telegraf": "{{ .INFLUXDB_DATABASE }}",
+      "organization": "default"
+    }
+kind: ConfigMap
+metadata:
+  labels:
+    app: maas
+    instance: dev
+    service: chronograf
+  name: chronograf
+  namespace: maas-dev
