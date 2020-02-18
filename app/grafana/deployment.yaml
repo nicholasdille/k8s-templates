@@ -1,0 +1,225 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: maas
+    instance: dev
+    service: grafana
+  name: grafana
+  namespace: maas-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: grafana
+  template:
+    metadata:
+      labels:
+        app: maas
+        instance: dev
+        service: grafana
+    spec:
+      containers:
+      - env:
+        - name: GF_SERVER_ROOT_URL
+          value: https://dev.maas.haufedev.systems
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: grafana-admin-pass
+              name: maas-dev
+        - name: GF_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: GF_DATABASE_TYPE
+          value: mysql
+        - name: GF_DATABASE_HOST
+          value: mysql-grafana:3306
+        - name: GF_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: GF_DATABASE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        envFrom:
+        - configMapRef:
+            name: telegraf-env
+        image: grafana/grafana:latest
+        imagePullPolicy: Always
+        name: grafana
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 250Mi
+        volumeMounts:
+        - mountPath: /etc/localtime
+          name: tz-config
+      - args:
+        - -config.file=/etc/promtail/promtail.yaml
+        - -client.url=http://loki:3100/loki/api/v1/push
+        image: grafana/promtail:latest
+        imagePullPolicy: Always
+        name: promtail
+        volumeMounts:
+        - mountPath: /etc/promtail
+          name: config
+        - mountPath: /run/promtail
+          name: run
+        - mountPath: /var/lib/docker/containers
+          name: docker
+          readOnly: true
+        - mountPath: /var/log/pods
+          name: pods
+          readOnly: true
+        - mountPath: /etc/localtime
+          name: tz-config
+      restartPolicy: Always
+      volumes:
+      - hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
+          type: ""
+        name: tz-config
+      - configMap:
+          defaultMode: 420
+          name: grafana-promtail
+        name: config
+      - hostPath:
+          path: /run/promtail
+          type: ""
+        name: run
+      - hostPath:
+          path: /var/lib/docker/containers
+          type: ""
+        name: docker
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: pods
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: maas
+    instance: dev
+    service: mysql-grafana
+  name: mysql-grafana
+  namespace: maas-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mysql-grafana
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: maas
+        instance: dev
+        service: mysql-grafana
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-root-pass
+              name: maas-dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        image: mysql
+        imagePullPolicy: Always
+        name: mysql-grafana
+        ports:
+        - containerPort: 3306
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 500Mi
+          requests:
+            cpu: 250m
+            memory: 250Mi
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: nfs-mysql-grafana
+          subPath: mysql
+        - mountPath: /etc/mysql/conf.d/
+          name: config
+        - mountPath: /etc/localtime
+          name: tz-config
+      - args:
+        - -config.file=/etc/promtail/promtail.yaml
+        - -client.url=http://loki:3100/loki/api/v1/push
+        image: grafana/promtail:latest
+        imagePullPolicy: Always
+        name: promtail
+        volumeMounts:
+        - mountPath: /etc/promtail
+          name: config-promtail
+        - mountPath: /run/promtail
+          name: run
+        - mountPath: /var/lib/docker/containers
+          name: docker
+          readOnly: true
+        - mountPath: /var/log/pods
+          name: pods
+          readOnly: true
+        - mountPath: /etc/localtime
+          name: tz-config
+      restartPolicy: Always
+      volumes:
+      - name: nfs-mysql-grafana
+        persistentVolumeClaim:
+          claimName: nfs-storage-dev
+      - configMap:
+          defaultMode: 420
+          name: mysql-grafana
+        name: config
+      - configMap:
+          defaultMode: 420
+          name: mysql-promtail
+        name: config-promtail
+      - hostPath:
+          path: /run/promtail
+          type: ""
+        name: run
+      - hostPath:
+          path: /var/lib/docker/containers
+          type: ""
+        name: docker
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: pods
+      - hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
+          type: ""
+        name: tz-config
