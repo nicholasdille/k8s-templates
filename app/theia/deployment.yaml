@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: theia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: theia
+  template:
+    metadata:
+      labels:
+        app: theia
+    spec:
+      containers:
+        - name: theia
+          image: theiaide/theia:latest
+          imagePullPolicy: Always
+          ports:
+          - name: web
+            containerPort: 3000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: theia
+spec:
+  selector:
+    app: theia
+  ports:
+  - name: web
+    port: 80
+    targetPort: 3000

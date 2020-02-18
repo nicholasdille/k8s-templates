@@ -1,0 +1,19 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: shelinabox
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    ingress.kubernetes.io/auth-type: "basic"
+    ingress.kubernetes.io/auth-secret: "registry-auth"
+spec:
+  rules:
+  - host: ide${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: theia
+          servicePort: web
