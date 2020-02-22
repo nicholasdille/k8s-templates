@@ -1,0 +1,82 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-triggers
+    app.kubernetes.io/component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-triggers-controller
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+      labels:
+        app: tekton-triggers-controller
+    spec:
+      serviceAccountName: tekton-triggers-controller
+      containers:
+      - name: tekton-triggers-controller
+        image: gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/controller@sha256:0681945bcbe2177cd7c72aa417b66f8edd191ad1f229051420cbe7a81e6c097c
+        args: ["-logtostderr", "-stderrthreshold", "INFO", "-el-image", "gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/eventlistenersink@sha256:5d8d2c94fe995b35b722cb816507959ee3ce82f16936d6fad0e206c488821b96",
+          "-el-port", "8080"]
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONFIG_LOGGING_NAME
+          value: config-logging-triggers
+        - name: CONFIG_OBSERVABILITY_NAME
+          value: config-observability-triggers
+        - name: METRICS_DOMAIN
+          value: tekton.dev/triggers
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging-triggers
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-triggers-webhook
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-triggers
+    app.kubernetes.io/component: webhook-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-triggers-webhook
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+      labels:
+        app: tekton-triggers-webhook
+    spec:
+      serviceAccountName: tekton-triggers-controller
+      containers:
+      - name: webhook
+        image: gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/webhook@sha256:be0046ce57914e08aabd2b18ba3309b0f310c39c31ab972f55c5c5a47b740377
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging-triggers
