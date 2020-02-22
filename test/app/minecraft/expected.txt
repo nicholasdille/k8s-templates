@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: minecraft
+  template:
+    metadata:
+      labels:
+        pod: minecraft
+    spec:
+      containers:
+      - name: main
+        image: nicholasdille/waterfall:1.15
+        ports:
+        - containerPort: 25565
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: minecraft
+      port: 25565
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minecraft
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft
+  namespace: minecraft
+spec:
+  selector:
+    pod: minecraft
+  ports:
+  - protocol: TCP
+    port: 25565
+    targetPort: 25565

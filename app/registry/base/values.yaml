@@ -1,0 +1,9 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+registry:
+  version: 2
+  namespace: registry
+  matchLabels:
+    pod: registry
+  fqdn: reg.example.com

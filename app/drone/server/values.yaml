@@ -1,0 +1,14 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+drone:
+  version: 1.6
+  namespace: drone
+  matchLabels:
+    pod: drone
+  fqdn: ci.example.com
+  protocol: http
+  url: http://ci.example.com
+  secret: mydronesecret
+  admin:
+    password: "4a93d742480b7ee93d1b2dd280a7771f"

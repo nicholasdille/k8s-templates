@@ -44,3 +44,15 @@ test/overlay/%/result.txt: ; $(info $(M) Testing $@...)
 	    ytt -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
 	fi; \
 	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt
+
+.PHONY:
+ytt: ytt-master
+
+.PHONY:
+ytt-%:
+	@set -o errexit; \
+	mkdir -p bin; \
+	docker build --tag ytt:$* --build-arg REF=$* --file docker/Dockerfile docker; \
+	docker create --name ytt_$* ytt:$*; \
+	docker cp ytt_$*:/ytt bin/ytt; \
+	docker rm ytt_$*

@@ -1,10 +1,10 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:json", "json")
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dind
+  namespace: #@ data.values.drone.namespace
 data:
-  daemon.json: |
-    {
-      "insecure-registries" : ["registry:5000"]
-    }
+  daemon.json: #@ json.encode(data.values.drone.docker)

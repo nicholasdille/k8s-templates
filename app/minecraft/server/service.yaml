@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft
+  namespace: #@ data.values.minecraft.namespace
+spec:
+  selector: #@ data.values.minecraft.matchLabels
+  ports:
+    - protocol: TCP
+      port: #@ data.values.minecraft.port
+      targetPort: #@ data.values.minecraft.port

@@ -1,0 +1,60 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server
+  namespace: #@ data.values.gitlab.namespace
+data:
+  #@yaml/text-templated-strings
+  GITLAB_OMNIBUS_CONFIG: |
+    # GitLab Pages
+    pages_external_url 'http://gitlab.dille.io'
+    # Required due to https://gitlab.com/gitlab-org/gitlab-pages/issues/129
+    gitlab_pages['inplace_chroot'] = true
+    # Set listen-proxy when behind reverse proxy. see https://docs.gitlab.com/ee/administration/pages/#configure-listener-for-reverse-proxy-requests
+    gitlab_pages['listen_proxy'] = "0.0.0.0:8090"
+
+    # Initial password for user root
+    gitlab_rails['initial_root_password'] = "AAA"
+
+    # Public name and SSL offloading
+    external_url 'https://gitlab.dille.io'
+    nginx['listen_port'] = 80
+    nginx['listen_https'] = false
+
+    # External gitaly
+    gitaly['enable'] = false
+    git_data_dirs({
+      'default' => { 'path' => '/var/opt/gitlab-data/git-data/repositories', 'gitaly_address' => 'tcp://gitaly:8075' },
+    })
+    gitlab_rails['gitaly_token'] = "(@= data.values.gitlab.gitaly.token @)"
+
+    # Misc
+    gitlab_rails['lfs_enabled'] = true
+
+    # External postgres
+    postgresql['enable'] = false
+    gitlab_rails['db_adapter'] = 'postgresql'
+    gitlab_rails['db_encoding'] = 'utf8'
+    gitlab_rails['db_host'] = 'db'
+    gitlab_rails['db_port'] = '5432'
+    gitlab_rails['db_database'] = 'gitlab'
+    gitlab_rails['db_username'] = 'gitlab'
+    gitlab_rails['db_password'] = '(@= data.values.gitlab.db.password @)'
+
+    # External redis
+    redis['enable'] = false
+    gitlab_rails['redis_host'] = 'redis'
+    gitlab_rails['redis_port'] = 6379
+    gitlab_rails['redis_password'] = '(@= data.values.gitlab.redis.password @)'
+
+    # prometheus
+    prometheus['enable'] = false
+    gitlab_monitor['listen_address'] = '0.0.0.0'
+    gitlab_monitor['listen_port'] = '9168'
+    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    redis_exporter['listen_address'] = '0.0.0.0:9121'
+    postgres_exporter['listen_address'] = '0.0.0.0:9187'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8','10.42.0.0/16']

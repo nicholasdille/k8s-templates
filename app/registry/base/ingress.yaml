@@ -1,19 +1,18 @@
+#@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
   name: registry
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
-    ingress.kubernetes.io/auth-type: "basic"
-    ingress.kubernetes.io/auth-secret: "registry-auth"
+  namespace: #@ data.values.registry.namespace
 spec:
-  rules:
-  - host: hub${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}
-    http:
-      paths:
-      - path: /v2
-        backend:
-          serviceName: registry
-          servicePort: api
+  entryPoints:
+  - http
+  routes:
+  - match: #@ "Host(`{}`) && PathPrefix(`/v2`)".format(data.values.registry.fqdn)
+    kind: Rule
+    priority: 12
+    services:
+    - name: registry
+      port: 5000
+      strategy: RoundRobin

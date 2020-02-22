@@ -1,17 +1,18 @@
+#@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
   name: drone
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+  namespace: #@ data.values.drone.namespace
 spec:
-  rules:
-  - host: ci${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: drone
-          servicePort: web
+  entryPoints:
+    - http
+  routes:
+    - match: #@ "Host(`{}`)".format(data.values.drone.fqdn)
+      kind: Rule
+      priority: 12
+      services:
+      - name: drone
+        port: 80
+        strategy: RoundRobin

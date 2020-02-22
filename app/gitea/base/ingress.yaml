@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitea
+  namespace: #@ data.values.gitea.namespace
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: #@ "Host(`{}`)".format(data.values.gitea.fqdn)
+    kind: Rule
+    priority: 12
+    services:
+    - name: gitea
+      port: 80
+      strategy: RoundRobin

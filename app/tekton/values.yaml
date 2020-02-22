@@ -1,0 +1,4 @@
+#@data/values
+---
+tekton:
+  namespace: tekton-pipelines

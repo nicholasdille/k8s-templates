@@ -1,59 +1,48 @@
-apiVersion: extensions/v1beta1
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: drone
+  namespace: #@ data.values.drone.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: drone
+    matchLabels: #@ data.values.drone.matchLabels
   template:
     metadata:
-      labels:
-        app: drone
+      labels: #@ data.values.drone.matchLabels
     spec:
       containers:
         - name: drone
-          image: drone/drone:0.8
+          image: #@ "drone/drone:{}".format(data.values.drone.version)
           imagePullPolicy: Always
           ports:
           - name: web
-            containerPort: 8000
+            containerPort: 80
           - name: other
             containerPort: 9000
           env:
-          - name: DRONE_OPEN
-            value: "true"
-          - name: DRONE_HOST
-            value: "http://127.0.0.1"
-          - name: DRONE_GITEA
-            value: "true"
-          - name: DRONE_GITEA_URL
-            value: "https://git${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}"
-          - name: DRONE_SECRET
-            value: "mydronesecret"
-          - name: DRONE_ADMIN
-            value: "admin,groot"
-          volumeMounts:
-          - name: drone-data
-            mountPath: "/var/lib/drone"
-      volumes:
-        - name: drone-data
-          hostPath:
-            path: /data/drone-data
-            type: DirectoryOrCreate
+          - name: DRONE_RPC_SECRET
+            value: #@ data.values.drone.secret
+          - name: DRONE_SERVER_HOST
+            value: #@ data.values.drone.fqdn
+          - name: DRONE_SERVER_PROTO
+            value: "http"
+          - name: DRONE_USER_CREATE
+            value: #@ "username:{},machine:false,admin:true,token:{}".format("admin", data.values.drone.admin.password)
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: drone
+  namespace: #@ data.values.drone.namespace
 spec:
-  selector:
-    app: drone
+  selector: #@ data.values.drone.matchLabels
   ports:
   - name: web
     port: 80
-    targetPort: 8000
+    targetPort: 80
   - name: other
     port: 9000
     targetPort: 9000

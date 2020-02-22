@@ -1,56 +1,34 @@
+#@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: registry
+  namespace: #@ data.values.registry.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: registry
+    matchLabels: #@ data.values.registry.matchLabels
   template:
     metadata:
-      labels:
-        app: registry
+      labels: #@ data.values.registry.matchLabels
     spec:
       containers:
-        - name: registry
-          image: registry:2
-          imagePullPolicy: Always
-          ports:
-          - name: api
-            containerPort: 5000
-          volumeMounts:
-          - name: registry-data
-            mountPath: "/var/lib/registry"
-      volumes:
-        - name: registry-data
-          hostPath:
-            path: /data/registry-data
-            type: DirectoryOrCreate
+      - name: registry
+        image: #@ "registry:{}".format(data.values.registry.version)
+        imagePullPolicy: Always
+        ports:
+        - name: api
+          containerPort: 5000
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: registry
+  namespace: #@ data.values.registry.namespace
 spec:
-  selector:
-    app: registry
+  selector: #@ data.values.registry.matchLabels
   ports:
   - name: api
     port: 5000
     targetPort: 5000
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: registry-host
-spec:
-  selector:
-    app: registry
-  ports:
-  - name: api
-    port: 5000
-    nodePort: 5000
-    targetPort: 5000
-  type: NodePort

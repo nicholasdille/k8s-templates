@@ -1,0 +1,39 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: #@ data.values.gitlab.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.gitlab.server.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.gitlab.server.matchLabels
+    spec:
+      containers:
+      - name: main
+        image: #@ "gitlab/gitlab-ce:{}-ce.0".format(data.values.gitlab.version)
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: server
+              key: GITLAB_OMNIBUS_CONFIG
+        ports:
+        - name: server
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: #@ data.values.gitlab.namespace
+spec:
+  selector: #@ data.values.gitlab.server.matchLabels
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

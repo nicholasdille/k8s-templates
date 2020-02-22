@@ -1,0 +1,39 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: #@ data.values.gitea.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.gitea.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.gitea.matchLabels
+    spec:
+      containers:
+      - name: gitea
+        image: #@ "gitea/gitea:{}".format(data.values.gitea.version)
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 3000
+        env:
+        - name: SSH_PORT
+          value: #@ "{}".format(data.values.gitea.ssh_port)
+        - name: ROOT_URL
+          value: #@ data.values.gitea.url
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gitea
+  namespace: #@ data.values.gitea.namespace
+spec:
+  selector: #@ data.values.gitea.matchLabels
+  ports:
+  - name: web
+    port: 80
+    targetPort: 3000

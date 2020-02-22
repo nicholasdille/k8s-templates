@@ -1,0 +1,11 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+gitea:
+  version: 1.11
+  namespace: gitea
+  matchLabels:
+    pod: gitea
+  fqdn: git.example.com
+  url: http://git.example.com
+  ssh_port: 2222

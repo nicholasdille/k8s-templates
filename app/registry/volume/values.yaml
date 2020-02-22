@@ -1,0 +1,10 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+registry:
+  #@overlay/match missing_ok=True
+  volume:
+  - name: registry-data
+    hostPath:
+      path: /data/registry-data
+      type: DirectoryOrCreate

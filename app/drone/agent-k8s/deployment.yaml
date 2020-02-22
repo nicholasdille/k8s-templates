@@ -1,0 +1,31 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-k8s
+  namespace: #@ data.values.drone.namespace
+  labels:
+    app.kubernetes.io/name: drone-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: drone-k8s
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: drone-k8s
+    spec:
+      containers:
+      - name: runner
+        image: drone/drone-runner-kube:latest
+        env:
+        - name: DRONE_RPC_HOST
+          value: #@ data.values.drone.fqdn
+        - name: DRONE_RPC_PROTO
+          value: #@ data.values.drone.protocol
+        - name: DRONE_RPC_SECRET
+          value: #@ data.values.drone.secret
+        - name: DRONE_RUNNER_CAPACITY
+          value: "1"

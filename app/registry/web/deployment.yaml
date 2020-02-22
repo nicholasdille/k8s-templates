@@ -1,7 +1,10 @@
-apiVersion: extensions/v1beta1
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: registry-web
+  namespace: #@ data.values.registry.namespace
 spec:
   replicas: 1
   selector:
@@ -13,22 +16,23 @@ spec:
         app: registry-web
     spec:
       containers:
-        - name: registry-web
-          image: konradkleine/docker-registry-frontend:v2
-          imagePullPolicy: Always
-          ports:
-          - name: web
-            containerPort: 80
-          env:
-          - name: ENV_DOCKER_REGISTRY_HOST
-            value: "registry"
-          - name: ENV_DOCKER_REGISTRY_PORT
-            value: "5000"
+      - name: registry-web
+        image: konradkleine/docker-registry-frontend:v2
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 80
+        env:
+        - name: ENV_DOCKER_REGISTRY_HOST
+          value: "registry"
+        - name: ENV_DOCKER_REGISTRY_PORT
+          value: "5000"
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: registry-web
+  namespace: #@ data.values.registry.namespace
 spec:
   selector:
     app: registry-web

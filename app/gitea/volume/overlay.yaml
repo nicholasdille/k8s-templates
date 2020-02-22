@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "gitea"}})),expects="1+"
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      volumes: #@ data.values.gitea.volume
+      containers:
+      #@overlay/match by="name"
+      - name: gitea
+        #@overlay/match missing_ok=True
+        volumeMounts:
+        #@overlay/match by="name"
+        - name: gitea-data  
+          mountPath: "/var/lib/drone"

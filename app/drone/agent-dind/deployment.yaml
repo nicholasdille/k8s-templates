@@ -1,7 +1,10 @@
-apiVersion: extensions/v1beta1
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: drone-agent
+  namespace: #@ data.values.drone.namespace
 spec:
   replicas: 1
   selector:
@@ -14,17 +17,24 @@ spec:
     spec:
       containers:
         - name: drone-agent
-          image: drone/agent:0.8
+          image: #@ "drone/agent:{}".format(data.values.drone.version)
           imagePullPolicy: Always
           env:
-          - name: DRONE_SERVER
-            value: "drone:9000"
-          - name: DRONE_SECRET
-            value: "mydronesecret"
+          - name: DRONE_RPC_HOST
+            value: #@ data.values.drone.fqdn
+          - name: DRONE_RPC_PROTO
+            value: #@ data.values.drone.protocol
+          - name: DRONE_RPC_SECRET
+            value: #@ data.values.drone.secret
+          - name: DRONE_RUNNER_CAPACITY
+            value: 1
           - name: DOCKER_HOST
             value: "tcp://localhost:2375"
         - name: dind
           image: docker:stable-dind
+          args:
+          - --host
+          - 0.0.0.0:2375
           imagePullPolicy: Always
           securityContext:
             privileged: true

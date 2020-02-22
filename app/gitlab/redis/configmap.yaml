@@ -1,0 +1,36 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis
+  namespace: #@ data.values.gitlab.namespace
+data:
+  #@yaml/text-templated-strings
+  GITLAB_OMNIBUS_CONFIG: |
+    external_url 'https://gitlab.dille.io'
+
+    # Disable all services except Redis
+    redis_master_role['enable'] = true
+
+    # Redis configuration
+    redis['port'] = 6379
+    redis['bind'] = '0.0.0.0'
+
+    # If you wish to use Redis authentication (recommended)
+    redis['password'] = '(@= data.values.gitlab.redis.password @)'
+    gitlab_rails['redis_password'] = '(@= data.values.gitlab.redis.password @)'
+
+    # Disable automatic database migrations
+    #   Only the primary GitLab application server should handle migrations
+    gitlab_rails['auto_migrate'] = false
+
+    # prometheus
+    prometheus['enable'] = false
+    gitlab_monitor['listen_address'] = '0.0.0.0'
+    gitlab_monitor['listen_port'] = '9168'
+    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    redis_exporter['listen_address'] = '0.0.0.0:9121'
+    postgres_exporter['listen_address'] = '0.0.0.0:9187'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8','10.42.0.0/16']

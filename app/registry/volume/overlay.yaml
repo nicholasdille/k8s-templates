@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "registry"}})),expects="1+"
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      volumes: #@ data.values.registry.volume
+      containers:
+      #@overlay/match by="name"
+      - name: registry
+        #@overlay/match missing_ok=True
+        volumeMounts:
+        #@overlay/match by="name"
+        - name: registry-data  
+          mountPath: "/var/lib/registry"

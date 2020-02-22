@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft
+  namespace: #@ data.values.minecraft.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.minecraft.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.minecraft.matchLabels
+    spec:
+      containers:
+      - name: main
+        image: nicholasdille/waterfall:1.15
+        ports:
+        - containerPort: #@ data.values.minecraft.port

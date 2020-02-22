@@ -1,0 +1,26 @@
+#@data/values
+---
+gitlab:
+  version: 12.7.5
+  namespace: gitlab
+  server:
+    matchLabels:
+      pod: server
+    admin:
+      password: pp4QywO7fqw25jocvzdU6g==
+  gitaly:
+    matchLabels:
+      pod: gitaly
+    token: RB1OK5Cnbj1+dzHakasbMw==
+  redis:
+    matchLabels:
+      pod: redis
+    password: WLZxbUpLVTQFngqiCdt/sg==
+  db:
+    version: 9.6
+    matchLabels:
+      pod: db
+    password: uLhEv7zzkvQGy879F5FUhQ==
+  volume:
+    storageClass: hcloud-volumes
+  fqdn: gitlab.freecastle.eu
