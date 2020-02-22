@@ -2,3 +2,6 @@
 ---
 tekton:
   namespace: tekton-pipelines
+  volume:
+    size: 1Gi
+    storageClass: hcloud-volumes

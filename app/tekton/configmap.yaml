@@ -3,14 +3,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config-artifact-bucket
-  namespace: #@ data.values.tekton.namespace
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
   name: config-artifact-pvc
   namespace: #@ data.values.tekton.namespace
+data:
+  size: #@ data.values.tekton.volume.size
+  storageClass: #@ data.values.tekton.volume.storageClass
 ---
 apiVersion: v1
 kind: ConfigMap
