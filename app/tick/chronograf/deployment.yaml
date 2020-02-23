@@ -1,26 +1,24 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  labels:
-    app: maas
-    instance: dev
-    service: chronograf
   name: chronograf
-  namespace: maas-dev
+  namespace: #@ data.values.tick.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      service: chronograf
+    matchLabels: #@ data.values.tick.chronograf.matchLabels
   template:
     metadata:
-      labels:
-        app: maas
-        instance: dev
-        service: chronograf
+      labels: #@ data.values.tick.chronograf.matchLabels
     spec:
+      restartPolicy: Always
       containers:
-      - env:
+      - name: main
+        image: chronograf:alpine
+        imagePullPolicy: Always
+        env:
         - name: RESOURCES_PATH
           value: /usr/share/chronograf/resources
         - name: INFLUXDB_HOSTNAME
@@ -40,9 +38,6 @@ spec:
             configMapKeyRef:
               key: influxdb-db-name
               name: maas-dev
-        image: chronograf:alpine
-        imagePullPolicy: Always
-        name: chronograf
         ports:
         - containerPort: 8888
           name: http
@@ -54,18 +49,3 @@ spec:
           requests:
             cpu: 250m
             memory: 100Mi
-        volumeMounts:
-        - mountPath: /usr/share/chronograf/resources
-          name: datasources
-        - mountPath: /etc/localtime
-          name: tz-config
-      restartPolicy: Always
-      volumes:
-      - configMap:
-          defaultMode: 420
-          name: chronograf
-        name: datasources
-      - hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
-          type: ""
-        name: tz-config

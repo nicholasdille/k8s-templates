@@ -1,0 +1,59 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-grafana
+  namespace: #@ data.values.grafana.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.grafana.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.grafana.matchLabels
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: mysql-grafana
+        image: mysql
+        imagePullPolicy: Always
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-root-pass
+              name: maas-dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        ports:
+        - containerPort: 3306
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: nfs-mysql-grafana
+          subPath: mysql
+        - mountPath: /etc/mysql/conf.d/
+          name: config
+      volumes:
+      - name: nfs-mysql-grafana
+        persistentVolumeClaim:
+          claimName: nfs-storage-dev
+      - configMap:
+          defaultMode: 420
+          name: mysql-grafana
+        name: config

@@ -1,0 +1,149 @@
+apiVersion: v1
+data:
+  promtail.yaml: "client:\n  backoff_config:\n    maxbackoff: 5s\n    maxretries:
+    20\n    minbackoff: 100ms\n  batchsize: 102400\n  batchwait: 1s\n  external_labels:
+    {}\n  timeout: 10s\npositions:\n  filename: /run/promtail/positions.yaml\nserver:\n
+    \ http_listen_port: 3101\ntarget_config:\n  sync_period: 10s\n\nscrape_configs:\n-
+    job_name: system          \n  entry_parser: raw          \n  static_configs:\n
+    \   - targets:\n        - localhost\n      labels:\n        namespace: maas-dev
+    \               \n        app: maas\n        service: chronograf               \n
+    \       __path__: /var/log/pods/maas-dev_chronograf-*/chronograf/*\n"
+kind: ConfigMap
+metadata:
+  name: promtail
+  namespace: loki
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  labels:
+    service: promtail
+  name: promtail
+  namespace: loki
+spec:
+  selector:
+    matchLabels:
+      pod: promtail
+  template:
+    metadata:
+      labels:
+        pod: promtail
+    spec:
+      containers:
+      - args:
+        - -config.file=/etc/promtail/promtail.yaml
+        - -client.url=http://loki.example.com/loki/api/v1/push
+        env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        image: grafana/promtail:v0.4.0
+        imagePullPolicy: IfNotPresent
+        name: promtail
+        ports:
+        - containerPort: 3101
+          name: http-metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsGroup: 0
+          runAsUser: 0
+        volumeMounts:
+        - mountPath: /etc/promtail
+          name: config
+        - mountPath: /run/promtail
+          name: run
+        - mountPath: /var/lib/docker/containers
+          name: docker
+          readOnly: true
+        - mountPath: /var/log/pods
+          name: pods
+          readOnly: true
+      restartPolicy: Always
+      serviceAccount: promtail
+      serviceAccountName: promtail
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: promtail
+        name: config
+      - hostPath:
+          path: /run/promtail
+          type: ""
+        name: run
+      - hostPath:
+          path: /var/lib/docker/containers
+          type: ""
+        name: docker
+      - hostPath:
+          path: /var/log/pods
+          type: ""
+        name: pods
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: server
+  namespace: loki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: loki
+  serviceName: server-headless
+  template:
+    metadata:
+      labels:
+        pod: loki
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: grafana/loki
+        imagePullPolicy: IfNotPresent
+        args:
+        - -config.file=/etc/loki/loki.yaml
+        ports:
+        - containerPort: 3100
+          name: http-metrics
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http-metrics
+            scheme: HTTP
+          initialDelaySeconds: 45
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /etc/loki
+          name: config
+      volumes:
+      - name: config
+        secret:
+          defaultMode: 420
+          secretName: loki

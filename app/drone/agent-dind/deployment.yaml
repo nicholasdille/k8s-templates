@@ -3,20 +3,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: drone-agent
+  name: agent
   namespace: #@ data.values.drone.namespace
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: drone-agent
+      app: agent
   template:
     metadata:
       labels:
-        app: drone-agent
+        app: agent
     spec:
       containers:
-        - name: drone-agent
+        - name: main
           image: #@ "drone/agent:{}".format(data.values.drone.version)
           imagePullPolicy: Always
           env:

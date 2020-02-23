@@ -1,20 +1,21 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: shellinabox
+  namespace: #@ data.values.siab.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: shellinabox
+    matchLabels: #@ data.values.siab.matchLabels
   template:
     metadata:
-      labels:
-        app: shellinabox
+      labels: #@ data.values.siab.matchLabels
     spec:
       containers:
         - name: shellinabox
-          image: localhost:5000/groot/shellinabox:dev
+          image: nicholasdille/shellinabox
           imagePullPolicy: Always
           ports:
           - name: web
@@ -23,16 +24,4 @@ spec:
           - name: USERNAME
             value: "user"
           - name: PASSWORD
-            value: "'Tismeilap00"
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: shellinabox
-spec:
-  selector:
-    app: shellinabox
-  ports:
-  - name: web
-    port: 80
-    targetPort: 4200
+            value: #@ data.values.siab.password

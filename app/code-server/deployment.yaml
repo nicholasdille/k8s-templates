@@ -1,0 +1,22 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeserver
+  namespace: #@ data.values.codeServer.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.codeServer.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.codeServer.matchLabels
+    spec:
+      containers:
+        - name: main
+          image: codercom/code-server
+          imagePullPolicy: Always
+          ports:
+          - name: web
+            containerPort: 80

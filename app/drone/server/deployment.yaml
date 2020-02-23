@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: drone
+  name: server
   namespace: #@ data.values.drone.namespace
 spec:
   replicas: 1
@@ -14,7 +14,7 @@ spec:
       labels: #@ data.values.drone.matchLabels
     spec:
       containers:
-        - name: drone
+        - name: main
           image: #@ "drone/drone:{}".format(data.values.drone.version)
           imagePullPolicy: Always
           ports:
@@ -35,7 +35,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: drone
+  name: server
   namespace: #@ data.values.drone.namespace
 spec:
   selector: #@ data.values.drone.matchLabels

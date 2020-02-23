@@ -1,4 +1,10 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db
+  namespace: #@ data.values.grafana.namespace
 data:
   docker.cnf: |
     [mysqld]
@@ -7,11 +13,3 @@ data:
   mysql.cnf: |
     [mysqld]
     max_connections = 50
-kind: ConfigMap
-metadata:
-  labels:
-    app: maas
-    instance: dev
-    service: mysql-grafana
-  name: mysql-grafana
-  namespace: maas-dev

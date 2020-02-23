@@ -1,0 +1,51 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: #@ data.values.grafana.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.grafana.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.grafana.matchLabels
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        imagePullPolicy: Always
+        env:
+        - name: GF_SERVER_ROOT_URL
+          value: https://dev.maas.haufedev.systems
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: grafana-admin-pass
+              name: maas-dev
+        - name: GF_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: GF_DATABASE_TYPE
+          value: mysql
+        - name: GF_DATABASE_HOST
+          value: db:3306
+        - name: GF_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: GF_DATABASE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP

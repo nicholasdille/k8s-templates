@@ -1,7 +1,7 @@
 #@ load("@ytt:data", "data")
 #@ load("@ytt:overlay", "overlay")
 
-#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "drone"}})),expects="1+"
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "server"}})),expects="1+"
 ---
 spec:
   template:
@@ -10,9 +10,9 @@ spec:
       volumes: #@ data.values.drone.volume
       containers:
         #@overlay/match by="name"
-        - name: drone
+        - name: main
           #@overlay/match missing_ok=True
           volumeMounts:
           #@overlay/match by="name"
-          - name: drone-data  
+          - name: drone-data
             mountPath: "/var/lib/drone"

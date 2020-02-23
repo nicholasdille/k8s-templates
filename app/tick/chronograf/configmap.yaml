@@ -1,9 +1,15 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chronograf
+  namespace: #@ data.values.tick.namespace
 data:
-  maas.src: |
+  influxdb.src: |
     {
       "id": "1",
-      "name":"MaaS InfluxDB",
+      "name":"InfluxDB",
       "username": "{{ .INFLUXDB_USERNAME }}",
       "password": "{{ .INFLUXDB_PASSWORD }}",
       "url": "{{ .INFLUXDB_HOSTNAME }}",
@@ -13,11 +19,3 @@ data:
       "telegraf": "{{ .INFLUXDB_DATABASE }}",
       "organization": "default"
     }
-kind: ConfigMap
-metadata:
-  labels:
-    app: maas
-    instance: dev
-    service: chronograf
-  name: chronograf
-  namespace: maas-dev

@@ -1,27 +1,24 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  labels:
-    app: maas
-    instance: dev
-    service: influxdb
   name: influxdb
-  namespace: maas-dev
+  namespace: #@ data.values.tick.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      service: influxdb
+    matchLabels: #@ data.values.tick.influxdb.matchLabels
   template:
     metadata:
-      creationTimestamp: null
-      labels:
-        app: maas
-        instance: dev
-        service: influxdb
+      labels: #@ data.values.tick.influxdb.matchLabels
     spec:
+      restartPolicy: Always
       containers:
-      - env:
+      - name: main
+        image: influxdb:latest
+        imagePullPolicy: Always
+        env:
         - name: INFLUXDB_HTTP_AUTH_ENABLED
           value: "true"
         - name: INFLUXDB_DB
@@ -49,9 +46,6 @@ spec:
             configMapKeyRef:
               key: influxdb-user-pass
               name: maas-dev
-        image: influxdb:latest
-        imagePullPolicy: Always
-        name: influxdb
         ports:
         - containerPort: 8086
           name: http
@@ -63,18 +57,3 @@ spec:
           requests:
             cpu: 250m
             memory: 1Gi
-        volumeMounts:
-        - mountPath: /var/lib/influxdb
-          name: nfs-influx-db
-          subPath: influxdb
-        - mountPath: /etc/localtime
-          name: tz-config
-      restartPolicy: Always
-      volumes:
-      - name: nfs-influx-db
-        persistentVolumeClaim:
-          claimName: nfs-storage-dev
-      - hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
-          type: ""
-        name: tz-config

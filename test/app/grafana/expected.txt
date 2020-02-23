@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db
+  namespace: grafana
+data:
+  docker.cnf: |
+    [mysqld]
+    skip-host-cache
+    skip-name-resolve
+  mysql.cnf: |
+    [mysqld]
+    max_connections = 50
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-grafana
+  namespace: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: grafana
+  template:
+    metadata:
+      labels:
+        pod: grafana
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: mysql-grafana
+        image: mysql
+        imagePullPolicy: Always
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-root-pass
+              name: maas-dev
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        ports:
+        - containerPort: 3306
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: nfs-mysql-grafana
+          subPath: mysql
+        - mountPath: /etc/mysql/conf.d/
+          name: config
+      volumes:
+      - name: nfs-mysql-grafana
+        persistentVolumeClaim:
+          claimName: nfs-storage-dev
+      - configMap:
+          defaultMode: 420
+          name: mysql-grafana
+        name: config
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: grafana
+  template:
+    metadata:
+      labels:
+        pod: grafana
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        imagePullPolicy: Always
+        env:
+        - name: GF_SERVER_ROOT_URL
+          value: https://dev.maas.haufedev.systems
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: grafana-admin-pass
+              name: maas-dev
+        - name: GF_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-db-name
+              name: maas-dev
+        - name: GF_DATABASE_TYPE
+          value: mysql
+        - name: GF_DATABASE_HOST
+          value: db:3306
+        - name: GF_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-name
+              name: maas-dev
+        - name: GF_DATABASE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: mysql-user-pass
+              name: maas-dev
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP

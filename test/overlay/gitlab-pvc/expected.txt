@@ -1,0 +1,438 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db
+  namespace: gitlab
+data:
+  install_extensions.sql: |
+    CREATE EXTENSION IF NOT EXISTS pg_trgm;
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: db
+  namespace: gitlab
+spec:
+  schedule: '@daily'
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: main
+            image: postgres:9.6
+            command:
+            - /bin/sh
+            - -c
+            args:
+            - find /var/log/postgresql/data/pg_log/ -type f -name postgresql-\*.log
+              -mtime 2 -exec rm {} \;
+            volumeMounts:
+            - name: db
+              mountPath: /var/lib/postgresql/data
+              subPath: db-data
+          restartPolicy: OnFailure
+          volumes:
+          - name: db
+            persistentVolumeClaim:
+              claimName: gitlab
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: db
+  template:
+    metadata:
+      labels:
+        pod: db
+    spec:
+      volumes:
+      - name: init
+        configMap:
+          name: db
+      - name: db
+        persistentVolumeClaim:
+          claimName: gitlab
+      containers:
+      - name: main
+        image: postgres:9.6
+        env:
+        - name: POSTGRES_DB
+          value: gitlab
+        - name: POSTGRES_USER
+          value: gitlab
+        - name: POSTGRES_PASSWORD
+          value: uLhEv7zzkvQGy879F5FUhQ==
+        volumeMounts:
+        - name: init
+          mountPath: /docker-entrypoint-initdb.d
+        - name: db
+          mountPath: /var/lib/postgresql/data
+          subPath: db-data
+        ports:
+        - name: db
+          containerPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: gitlab
+spec:
+  selector:
+    pod: db
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: gitlab
+spec:
+  endpoints:
+  - dnsName: gitlab.freecastle.eu
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - lb.master.k8s.freecastle.eu
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitaly
+  namespace: gitlab
+data:
+  GITLAB_OMNIBUS_CONFIG: |
+    # Avoid running unnecessary services on the gitaly server
+    postgresql['enable'] = false
+    redis['enable'] = false
+    nginx['enable'] = false
+    unicorn['enable'] = false
+    sidekiq['enable'] = false
+    gitlab_workhorse['enable'] = false
+
+    # Prevent database connections during 'gitlab-ctl reconfigure'
+    gitlab_rails['rake_cache_clear'] = false
+    gitlab_rails['auto_migrate'] = false
+
+    # Configure the gitlab-shell API callback URL. Without this, `git push` will
+    # fail. This can be your 'front door' GitLab URL or an internal load
+    # balancer.
+    gitlab_rails['internal_api_url'] = 'http://server'
+
+    # Fix for authentication against API
+    gitlab_workhorse['auth_backend'] = 'http://server'
+
+    # Make Gitaly accept connections on all network interfaces. You must use
+    # firewalls to restrict access to this address/port.
+    gitaly['listen_addr'] = '0.0.0.0:8075'
+    gitaly['auth_token'] = 'RB1OK5Cnbj1+dzHakasbMw=='
+
+    gitaly['storage'] = [
+      { 'name' => 'default', 'path' => '/var/opt/gitlab-data/git-data/repositories' },
+    ]
+
+    # prometheus
+    prometheus['enable'] = false
+    gitlab_monitor['listen_address'] = '0.0.0.0'
+    gitlab_monitor['listen_port'] = '9168'
+    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    redis_exporter['listen_address'] = '0.0.0.0:9121'
+    postgres_exporter['listen_address'] = '0.0.0.0:9187'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8','10.42.0.0/16']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitaly
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: gitaly
+  template:
+    metadata:
+      labels:
+        pod: gitaly
+    spec:
+      containers:
+      - name: main
+        image: gitlab/gitlab-ce:12.7.5-ce.0
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: gitaly
+              key: GITLAB_OMNIBUS_CONFIG
+        ports:
+        - name: gitaly
+          containerPort: 8075
+        volumeMounts:
+        - name: gitaly
+          mountPath: /var/opt/gitlab
+          subPath: gitaly-data
+        - name: gitaly
+          mountPath: /etc/gitlab
+          subPath: gitaly-config
+        - name: gitaly
+          mountPath: /var/log/gitlab
+          subPath: gitaly-log
+      volumes:
+      - name: gitaly
+        persistentVolumeClaim:
+          claimName: gitlab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitaly
+  namespace: gitlab
+spec:
+  selector:
+    pod: gitaly
+  ports:
+  - protocol: TCP
+    port: 8075
+    targetPort: 8075
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitlab
+  namespace: gitlab
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`gitlab.freecastle.eu`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: server
+      port: 80
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitlab
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis
+  namespace: gitlab
+data:
+  GITLAB_OMNIBUS_CONFIG: |
+    external_url 'https://gitlab.dille.io'
+
+    # Disable all services except Redis
+    redis_master_role['enable'] = true
+
+    # Redis configuration
+    redis['port'] = 6379
+    redis['bind'] = '0.0.0.0'
+
+    # If you wish to use Redis authentication (recommended)
+    redis['password'] = 'WLZxbUpLVTQFngqiCdt/sg=='
+    gitlab_rails['redis_password'] = 'WLZxbUpLVTQFngqiCdt/sg=='
+
+    # Disable automatic database migrations
+    #   Only the primary GitLab application server should handle migrations
+    gitlab_rails['auto_migrate'] = false
+
+    # prometheus
+    prometheus['enable'] = false
+    gitlab_monitor['listen_address'] = '0.0.0.0'
+    gitlab_monitor['listen_port'] = '9168'
+    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    redis_exporter['listen_address'] = '0.0.0.0:9121'
+    postgres_exporter['listen_address'] = '0.0.0.0:9187'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8','10.42.0.0/16']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: redis
+  template:
+    metadata:
+      labels:
+        pod: redis
+    spec:
+      containers:
+      - name: main
+        image: gitlab/gitlab-ce:12.7.5-ce.0
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: redis
+              key: GITLAB_OMNIBUS_CONFIG
+        ports:
+        - name: redis
+          containerPort: 6379
+        volumeMounts:
+        - name: redis
+          mountPath: /var/opt/gitlab
+          subPath: redis-data
+        - name: redis
+          mountPath: /etc/gitlab
+          subPath: redis-config
+        - name: redis
+          mountPath: /var/log/gitlab
+          subPath: redis-log
+      volumes:
+      - name: redis
+        persistentVolumeClaim:
+          claimName: gitlab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: gitlab
+spec:
+  selector:
+    pod: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server
+  namespace: gitlab
+data:
+  GITLAB_OMNIBUS_CONFIG: |
+    # GitLab Pages
+    pages_external_url 'http://gitlab.dille.io'
+    # Required due to https://gitlab.com/gitlab-org/gitlab-pages/issues/129
+    gitlab_pages['inplace_chroot'] = true
+    # Set listen-proxy when behind reverse proxy. see https://docs.gitlab.com/ee/administration/pages/#configure-listener-for-reverse-proxy-requests
+    gitlab_pages['listen_proxy'] = "0.0.0.0:8090"
+
+    # Initial password for user root
+    gitlab_rails['initial_root_password'] = "AAA"
+
+    # Public name and SSL offloading
+    external_url 'https://gitlab.dille.io'
+    nginx['listen_port'] = 80
+    nginx['listen_https'] = false
+
+    # External gitaly
+    gitaly['enable'] = false
+    git_data_dirs({
+      'default' => { 'path' => '/var/opt/gitlab-data/git-data/repositories', 'gitaly_address' => 'tcp://gitaly:8075' },
+    })
+    gitlab_rails['gitaly_token'] = "RB1OK5Cnbj1+dzHakasbMw=="
+
+    # Misc
+    gitlab_rails['lfs_enabled'] = true
+
+    # External postgres
+    postgresql['enable'] = false
+    gitlab_rails['db_adapter'] = 'postgresql'
+    gitlab_rails['db_encoding'] = 'utf8'
+    gitlab_rails['db_host'] = 'db'
+    gitlab_rails['db_port'] = '5432'
+    gitlab_rails['db_database'] = 'gitlab'
+    gitlab_rails['db_username'] = 'gitlab'
+    gitlab_rails['db_password'] = 'uLhEv7zzkvQGy879F5FUhQ=='
+
+    # External redis
+    redis['enable'] = false
+    gitlab_rails['redis_host'] = 'redis'
+    gitlab_rails['redis_port'] = 6379
+    gitlab_rails['redis_password'] = 'WLZxbUpLVTQFngqiCdt/sg=='
+
+    # prometheus
+    prometheus['enable'] = false
+    gitlab_monitor['listen_address'] = '0.0.0.0'
+    gitlab_monitor['listen_port'] = '9168'
+    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
+    node_exporter['listen_address'] = '0.0.0.0:9100'
+    redis_exporter['listen_address'] = '0.0.0.0:9121'
+    postgres_exporter['listen_address'] = '0.0.0.0:9187'
+    gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8','10.42.0.0/16']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: gitlab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: server
+  template:
+    metadata:
+      labels:
+        pod: server
+    spec:
+      containers:
+      - name: main
+        image: gitlab/gitlab-ce:12.7.5-ce.0
+        env:
+        - name: GITLAB_OMNIBUS_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: server
+              key: GITLAB_OMNIBUS_CONFIG
+        ports:
+        - name: server
+          containerPort: 80
+        volumeMounts:
+        - name: server
+          mountPath: /var/opt/gitlab
+          subPath: server-data
+      volumes:
+      - name: server
+        persistentVolumeClaim:
+          claimName: gitlab
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: gitlab
+spec:
+  selector:
+    pod: server
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gitlab
+  namespace: gitlab
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: hcloud-volumes

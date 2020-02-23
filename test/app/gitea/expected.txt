@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: gitea
+  template:
+    metadata:
+      labels:
+        pod: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.11
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 3000
+        env:
+        - name: SSH_PORT
+          value: "2222"
+        - name: ROOT_URL
+          value: http://git.example.com
+        volumeMounts:
+        - name: gitea-data
+          mountPath: /var/lib/drone
+      volumes:
+      - name: gitea-data
+        hostPath:
+          path: /data/gitea-data
+          type: DirectoryOrCreate
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  selector:
+    pod: gitea
+  ports:
+  - name: web
+    port: 80
+    targetPort: 3000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`git.example.com`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: gitea
+      port: 80
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitea

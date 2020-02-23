@@ -1,4 +1,9 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: #@ data.values.tick.namespace
 data:
   telegraf.conf: |
     [global_tags]
@@ -30,9 +35,3 @@ data:
     url = "https://$HOSTNAME:10250"
     insecure_skip_verify = true
     bearer_token = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-kind: ConfigMap
-metadata:
-  labels:
-    app: monitoring
-  name: monitoring
-  namespace: default

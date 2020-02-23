@@ -1,0 +1,6 @@
+#@data/values
+---
+metricsServer:
+  namespace: kube-system
+  matchLabels:
+    k8s-app: metrics-server

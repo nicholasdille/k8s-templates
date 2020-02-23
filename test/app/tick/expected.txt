@@ -1,0 +1,261 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: chronograf
+  namespace: tick
+data:
+  influxdb.src: |
+    {
+      "id": "1",
+      "name":"InfluxDB",
+      "username": "{{ .INFLUXDB_USERNAME }}",
+      "password": "{{ .INFLUXDB_PASSWORD }}",
+      "url": "{{ .INFLUXDB_HOSTNAME }}",
+      "type": "influx",
+      "insecureSkipVerify": false,
+      "default": true,
+      "telegraf": "{{ .INFLUXDB_DATABASE }}",
+      "organization": "default"
+    }
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: chronograf
+  namespace: tick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: influxdb
+  template:
+    metadata:
+      labels:
+        service: influxdb
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: chronograf:alpine
+        imagePullPolicy: Always
+        env:
+        - name: RESOURCES_PATH
+          value: /usr/share/chronograf/resources
+        - name: INFLUXDB_HOSTNAME
+          value: http://influxdb:8086
+        - name: INFLUXDB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-name
+              name: maas-dev
+        - name: INFLUXDB_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-pass
+              name: maas-dev
+        - name: INFLUXDB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-db-name
+              name: maas-dev
+        ports:
+        - containerPort: 8888
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 250Mi
+          requests:
+            cpu: 250m
+            memory: 100Mi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: influxdb
+  namespace: tick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: influxdb
+  template:
+    metadata:
+      labels:
+        service: influxdb
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: influxdb:latest
+        imagePullPolicy: Always
+        env:
+        - name: INFLUXDB_HTTP_AUTH_ENABLED
+          value: "true"
+        - name: INFLUXDB_DB
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-db-name
+              name: maas-dev
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-name
+              name: maas-dev
+        - name: INFLUXDB_ADMIN_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-admin-pass
+              name: maas-dev
+        - name: INFLUXDB_USER
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-user-name
+              name: maas-dev
+        - name: INFLUXDB_USER_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              key: influxdb-user-pass
+              name: maas-dev
+        ports:
+        - containerPort: 8086
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "2"
+            memory: 4Gi
+          requests:
+            cpu: 250m
+            memory: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: tick
+data:
+  telegraf.conf: |
+    [global_tags]
+    [agent]
+    hostname = "$HOSTNAME"
+    [[outputs.influxdb]]
+    urls = ["$MONITOR_HOST"]
+    database = "$MONITOR_DATABASE"
+    retention_policy = "30_days"
+    timeout = "5s"
+    username = "$MONITOR_USERNAME"
+    password = "$MONITOR_PASSWORD"
+    [[inputs.cpu]]
+    percpu = true
+    totalcpu = true
+    collect_cpu_time = false
+    report_active = false
+    [[inputs.disk]]
+    ignore_fs = ["tmpfs", "devtmpfs", "devfs"]
+    [[inputs.diskio]]
+    [[inputs.kernel]]
+    [[inputs.mem]]
+    [[inputs.processes]]
+    [[inputs.swap]]
+    [[inputs.system]]
+    [[inputs.docker]]
+    endpoint = "unix:///var/run/docker.sock"
+    [[inputs.kubernetes]]
+    url = "https://$HOSTNAME:10250"
+    insecure_skip_verify = true
+    bearer_token = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: telegraf
+  namespace: tick
+spec:
+  selector:
+    matchLabels:
+      service: influxdb
+  template:
+    metadata:
+      labels:
+        service: influxdb
+    spec:
+      containers:
+      - env:
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: HOST_PROC
+          value: /rootfs/proc
+        - name: HOST_SYS
+          value: /rootfs/sys
+        - name: MONITOR_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: monitor_username
+              name: monitoring
+        - name: MONITOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: monitor_password
+              name: monitoring
+        - name: MONITOR_HOST
+          valueFrom:
+            secretKeyRef:
+              key: monitor_host
+              name: monitoring
+        - name: MONITOR_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: monitor_database
+              name: monitoring
+        image: telegraf:1.13
+        imagePullPolicy: IfNotPresent
+        name: telegraf
+        resources:
+          limits:
+            cpu: "1"
+            memory: 500Mi
+          requests:
+            cpu: 500m
+            memory: 250Mi
+        volumeMounts:
+        - mountPath: /rootfs/sys
+          name: sys
+          readOnly: true
+        - mountPath: /rootfs/proc
+          name: proc
+          readOnly: true
+        - mountPath: /var/run/docker.sock
+          name: docker-socket
+        - mountPath: /var/run/utmp
+          name: utmp
+          readOnly: true
+        - mountPath: /etc/telegraf
+          name: config
+      restartPolicy: Always
+      serviceAccount: monitoring
+      serviceAccountName: monitoring
+      volumes:
+      - hostPath:
+          path: /sys
+          type: ""
+        name: sys
+      - hostPath:
+          path: /var/run/docker.sock
+          type: ""
+        name: docker-socket
+      - hostPath:
+          path: /proc
+          type: ""
+        name: proc
+      - hostPath:
+          path: /var/run/utmp
+          type: ""
+        name: utmp
+      - configMap:
+          defaultMode: 420
+          name: monitoring
+        name: config

@@ -1,0 +1,1249 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: extensions.dashboard.tekton.dev
+spec:
+  group: dashboard.tekton.dev
+  names:
+    categories:
+    - tekton
+    - tekton-dashboard
+    kind: Extension
+    plural: extensions
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tekton-dashboard
+    version: v0.5.2
+  name: tekton-dashboard
+  namespace: tekton-pipelines
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-dashboard
+  template:
+    metadata:
+      labels:
+        app: tekton-dashboard
+      name: tekton-dashboard
+    spec:
+      containers:
+      - env:
+        - name: PORT
+          value: "9097"
+        - name: WEB_RESOURCES_DIR
+          value: /var/run/ko/web
+        - name: PIPELINE_RUN_SERVICE_ACCOUNT
+          value: ""
+        - name: INSTALLED_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: gcr.io/tekton-releases/github.com/tektoncd/dashboard/cmd/dashboard@sha256:14376b01c30bacc0921428caaf7bd6f46547c623bf048f06df18bce1a729ca66
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9097
+        name: tekton-dashboard
+        ports:
+        - containerPort: 9097
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: 9097
+      serviceAccountName: tekton-dashboard
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: pipeline0
+  namespace: tekton-pipelines
+spec:
+  params:
+  - default: /workspace/git-source
+    description: The path to the resource files to apply
+    name: pathToResourceFiles
+    type: string
+  - default: .
+    description: The directory from which resources are to be applied
+    name: apply-directory
+    type: string
+  - default: tekton-pipelines
+    description: The namespace in which to create the resources being imported
+    name: target-namespace
+    type: string
+  resources:
+  - name: git-source
+    type: git
+  tasks:
+  - name: pipeline0-task
+    params:
+    - name: pathToResourceFiles
+      value: $(params.pathToResourceFiles)
+    - name: apply-directory
+      value: $(params.apply-directory)
+    - name: target-namespace
+      value: $(params.target-namespace)
+    resources:
+      inputs:
+      - name: git-source
+        resource: git-source
+    taskRef:
+      name: pipeline0-task
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: pipeline0-task
+  namespace: tekton-pipelines
+spec:
+  inputs:
+    params:
+    - default: /workspace/git-source
+      description: The path to the resource files to apply
+      name: pathToResourceFiles
+      type: string
+    - default: .
+      description: The directory from which resources are to be applied
+      name: apply-directory
+      type: string
+    - default: tekton-pipelines
+      description: The namespace where created resources will go
+      name: target-namespace
+      type: string
+    resources:
+    - name: git-source
+      type: git
+  steps:
+  - args:
+    - apply
+    - -f
+    - $(inputs.params.pathToResourceFiles)/$(inputs.params.apply-directory)
+    - -n
+    - $(inputs.params.target-namespace)
+    command:
+    - kubectl
+    image: lachlanevenson/k8s-kubectl@sha256:6944392a5ab6f762addbe3b3d8fcca7f47abdc44ff6076a6d18dc08510597e30
+    name: kubectl-apply
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tekton-dashboard
+  name: tekton-dashboard
+  namespace: tekton-pipelines
+spec:
+  ports:
+  - name: http
+    port: 9097
+    protocol: TCP
+    targetPort: 9097
+  selector:
+    app: tekton-dashboard
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tekton-pipelines
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-artifact-pvc
+  namespace: tekton-pipelines
+data:
+  size: 1Gi
+  storageClass: hcloud-volumes
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-defaults
+  namespace: tekton-pipelines
+data:
+  _example: |-
+    ################################
+    #                              #
+    #    EXAMPLE CONFIGURATION     #
+    #                              #
+    ################################
+
+    # This block is not actually functional configuration,
+    # but serves to illustrate the available configuration
+    # options and document them in a way that is accessible
+    # to users that `kubectl edit` this config map.
+    #
+    # These sample configuration options may be copied out of
+    # this example block and unindented to be in the data block
+    # to actually change the configuration.
+
+    # default-timeout-minutes contains the default number of
+    # minutes to use for TaskRun and PipelineRun, if none is specified.
+    default-timeout-minutes: "60"  # 60 minutes
+
+    # default-service-account contains the default service account name
+    # to use for TaskRun and PipelineRun, if none is specified.
+    default-service-account: "default"
+
+    # default-managed-by-label-value contains the default value given to the
+    # "app.kubernetes.io/managed-by" label applied to all Pods created for
+    # TaskRuns. If a user's requested TaskRun specifies another value for this
+    # label, the user's request supercedes.
+    default-managed-by-label-value: "tekton-pipelines"
+
+    # default-pod-template contains the default pod template to use
+    # TaskRun and PipelineRun, if none is specified. If a pod template
+    # is specified, the default pod template is ignored.
+    # default-pod-template:
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-logging
+  namespace: tekton-pipelines
+data:
+  zap-logger-config: |
+    {
+      "level": "info",
+      "development": false,
+      "sampling": {
+        "initial": 100,
+        "thereafter": 100
+      },
+      "outputPaths": ["stdout"],
+      "errorOutputPaths": ["stderr"],
+      "encoding": "json",
+      "encoderConfig": {
+        "timeKey": "",
+        "levelKey": "level",
+        "nameKey": "logger",
+        "callerKey": "caller",
+        "messageKey": "msg",
+        "stacktraceKey": "stacktrace",
+        "lineEnding": "",
+        "levelEncoder": "",
+        "timeEncoder": "",
+        "durationEncoder": "",
+        "callerEncoder": ""
+      }
+    }
+  loglevel.controller: info
+  loglevel.webhook: info
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-observability
+  namespace: tekton-pipelines
+data:
+  _example: |
+    ################################
+    #                              #
+    #    EXAMPLE CONFIGURATION     #
+    #                              #
+    ################################
+
+    # This block is not actually functional configuration,
+    # but serves to illustrate the available configuration
+    # options and document them in a way that is accessible
+    # to users that `kubectl edit` this config map.
+    #
+    # These sample configuration options may be copied out of
+    # this example block and unindented to be in the data block
+    # to actually change the configuration.
+
+    # metrics.backend-destination field specifies the system metrics destination.
+    # It supports either prometheus (the default) or stackdriver.
+    # Note: Using Stackdriver will incur additional charges.
+    metrics.backend-destination: prometheus
+
+    # metrics.stackdriver-project-id field specifies the Stackdriver project ID. This
+    # field is optional. When running on GCE, application default credentials will be
+    # used and metrics will be sent to the cluster's project if this field is
+    # not provided.
+    metrics.stackdriver-project-id: "<your stackdriver project id>"
+
+    # metrics.allow-stackdriver-custom-metrics indicates whether it is allowed
+    # to send metrics to Stackdriver using "global" resource type and custom
+    # metric type. Setting this flag to "true" could cause extra Stackdriver
+    # charge.  If metrics.backend-destination is not Stackdriver, this is
+    # ignored.
+    metrics.allow-stackdriver-custom-metrics: "false"
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clustertasks.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: ClusterTask
+    plural: clustertasks
+    categories:
+    - tekton
+    - tekton-pipelines
+  scope: Cluster
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: conditions.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: Condition
+    plural: conditions
+    categories:
+    - tekton
+    - tekton-pipelines
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: images.caching.internal.knative.dev
+  labels:
+    knative.dev/crd-install: "true"
+spec:
+  group: caching.internal.knative.dev
+  version: v1alpha1
+  names:
+    kind: Image
+    plural: images
+    singular: image
+    categories:
+    - knative-internal
+    - caching
+    shortNames:
+    - img
+  scope: Namespaced
+  subresources:
+    status: {}
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pipelines.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: Pipeline
+    plural: pipelines
+    categories:
+    - tekton
+    - tekton-pipelines
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pipelineruns.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: PipelineRun
+    plural: pipelineruns
+    categories:
+    - tekton
+    - tekton-pipelines
+    shortNames:
+    - pr
+    - prs
+  scope: Namespaced
+  additionalPrinterColumns:
+  - name: Succeeded
+    type: string
+    JSONPath: .status.conditions[?(@.type=="Succeeded")].status
+  - name: Reason
+    type: string
+    JSONPath: .status.conditions[?(@.type=="Succeeded")].reason
+  - name: StartTime
+    type: date
+    JSONPath: .status.startTime
+  - name: CompletionTime
+    type: date
+    JSONPath: .status.completionTime
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pipelineresources.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: PipelineResource
+    plural: pipelineresources
+    categories:
+    - tekton
+    - tekton-pipelines
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: tasks.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: Task
+    plural: tasks
+    categories:
+    - tekton
+    - tekton-pipelines
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: taskruns.tekton.dev
+spec:
+  group: tekton.dev
+  names:
+    kind: TaskRun
+    plural: taskruns
+    categories:
+    - tekton
+    - tekton-pipelines
+    shortNames:
+    - tr
+    - trs
+  scope: Namespaced
+  additionalPrinterColumns:
+  - name: Succeeded
+    type: string
+    JSONPath: .status.conditions[?(@.type=="Succeeded")].status
+  - name: Reason
+    type: string
+    JSONPath: .status.conditions[?(@.type=="Succeeded")].reason
+  - name: StartTime
+    type: date
+    JSONPath: .status.startTime
+  - name: CompletionTime
+    type: date
+    JSONPath: .status.completionTime
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-pipelines-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-pipelines
+    app.kubernetes.io/component: controller
+    tekton.dev/release: v0.10.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-pipelines-controller
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        tekton.dev/release: v0.10.1
+      labels:
+        app: tekton-pipelines-controller
+        app.kubernetes.io/name: tekton-pipelines
+        app.kubernetes.io/component: controller
+    spec:
+      serviceAccountName: tekton-pipelines-controller
+      containers:
+      - name: tekton-pipelines-controller
+        image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/controller:v0.10.1@sha256:f4409692f43c4781d949847e661109c69c1a9acb8453cd1219b8341d642cb756
+        args:
+        - -kubeconfig-writer-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/kubeconfigwriter:v0.10.1@sha256:206c4e5de37d13c34f9538f87096db16433aadba264f24e9995cbb6b66fb67de
+        - -creds-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/creds-init:v0.10.1@sha256:959b0d9a2d43d35e15a85460cc86567d308f467ee8ec16dbd9b32f51ce75d582
+        - -git-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.10.1@sha256:18ffa2bfc14b1fa6d39f62271beacf6bbc38e7cd2e255184dec477c2936270bc
+        - -nop-image
+        - tianon/true
+        - -shell-image
+        - busybox
+        - -gsutil-image
+        - google/cloud-sdk
+        - -entrypoint-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/entrypoint:v0.10.1@sha256:cf0e81477c45dca0df6253e3239f6f0603700641292bf207503a7b267dc4c916
+        - -imagedigest-exporter-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.10.1@sha256:1cf3f27f3ff7c73782d8a65853e8fc7f0d4aafc6443893e0150bdbe614a9169d
+        - -pr-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/pullrequest-init:v0.10.1@sha256:3783254c379b286dd0987674160d3e19a95be1ccf0985788d6dcc0f159199095
+        - -build-gcs-fetcher-image
+        - gcr.io/tekton-releases/github.com/tektoncd/pipeline/vendor/github.com/googlecloudplatform/cloud-builders/gcs-fetcher/cmd/gcs-fetcher:v0.10.1@sha256:70f8d32a572496169d451130541541cbc99434932fd28beea486189af8a2995a
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONFIG_LOGGING_NAME
+          value: config-logging
+        - name: CONFIG_OBSERVABILITY_NAME
+          value: config-observability
+        - name: CONFIG_ARTIFACT_BUCKET_NAME
+          value: config-artifact-bucket
+        - name: CONFIG_ARTIFACT_PVC_NAME
+          value: config-artifact-pvc
+        - name: METRICS_DOMAIN
+          value: tekton.dev/pipeline
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-pipelines-webhook
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-pipelines
+    app.kubernetes.io/component: webhook-controller
+    tekton.dev/release: v0.10.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-pipelines-webhook
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+        tekton.dev/release: v0.10.1
+      labels:
+        app: tekton-pipelines-webhook
+        app.kubernetes.io/name: tekton-pipelines
+        app.kubernetes.io/component: webhook-controller
+    spec:
+      serviceAccountName: tekton-pipelines-controller
+      containers:
+      - name: webhook
+        image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/webhook:v0.10.1@sha256:e0a277b69a742ff0e49767d11f9a1325fcea7fb8bbbf2572af9d49116cbb2385
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: WEBHOOK_SERVICE_NAME
+          value: tekton-pipelines-webhook
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: tekton-pipelines
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  volumes:
+  - emptyDir
+  - configMap
+  - secret
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: MustRunAs
+    ranges:
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: MustRunAs
+    ranges:
+    - min: 1
+      max: 65535
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tekton
+  namespace: tekton-pipelines
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: hcloud-volumes
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tekton-aggregate-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks
+  - taskruns
+  - pipelines
+  - pipelineruns
+  - pipelineresources
+  - conditions
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tekton-aggregate-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks
+  - taskruns
+  - pipelines
+  - pipelineruns
+  - pipelineresources
+  - conditions
+  verbs:
+  - get
+  - list
+  - watch
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-pipelines-admin
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/log
+  - namespaces
+  - secrets
+  - events
+  - serviceaccounts
+  - configmaps
+  - persistentvolumeclaims
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments/finalizers
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks
+  - clustertasks
+  - taskruns
+  - pipelines
+  - pipelineruns
+  - pipelineresources
+  - conditions
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - taskruns/finalizers
+  - pipelineruns/finalizers
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - tasks/status
+  - clustertasks/status
+  - taskruns/status
+  - pipelines/status
+  - pipelineruns/status
+  - pipelineresources/status
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - tekton-pipelines
+  verbs:
+  - use
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-pipelines-controller
+  namespace: tekton-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-pipelines-controller-admin
+subjects:
+- kind: ServiceAccount
+  name: tekton-pipelines-controller
+  namespace: tekton-pipelines
+roleRef:
+  kind: ClusterRole
+  name: tekton-pipelines-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tekton-pipelines-controller
+  name: tekton-pipelines-controller
+  namespace: tekton-pipelines
+spec:
+  ports:
+  - name: http-metrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    app: tekton-pipelines-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tekton-pipelines-webhook
+  name: tekton-pipelines-webhook
+  namespace: tekton-pipelines
+spec:
+  ports:
+  - name: https-webhook
+    port: 443
+    targetPort: 8443
+  selector:
+    app: tekton-pipelines-webhook
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-logging-triggers
+  namespace: tekton-pipelines
+data:
+  zap-logger-config: |
+    {
+      "level": "info",
+      "development": false,
+      "sampling": {
+        "initial": 100,
+        "thereafter": 100
+      },
+      "outputPaths": ["stdout"],
+      "errorOutputPaths": ["stderr"],
+      "encoding": "json",
+      "encoderConfig": {
+        "timeKey": "",
+        "levelKey": "level",
+        "nameKey": "logger",
+        "callerKey": "caller",
+        "messageKey": "msg",
+        "stacktraceKey": "stacktrace",
+        "lineEnding": "",
+        "levelEncoder": "",
+        "timeEncoder": "",
+        "durationEncoder": "",
+        "callerEncoder": ""
+      }
+    }
+  loglevel.controller: info
+  loglevel.webhook: info
+  loglevel.eventlistener: info
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-observability-triggers
+  namespace: tekton-pipelines
+data:
+  _example: |
+    ################################
+    #                              #
+    #    EXAMPLE CONFIGURATION     #
+    #                              #
+    ################################
+
+    # This block is not actually functional configuration,
+    # but serves to illustrate the available configuration
+    # options and document them in a way that is accessible
+    # to users that `kubectl edit` this config map.
+    #
+    # These sample configuration options may be copied out of
+    # this example block and unindented to be in the data block
+    # to actually change the configuration.
+
+    # metrics.backend-destination field specifies the system metrics destination.
+    # It supports either prometheus (the default) or stackdriver.
+    # Note: Using stackdriver will incur additional charges
+    metrics.backend-destination: prometheus
+
+    # metrics.stackdriver-project-id field specifies the stackdriver project ID. This
+    # field is optional. When running on GCE, application default credentials will be
+    # used if this field is not provided.
+    metrics.stackdriver-project-id: "<your stackdriver project id>"
+
+    # metrics.allow-stackdriver-custom-metrics indicates whether it is allowed to send metrics to
+    # Stackdriver using "global" resource type and custom metric type if the
+    # metrics are not supported by "knative_revision" resource type. Setting this
+    # flag to "true" could cause extra Stackdriver charge.
+    # If metrics.backend-destination is not Stackdriver, this is ignored.
+    metrics.allow-stackdriver-custom-metrics: "false"
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: eventlisteners.tekton.dev
+spec:
+  group: tekton.dev
+  scope: Namespaced
+  names:
+    kind: EventListener
+    plural: eventlisteners
+    singular: eventlistener
+    shortNames:
+    - el
+    categories:
+    - all
+    - tekton-triggers
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: triggerbindings.tekton.dev
+spec:
+  group: tekton.dev
+  scope: Namespaced
+  names:
+    kind: TriggerBinding
+    plural: triggerbindings
+    singular: triggerbinding
+    shortNames:
+    - tb
+    categories:
+    - all
+    - tekton-triggers
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: triggertemplates.tekton.dev
+spec:
+  group: tekton.dev
+  scope: Namespaced
+  names:
+    kind: TriggerTemplate
+    plural: triggertemplates
+    singular: triggertemplate
+    shortNames:
+    - tt
+    categories:
+    - all
+    - tekton-triggers
+  subresources:
+    status: {}
+  version: v1alpha1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-triggers
+    app.kubernetes.io/component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-triggers-controller
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+      labels:
+        app: tekton-triggers-controller
+    spec:
+      serviceAccountName: tekton-triggers-controller
+      containers:
+      - name: tekton-triggers-controller
+        image: gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/controller@sha256:0681945bcbe2177cd7c72aa417b66f8edd191ad1f229051420cbe7a81e6c097c
+        args:
+        - -logtostderr
+        - -stderrthreshold
+        - INFO
+        - -el-image
+        - gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/eventlistenersink@sha256:5d8d2c94fe995b35b722cb816507959ee3ce82f16936d6fad0e206c488821b96
+        - -el-port
+        - "8080"
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: CONFIG_LOGGING_NAME
+          value: config-logging-triggers
+        - name: CONFIG_OBSERVABILITY_NAME
+          value: config-observability-triggers
+        - name: METRICS_DOMAIN
+          value: tekton.dev/triggers
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging-triggers
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tekton-triggers-webhook
+  namespace: tekton-pipelines
+  labels:
+    app.kubernetes.io/name: tekton-triggers
+    app.kubernetes.io/component: webhook-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tekton-triggers-webhook
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+      labels:
+        app: tekton-triggers-webhook
+    spec:
+      serviceAccountName: tekton-triggers-controller
+      containers:
+      - name: webhook
+        image: gcr.io/tekton-releases/github.com/tektoncd/triggers/cmd/webhook@sha256:be0046ce57914e08aabd2b18ba3309b0f310c39c31ab972f55c5c5a47b740377
+        env:
+        - name: SYSTEM_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - name: config-logging
+          mountPath: /etc/config-logging
+      volumes:
+      - name: config-logging
+        configMap:
+          name: config-logging-triggers
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: tekton-triggers
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  volumes:
+  - emptyDir
+  - configMap
+  - secret
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: MustRunAs
+    ranges:
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: MustRunAs
+    ranges:
+    - min: 1
+      max: 65535
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-triggers-admin
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - services
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - deployments/finalizers
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - eventlisteners
+  - triggerbindings
+  - triggertemplates
+  - eventlisteners/finalizers
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - tekton.dev
+  resources:
+  - eventlisteners/status
+  - triggerbindings/status
+  - triggertemplates/status
+  verbs:
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - patch
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - tekton-triggers
+  verbs:
+  - use
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-triggers-controller-admin
+subjects:
+- kind: ServiceAccount
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+roleRef:
+  kind: ClusterRole
+  name: tekton-triggers-admin
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tekton-triggers-aggregate-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+- apiGroups:
+  - tekton.dev
+  resources:
+  - eventlisteners
+  - triggerbindings
+  - triggertemplates
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tekton-triggers-aggregate-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+- apiGroups:
+  - tekton.dev
+  resources:
+  - eventlisteners
+  - triggerbindings
+  - triggertemplates
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tekton-triggers-controller
+  name: tekton-triggers-controller
+  namespace: tekton-pipelines
+spec:
+  ports:
+  - name: http-metrics
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  selector:
+    app: tekton-triggers-controller
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tekton-triggers-webhook
+  name: tekton-triggers-webhook
+  namespace: tekton-pipelines
+spec:
+  ports:
+  - name: https-webhook
+    port: 443
+    targetPort: 8443
+  selector:
+    app: tekton-triggers-webhook

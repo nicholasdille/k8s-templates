@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tick
+  namespace: #@ data.values.tick.namespace
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: #@ data.values.tick.volume.storageClass

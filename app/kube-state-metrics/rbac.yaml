@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -6,7 +7,7 @@ metadata:
     app.kubernetes.io/name: kube-state-metrics
     app.kubernetes.io/version: v1.9.4
   name: kube-state-metrics
-  namespace: kube-system
+  namespace: #@ data.values.kubeStateMetrics.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -133,4 +134,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: kube-state-metrics
-  namespace: kube-system
+  namespace: #@ data.values.kubeStateMetrics.namespace

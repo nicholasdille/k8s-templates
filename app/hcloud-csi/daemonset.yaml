@@ -1,19 +1,16 @@
+#@ load("@ytt:data", "data")
 ---
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
   name: hcloud-csi-node
   namespace: kube-system
-  labels:
-    app: hcloud-csi
 spec:
   selector:
-    matchLabels:
-      app: hcloud-csi
+    matchLabels: #@ data.values.hcloud.csi.node.matchLabels
   template:
     metadata:
-      labels:
-        app: hcloud-csi
+      labels: #@ data.values.hcloud.csi.node.matchLabels
     spec:
       serviceAccount: hcloud-csi
       hostNetwork: true

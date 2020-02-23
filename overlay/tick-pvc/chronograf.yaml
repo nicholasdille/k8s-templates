@@ -1,0 +1,23 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "chronograf"}})),expects="1+"
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      volumes:
+      #@overlay/match by="name",missing_ok=True
+      - name: chronograf
+        persistentVolumeClaim:
+          claimName: tick
+      containers:
+      #@overlay/match by="name"
+      - name: main
+        #@overlay/match missing_ok=True
+        volumeMounts:
+        #@overlay/match by="name",missing_ok=True
+        - name: tick
+          mountPath: /usr/share/chronograf/resources
+          subPath: chronograf-data

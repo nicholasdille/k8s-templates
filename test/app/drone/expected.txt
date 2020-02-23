@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: drone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: drone
+  template:
+    metadata:
+      labels:
+        pod: drone
+    spec:
+      containers:
+      - name: main
+        image: drone/drone:1.6
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 80
+        - name: other
+          containerPort: 9000
+        env:
+        - name: DRONE_RPC_SECRET
+          value: mydronesecret
+        - name: DRONE_SERVER_HOST
+          value: ci.example.com
+        - name: DRONE_SERVER_PROTO
+          value: http
+        - name: DRONE_USER_CREATE
+          value: username:admin,machine:false,admin:true,token:4a93d742480b7ee93d1b2dd280a7771f
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: server
+  namespace: drone
+spec:
+  selector:
+    pod: drone
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
+  - name: other
+    port: 9000
+    targetPort: 9000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: server
+  namespace: drone
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`ci.example.com`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: server
+      port: 80
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: drone
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dind
+  namespace: drone
+data:
+  daemon.json: '{}'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent
+  namespace: drone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    metadata:
+      labels:
+        app: agent
+    spec:
+      containers:
+      - name: main
+        image: drone/agent:1.6
+        imagePullPolicy: Always
+        env:
+        - name: DRONE_RPC_HOST
+          value: ci.example.com
+        - name: DRONE_RPC_PROTO
+          value: http
+        - name: DRONE_RPC_SECRET
+          value: mydronesecret
+        - name: DRONE_RUNNER_CAPACITY
+          value: 1
+        - name: DOCKER_HOST
+          value: tcp://localhost:2375
+      - name: dind
+        image: docker:stable-dind
+        args:
+        - --host
+        - 0.0.0.0:2375
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+        - name: http
+          containerPort: 2375
+        volumeMounts:
+        - name: config
+          mountPath: /etc/docker/daemon.json
+          subPath: daemon.json
+      volumes:
+      - name: config
+        configMap:
+          name: dind

@@ -1,3 +1,5 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: v1
 data:
   promtail.yaml: "client:\n  backoff_config:\n    maxbackoff: 5s\n    maxretries:
@@ -10,9 +12,5 @@ data:
     \       __path__: /var/log/pods/maas-dev_chronograf-*/chronograf/*\n"
 kind: ConfigMap
 metadata:
-  labels:
-    app: maas
-    instance: dev
-    service: chronograf
   name: promtail
-  namespace: maas-dev
+  namespace: #@ data.values.loki.namespace

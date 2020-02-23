@@ -140,6 +140,39 @@ spec:
       - name: config
         configMap:
           name: traefik
+      initContainers:
+      - name: traefik-init-dns
+        image: alpine
+        command:
+        - sh
+        args:
+        - -c
+        - |
+          curl -sLo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
+          chmod +x /usr/local/bin/kubectl; \
+          kubectl config set-cluster self --server=${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT} --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt; \
+          kubectl config set-credentials self --token=/var/run/secrets/kubernetes.io/serviceaccount/token; \
+          kubectl config set-context self --cluster=self --user=self; \
+          NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
+          NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.'${DOMAIN}/${LABEL_NAME}'"); \
+          echo Update DNS with ${PUBLIC_IP}; \
+          flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
+        env:
+        - name: LABEL_NAME
+          value: public-ip
+        - name: DOMAIN
+          value: dille.io
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL
 ---
 apiVersion: v1
 kind: Service
@@ -318,3 +351,115 @@ spec:
       strategy: RoundRobin
     middlewares:
     - name: traefik-dashboard-redirect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: external-dns
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: external-dns
+      containers:
+      - name: external-dns
+        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        args:
+        - --txt-owner-id=traefik
+        - --source=service
+        - --namespace=default
+        - --domain-filter=dille.io.
+        - --provider=cloudflare
+        - --publish-host-ip
+        env:
+        - name: CF_API_KEY
+          value: $CLOUDFLARE_API_KEY
+        - name: CF_API_EMAIL
+          value: $CLOUDFLARE_EMAIL
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-dns
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: external-dns
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: external-dns-viewer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: external-dns
+subjects:
+- kind: ServiceAccount
+  name: external-dns
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: lb.dille.io
+spec:
+  selector:
+    app: traefik
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  clusterIP: None
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare
+  namespace: traefik
+type: Opaque
+stringData:
+  CF_API_EMAIL: cf-api-key
+  CF_API_KEY: cf-api-key

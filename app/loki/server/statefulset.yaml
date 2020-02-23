@@ -1,28 +1,30 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  labels:
-    app: maas
-    instance: devinfra
-    service: loki
-  name: loki
-  namespace: maas-devinfra
+  name: server
+  namespace: #@ data.values.loki.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: loki
-  serviceName: loki-headless
+    matchLabels: #@ data.values.loki.server.matchLabels
+  serviceName: server-headless
   template:
     metadata:
-      labels:
-        app: loki
+      labels: #@ data.values.loki.server.matchLabels
     spec:
+      restartPolicy: Always
       containers:
-      - args:
-        - -config.file=/etc/loki/loki.yaml
+      - name: main
         image: grafana/loki
         imagePullPolicy: IfNotPresent
+        args:
+        - -config.file=/etc/loki/loki.yaml
+        ports:
+        - containerPort: 3100
+          name: http-metrics
+          protocol: TCP
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -33,11 +35,6 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 1
-        name: loki
-        ports:
-        - containerPort: 3100
-          name: http-metrics
-          protocol: TCP
         readinessProbe:
           failureThreshold: 3
           httpGet:
@@ -51,21 +48,8 @@ spec:
         volumeMounts:
         - mountPath: /etc/loki
           name: config
-        - mountPath: /data
-          name: storage
-          subPath: loki
-        - mountPath: /etc/localtime
-          name: tz-config
-      restartPolicy: Always
       volumes:
       - name: config
         secret:
           defaultMode: 420
           secretName: loki
-      - name: storage
-        persistentVolumeClaim:
-          claimName: nfs-storage-devinfra
-      - hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
-          type: ""
-        name: tz-config

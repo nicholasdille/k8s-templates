@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-server
+  namespace: #@ data.values.metricsServer.namespace
+  labels:
+    kubernetes.io/name: "Metrics-server"
+    kubernetes.io/cluster-service: "true"
+spec:
+  selector: #@ data.values.metricsServer.matchLabels
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443

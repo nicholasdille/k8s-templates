@@ -1,0 +1,6 @@
+#@data/values
+---
+grafana:
+  namespace: grafana
+  matchLabels:
+    pod: grafana

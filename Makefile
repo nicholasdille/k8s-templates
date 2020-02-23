@@ -5,6 +5,8 @@ OVERLAYS:=$(wildcard $(OVERLAY_DIR)/*)
 APP_TEST_RESULTS:=$(addsuffix /result.txt,$(addprefix test/,$(APPS)))
 OVERLAY_TEST_RESULTS:=$(sort $(addsuffix /result.txt,$(addprefix test/,$(OVERLAYS))))
 
+YTT_REF=master
+
 M = $(shell printf "\033[34;1m▶\033[0m")
 
 .PHONY:
@@ -16,7 +18,13 @@ debug:
 	echo OVERLAY_TEST_RESULTS=$(OVERLAY_TEST_RESULTS)
 
 .PHONY:
-test: $(APP_TEST_RESULTS) $(OVERLAY_TEST_RESULTS)
+test: test-app test-overlay
+
+.PHONY:
+test-app: $(APP_TEST_RESULTS)
+
+.PHONY:
+test-overlay: $(OVERLAY_TEST_RESULTS)
 
 .PHONY:
 clean: ; $(info $(M) Cleaning...)
@@ -25,34 +33,47 @@ clean: ; $(info $(M) Cleaning...)
 test/app/%/result.txt: ; $(info $(M) Testing $@...)
 	@set -o errexit; \
 	TEST_DIR=$(@:%/result.txt=%) ; \
+	mkdir -p $${TEST_DIR}; \
 	APP_DIR=$${TEST_DIR#test/} ; \
 	if test -f $${TEST_DIR}/run.sh; then \
 	    bash $${TEST_DIR}/run.sh >$${TEST_DIR}/result.txt; \
 	else \
-	    ytt -f $${APP_DIR} >$${TEST_DIR}/result.txt; \
+	    ./bin/ytt -f $${APP_DIR} >$${TEST_DIR}/result.txt; \
 	fi; \
 	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt
 
 test/overlay/%/result.txt: ; $(info $(M) Testing $@...)
 	@set -o errexit; \
 	TEST_DIR=$(@:%/result.txt=%) ; \
+	mkdir -p $${TEST_DIR}; \
 	OVERLAY_DIR=$${TEST_DIR#test/} ; \
-	test -f $${TEST_DIR}/test.yaml; \
 	if test -f $${TEST_DIR}/run.sh; then \
 	    bash $${TEST_DIR}/run.sh >$${TEST_DIR}/result.txt; \
 	else \
-	    ytt -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
+	    test -f $${TEST_DIR}/test.yaml; \
+	    ./bin/ytt -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
 	fi; \
 	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt
 
-.PHONY:
-ytt: ytt-master
+bin:
+	@mkdir -p bin
 
 .PHONY:
-ytt-%:
+ytt: bin/ytt
+
+bin/ytt: bin ; $(info $(M) Installing ytt...)
 	@set -o errexit; \
-	mkdir -p bin; \
-	docker build --tag ytt:$* --build-arg REF=$* --file docker/Dockerfile docker; \
-	docker create --name ytt_$* ytt:$*; \
-	docker cp ytt_$*:/ytt bin/ytt; \
-	docker rm ytt_$*
+	docker build --tag ytt:$(YTT_REF) --build-arg REF=$(YTT_REF) --file docker/Dockerfile docker; \
+	docker create --name ytt_$(YTT_REF) ytt:$(YTT_REF); \
+	docker cp ytt_$(YTT_REF):/ytt bin/ytt; \
+	docker rm ytt_$(YTT_REF)
+
+.PHONY:
+kapp: bin/kapp
+
+bin/kapp: bin ; $(info $(M) Installing kapp...)
+	@set -o errexit; \
+	curl -s https://api.github.com/repos/k14s/kapp/releases/latest | \
+	    jq --raw-output '.assets[] | select(.name == "kapp-linux-amd64") | .browser_download_url' | \
+	    xargs curl -sLfo ./bin/kapp; \
+	chmod +x ./bin/kapp

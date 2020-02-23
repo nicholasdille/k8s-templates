@@ -1,4 +1,11 @@
+#@data/values
 ---
 hcloud:
+  token: xyz
   csi:
-    foo: bar
+    node:
+      matchLabels:
+        app: hcloud-csi
+    controller:
+      matchLabels:
+        app: hcloud-csi

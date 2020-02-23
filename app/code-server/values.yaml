@@ -1,0 +1,8 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+codeServer:
+  namespace: code-server
+  matchLabels:
+    pod: codeserver
+  fqdn: ide.example.com

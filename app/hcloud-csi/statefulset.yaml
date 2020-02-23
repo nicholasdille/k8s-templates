@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 kind: StatefulSet
 apiVersion: apps/v1
@@ -6,14 +7,12 @@ metadata:
   namespace: kube-system
 spec:
   selector:
-    matchLabels:
-      app: hcloud-csi-controller
+    matchLabels: #@ data.values.hcloud.csi.controller.matchLabels
   serviceName: hcloud-csi-controller
   replicas: 1
   template:
     metadata:
-      labels:
-        app: hcloud-csi-controller
+      labels: #@ data.values.hcloud.csi.controller.matchLabels
     spec:
       serviceAccount: hcloud-csi
       containers:

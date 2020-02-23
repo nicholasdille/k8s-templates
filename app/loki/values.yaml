@@ -1,0 +1,15 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+loki:
+  namespace: loki
+  url: http://loki.example.com
+  server:
+    matchLabels:
+      pod: loki
+  collector:
+    matchLabels:
+      pod: promtail
+  volume:
+    size: 1Gi
+    storageClass: hcloud-volumes

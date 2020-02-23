@@ -1,23 +1,23 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   labels:
     service: promtail
   name: promtail
-  namespace: default
+  namespace: #@ data.values.loki.namespace
 spec:
   selector:
-    matchLabels:
-      app: promtail
+    matchLabels: #@ data.values.loki.collector.matchLabels
   template:
     metadata:
-      labels:
-        app: promtail
+      labels: #@ data.values.loki.collector.matchLabels
     spec:
       containers:
       - args:
         - -config.file=/etc/promtail/promtail.yaml
-        - -client.url=https://loki.devinfra.maas.haufedev.systems/loki/api/v1/push
+        - #@ "-client.url={}/loki/api/v1/push".format(data.values.loki.url)
         env:
         - name: HOSTNAME
           valueFrom:
@@ -56,8 +56,6 @@ spec:
         - mountPath: /var/log/pods
           name: pods
           readOnly: true
-        - mountPath: /etc/localtime
-          name: tz-config
       restartPolicy: Always
       serviceAccount: promtail
       serviceAccountName: promtail
@@ -78,7 +76,3 @@ spec:
           path: /var/log/pods
           type: ""
         name: pods
-      - hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
-          type: ""
-        name: tz-config

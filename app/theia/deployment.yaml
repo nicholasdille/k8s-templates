@@ -1,16 +1,17 @@
+#@ load("@ytt:data", "data")
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: theia
+  namespace: #@ data.values.theia.namespace
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: theia
+    matchLabels: #@ data.values.theia.matchLabels
   template:
     metadata:
-      labels:
-        app: theia
+      labels: #@ data.values.theia.matchLabels
     spec:
       containers:
         - name: theia
@@ -19,15 +20,3 @@ spec:
           ports:
           - name: web
             containerPort: 3000
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: theia
-spec:
-  selector:
-    app: theia
-  ports:
-  - name: web
-    port: 80
-    targetPort: 3000

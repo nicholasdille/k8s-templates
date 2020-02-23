@@ -1,0 +1,6 @@
+#@data/values
+---
+kubeStateMetrics:
+  namespace: kube-system
+  matchLabels:
+    app.kubernetes.io/name: kube-state-metrics

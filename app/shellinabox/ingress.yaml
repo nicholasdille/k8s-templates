@@ -1,19 +1,18 @@
+#@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
   name: shellinabox
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
-    ingress.kubernetes.io/auth-type: "basic"
-    ingress.kubernetes.io/auth-secret: "registry-auth"
+  namespace: #@ data.values.siab.namespace
 spec:
-  rules:
-  - host: shell${CICD_NAME_SUFFIX}.${CICD_DNS_DOMAIN}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: shellinabox
-          servicePort: web
+  entryPoints:
+  - http
+  routes:
+  - match: #@ "Host(`{}`)".format(data.values.siab.fqdn)
+    kind: Rule
+    priority: 12
+    services:
+    - name: shellinabox
+      port: 80
+      strategy: RoundRobin

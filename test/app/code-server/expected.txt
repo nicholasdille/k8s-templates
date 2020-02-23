@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeserver
+  namespace: code-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: codeserver
+  template:
+    metadata:
+      labels:
+        pod: codeserver
+    spec:
+      containers:
+      - name: main
+        image: codercom/code-server
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 80
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: codeserver
+  namespace: code-server
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`ide.example.com`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: codeserver
+      port: 80
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: code-server
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: codeserver
+  namespace: code-server
+spec:
+  selector:
+    pod: codeserver
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
