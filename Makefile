@@ -59,14 +59,17 @@ bin:
 	@mkdir -p bin
 
 .PHONY:
+docker: ; $(info $(M) Building tools...)
+	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
+
+.PHONY:
 ytt: bin/ytt
 
-bin/ytt: bin ; $(info $(M) Installing ytt...)
+bin/ytt: bin docker ; $(info $(M) Installing ytt...)
 	@set -o errexit; \
-	docker build --tag ytt:$(YTT_REF) --build-arg REF=$(YTT_REF) --file docker/Dockerfile docker; \
-	docker create --name ytt_$(YTT_REF) ytt:$(YTT_REF); \
-	docker cp ytt_$(YTT_REF):/ytt bin/ytt; \
-	docker rm ytt_$(YTT_REF)
+	docker create --name tools tools; \
+	docker cp tools:/ytt bin/; \
+	docker rm tools
 
 .PHONY:
 kapp: bin/kapp
@@ -77,3 +80,12 @@ bin/kapp: bin ; $(info $(M) Installing kapp...)
 	    jq --raw-output '.assets[] | select(.name == "kapp-linux-amd64") | .browser_download_url' | \
 	    xargs curl -sLfo ./bin/kapp; \
 	chmod +x ./bin/kapp
+
+.PHONY:
+kubeyaml: bin/kubeyaml
+
+bin/kubeyaml: bin docker ; $(info $(M) Installing kubeyaml...)
+	@set -o errexit; \
+	docker create --name tools tools; \
+	docker cp tools:/kubeyaml bin/; \
+	docker rm tools
