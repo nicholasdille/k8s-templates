@@ -1,0 +1,7 @@
+#@data/values
+---
+klum:
+  namespace: klum
+  version: 0.0.1
+  matchLabels:
+    run: klum

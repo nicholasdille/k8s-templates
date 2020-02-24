@@ -1,0 +1,19 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: klum
+  namespace: #@ data.values.klum.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.klum.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.klum.matchLabels
+    spec:
+      serviceAccountName: klum
+      containers:
+      - name: main
+        image: #@ "ibuildthecloud/klum:v{}-amd64".format(data.values.klum.version)
