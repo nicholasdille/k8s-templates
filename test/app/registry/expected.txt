@@ -59,6 +59,11 @@ spec:
       port: 5000
       strategy: RoundRobin
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

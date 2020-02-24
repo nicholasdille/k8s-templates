@@ -60,6 +60,11 @@ spec:
       strategy: RoundRobin
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: registry
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: registry
