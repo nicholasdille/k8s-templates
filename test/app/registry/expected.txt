@@ -14,7 +14,7 @@ spec:
         pod: registry
     spec:
       containers:
-      - name: registry
+      - name: main
         image: registry:2
         imagePullPolicy: Always
         ports:

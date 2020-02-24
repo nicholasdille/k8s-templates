@@ -14,7 +14,7 @@ spec:
       labels: #@ data.values.registry.matchLabels
     spec:
       containers:
-      - name: registry
+      - name: main
         image: #@ "registry:{}".format(data.values.registry.version)
         imagePullPolicy: Always
         ports:

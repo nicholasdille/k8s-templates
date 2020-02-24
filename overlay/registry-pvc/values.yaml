@@ -1,0 +1,8 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+registry:
+  #@overlay/match missing_ok=True
+  volume:
+    size: 10Gi
+    storageClass: hcloud-volumes

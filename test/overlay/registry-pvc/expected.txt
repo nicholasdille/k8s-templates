@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+  namespace: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: registry
+  template:
+    metadata:
+      labels:
+        pod: registry
+    spec:
+      containers:
+      - name: main
+        image: registry:2
+        imagePullPolicy: Always
+        ports:
+        - name: api
+          containerPort: 5000
+        volumeMounts:
+        - name: registry
+          mountPath: /var/lib/registry
+          subPath: registry-data
+      volumes:
+      - name: registry
+        persistentVolumeClaim:
+          claimName: registry
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: registry
+  namespace: registry
+spec:
+  selector:
+    pod: registry
+  ports:
+  - name: api
+    port: 5000
+    targetPort: 5000
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: registry
+  namespace: registry
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: Host(`reg.example.com`) && PathPrefix(`/v2`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: registry
+      port: 5000
+      strategy: RoundRobin
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry
+  namespace: registry
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: hcloud-volumes
