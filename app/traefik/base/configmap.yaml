@@ -30,5 +30,7 @@ data:
         address: ":443"
       metrics:
         address: ":8082"
+      traefik:
+        address: ":8080"
     providers:
       kubernetesCRD: {}

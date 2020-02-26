@@ -1,0 +1,32 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+cloudflare:
+  email: nicholas.dille@mailbox.org
+  key: cf-api-key
+#@overlay/match missing_ok=True
+traefik:
+  domain: dille.io
+  lb: lb.dille.io
+  dashboard:
+    htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
+  api:
+    htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
+#@overlay/match missing_ok=True
+certmanager:
+  #@overlay/match missing_ok=True
+  email: webmaster@dille.io
+  #@overlay/match missing_ok=True
+  #@overlay/replace
+  domains:
+  - dille.io
+#@overlay/match missing_ok=True
+externaldns:
+  domain: dille.io
+#@overlay/match missing_ok=True
+nginx:
+  domain: dille.io
+  fqdn: nginx.dille.io
+  lb: lb.dille.io

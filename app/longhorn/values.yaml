@@ -1,0 +1,15 @@
+#@data/values
+---
+longhorn:
+  namespace: longhorn
+  version: 0.7.0
+  manager:
+    matchLabels:
+      app: longhorn-manager
+  ui:
+    matchLabels:
+      app: longhorn-ui
+  driver:
+    matchLabels:
+      app: longhorn-driver-deployer
+  fqdn: longhorn.example.com

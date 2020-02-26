@@ -5,8 +5,8 @@ kind: Service
 metadata:
   name: nginx
 spec:
-  selector:
-    app: nginx
+  type: ClusterIP
+  selector: #@ data.values.nginx.matchLabels
   ports:
     - protocol: TCP
       port: #@ data.values.nginx.port

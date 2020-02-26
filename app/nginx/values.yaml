@@ -5,6 +5,6 @@ nginx:
   tag: latest
   matchLabels:
     pod: nginx
-  domain: dille.io
-  fqdn: nginx.dille.io
-  lb: lb.dille.io
+  domain: example.io
+  fqdn: nginx.example.io
+  lb: lb.example.io

@@ -27,17 +27,17 @@ spec:
           echo Update DNS with ${PUBLIC_IP}; \
           flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
         env:
-          - name: LABEL_NAME
-            value: #@ data.values.traefikinitdns.label_name
-          - name: DOMAIN
-            value: #@ data.values.traefikinitdns.domain
-          - name: CF_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: cloudflare
-                key: CF_API_KEY
-          - name: CF_API_EMAIL
-            valueFrom:
-              secretKeyRef:
-                name: cloudflare
-                key: CF_API_EMAIL
+        - name: LABEL_NAME
+          value: #@ data.values.traefikinitdns.label_name
+        - name: DOMAIN
+          value: #@ data.values.traefikinitdns.domain
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL

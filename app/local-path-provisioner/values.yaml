@@ -1,0 +1,7 @@
+#@data/values
+---
+localPathProvisioner:
+  namespace: local-path-storage
+  version: 0.0.12
+  matchLabels:
+    app: local-path-provisioner

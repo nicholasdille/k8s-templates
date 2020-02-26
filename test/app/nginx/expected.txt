@@ -6,7 +6,7 @@ spec:
   secretName: certificate-nginx
   duration: 2160h
   renewBefore: 360h
-  commonName: nginx.dille.io
+  commonName: nginx.example.io
   isCA: false
   keySize: 2048
   keyAlgorithm: rsa
@@ -15,7 +15,7 @@ spec:
   - server auth
   - client auth
   dnsNames:
-  - nginx.dille.io
+  - nginx.example.io
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer
@@ -64,39 +64,38 @@ metadata:
   name: nginx
 spec:
   endpoints:
-  - dnsName: nginx.dille.io
+  - dnsName: nginx.example.io
     recordTTL: 180
     recordType: CNAME
     targets:
-    - lb.dille.io
+    - lb.example.io
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-dashboard-redirect
+  name: nginx
   labels:
-    dille.io/loadbalancer: default
+    example.io/loadbalancer: default
 spec:
   entryPoints:
   - http
   routes:
-  - match: Host(`traefik.nginx.dille.io`)
+  - match: Host(`nginx.example.io`)
     kind: Rule
     priority: 12
     services:
-    - name: traefik-dashboard
+    - name: nginx
       port: 80
       strategy: RoundRobin
-    middlewares:
-    - name: traefik-dashboard-redirect
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx
 spec:
+  type: ClusterIP
   selector:
-    app: nginx
+    pod: nginx
   ports:
   - protocol: TCP
     port: 80

@@ -14,13 +14,17 @@ spec:
       labels: #@ data.values.traefik.matchLabels
     spec:
       serviceAccountName: traefik
+      strategy:
+        type: Recreate
       containers:
-      - image: traefik:v2.0
-        name: main
+      - name: main
+        image: traefik:v2.1
         imagePullPolicy: Always
         volumeMounts:
         - mountPath: /etc/traefik
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
         ports:
         - name: http
           containerPort: 80
@@ -42,3 +46,6 @@ spec:
       - name: config
         configMap:
           name: traefik
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

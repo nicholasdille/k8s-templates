@@ -1,0 +1,88 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: longhorn-manager
+  namespace: #@ data.values.longhorn.namespace
+spec:
+  selector:
+    matchLabels: #@ data.values.longhorn.manager.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.longhorn.manager.matchLabels
+    spec:
+      containers:
+      - name: longhorn-manager
+        image: #@ "longhornio/longhorn-manager:v{}".format(data.values.longhorn.version)
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        command:
+        - longhorn-manager
+        - -d
+        - daemon
+        - --engine-image
+        - #@ "longhornio/longhorn-engine:v{}".format(data.values.longhorn.version)
+        - --manager-image
+        - #@ "longhornio/longhorn-manager:v{}".format(data.values.longhorn.version)
+        - --service-account
+        - longhorn-service-account
+        ports:
+        - containerPort: 9500
+        volumeMounts:
+        - name: dev
+          mountPath: /host/dev/
+        - name: proc
+          mountPath: /host/proc/
+        - name: varrun
+          mountPath: /var/run/
+        - name: longhorn
+          mountPath: /var/lib/rancher/longhorn/
+          mountPropagation: Bidirectional
+        - name: longhorn-default-setting
+          mountPath: /var/lib/longhorn-setting/
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DEFAULT_SETTING_PATH
+          value: /var/lib/longhorn-setting/default-setting.yaml
+      volumes:
+      - name: dev
+        hostPath:
+          path: /dev/
+      - name: proc
+        hostPath:
+          path: /proc/
+      - name: varrun
+        hostPath:
+          path: /var/run/
+      - name: longhorn
+        hostPath:
+          path: /var/lib/rancher/longhorn/
+      - name: longhorn-default-setting
+        configMap:
+          name: longhorn-default-setting
+      serviceAccountName: longhorn-service-account
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: longhorn-backend
+  namespace: #@ data.values.longhorn.namespace
+spec:
+  selector: #@ data.values.longhorn.manager.matchLabels
+  ports:
+  - port: 9500
+    targetPort: 9500
+  sessionAffinity: ClientIP

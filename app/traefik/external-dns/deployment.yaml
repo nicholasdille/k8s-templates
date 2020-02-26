@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: external-dns
+  namespace: #@ data.values.traefik.namespace
 spec:
   strategy:
     type: Recreate
@@ -15,19 +16,25 @@ spec:
       labels:
         app: external-dns
     spec:
-      serviceAccountName: external-dns
+      serviceAccountName: external-dns-traefik
       containers:
       - name: external-dns
         image: registry.opensource.zalan.do/teapot/external-dns:latest
         args:
           - --txt-owner-id=traefik
           - --source=service
-          - --namespace=default
+          - #@ "--namespace={}".format(data.values.traefik.namespace)
           - #@ "--domain-filter={}.".format(data.values.traefik.domain)
           - --provider=cloudflare
           - --publish-host-ip
         env:
-          - name: CF_API_KEY
-            value: "$CLOUDFLARE_API_KEY"
-          - name: CF_API_EMAIL
-            value: "$CLOUDFLARE_EMAIL"
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL

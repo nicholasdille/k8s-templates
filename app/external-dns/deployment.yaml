@@ -26,7 +26,13 @@ spec:
           - #@ "--domain-filter={}".format(data.values.externaldns.domain)
           - --provider=cloudflare
         env:
-          - name: CF_API_EMAIL
-            value: #@ data.values.externaldns.cloudflare.email
-          - name: CF_API_KEY
-            value: #@ data.values.externaldns.cloudflare.key
+        - name: CF_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL

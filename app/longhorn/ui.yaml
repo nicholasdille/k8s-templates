@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: longhorn-ui
+  namespace: #@ data.values.longhorn.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.longhorn.ui.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.longhorn.ui.matchLabels
+    spec:
+      containers:
+      - name: longhorn-ui
+        image: #@ "longhornio/longhorn-ui:v{}".format(data.values.longhorn.version)
+        ports:
+        - containerPort: 8000
+        env:
+        - name: LONGHORN_MANAGER_IP
+          value: "http://longhorn-backend:9500"
+      serviceAccountName: longhorn-service-account
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: longhorn-frontend
+  namespace: #@ data.values.longhorn.namespace
+spec:
+  selector: #@ data.values.longhorn.ui.matchLabels
+  ports:
+  - port: 80
+    targetPort: 8000

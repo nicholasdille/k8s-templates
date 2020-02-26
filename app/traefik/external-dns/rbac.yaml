@@ -1,13 +1,15 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: external-dns
+  name: external-dns-traefik
+  namespace: #@ data.values.traefik.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
 metadata:
-  name: external-dns
+  name: external-dns-traefik
 rules:
 - apiGroups: [""]
   resources: ["services"]
@@ -25,12 +27,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
-  name: external-dns-viewer
+  name: external-dns-traefik-viewer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: external-dns
+  name: external-dns-traefik
 subjects:
 - kind: ServiceAccount
-  name: external-dns
-  namespace: default
+  name: external-dns-traefik
+  namespace: #@ data.values.traefik.namespace

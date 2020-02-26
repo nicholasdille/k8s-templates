@@ -1,10 +1,14 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
 traefik:
   namespace: traefik
   matchLabels:
     app: traefik
-  domain: dille.io
+  domain: example.com
   dashboard:
+    htpasswd: ""
+  api:
     htpasswd: ""

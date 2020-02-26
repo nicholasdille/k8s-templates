@@ -91,13 +91,19 @@ spec:
         - --source=crd
         - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
         - --crd-source-kind=DNSEndpoint
-        - --domain-filter=dille.io
+        - --domain-filter=example.com
         - --provider=cloudflare
         env:
-        - name: CF_API_EMAIL
-          value: cf-api-email
         - name: CF_API_KEY
-          value: cf-api-key
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_KEY
+        - name: CF_API_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare
+              key: CF_API_EMAIL
 ---
 apiVersion: v1
 kind: Namespace
@@ -170,3 +176,13 @@ subjects:
 - kind: ServiceAccount
   name: external-dns
   namespace: external-dns
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudflare
+  namespace: external-dns
+type: Opaque
+stringData:
+  CF_API_EMAIL: cf-api-email
+  CF_API_KEY: cf-api-key

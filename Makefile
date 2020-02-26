@@ -2,8 +2,8 @@ APP_DIR=app
 OVERLAY_DIR=overlay
 APPS:=$(wildcard $(APP_DIR)/*)
 OVERLAYS:=$(wildcard $(OVERLAY_DIR)/*)
-APP_TEST_RESULTS:=$(addsuffix /result.txt,$(addprefix test/,$(APPS)))
-OVERLAY_TEST_RESULTS:=$(sort $(addsuffix /result.txt,$(addprefix test/,$(OVERLAYS))))
+APP_TESTS:=$(addsuffix /diff.txt,$(addprefix test/,$(APPS)))
+OVERLAY_TESTS:=$(sort $(addsuffix /diff.txt,$(addprefix test/,$(OVERLAYS))))
 
 YTT_REF=master
 
@@ -21,28 +21,44 @@ debug:
 test: test-app test-overlay
 
 .PHONY:
-test-app: $(APP_TEST_RESULTS)
+test-app: $(APP_TESTS)
 
 .PHONY:
-test-overlay: $(OVERLAY_TEST_RESULTS)
+test-overlay: $(OVERLAY_TESTS)
 
 .PHONY:
 clean: ; $(info $(M) Cleaning...)
-	@find . -type f -name result.txt -exec rm {} \;
-
-test/app/%/result.txt: ; $(info $(M) Testing $@...)
 	@set -o errexit; \
-	TEST_DIR=$(@:%/result.txt=%) ; \
+	find . -type f -name result.txt -exec rm {} \;; \
+	find . -type f -name diff.txt -exec rm {} \;
+
+test/%/expected.txt:
+	@echo "ERROR: Missing $@"; \
+	false
+
+test/%/diff.txt: test/%/result.txt test/%/expected.txt ; $(info $(M) Running $(@:%/diff.txt=%))
+	@set -o errexit; \
+	TEST_DIR=$(@:%/diff.txt=%); \
+	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt | tee $${TEST_DIR}/diff.txt; \
+	if test "$$(stat -c%s $${TEST_DIR}/diff.txt)" -gt 0; then \
+		rm $${TEST_DIR}/diff.txt; \
+	    false; \
+	fi
+
+.SECONDARY:
+test/app/%/result.txt:
+	@set -o errexit; \
+	TEST_DIR=$(@:%/result.txt=%); \
 	mkdir -p $${TEST_DIR}; \
-	APP_DIR=$${TEST_DIR#test/} ; \
+	APP_DIR=$${TEST_DIR#test/}; \
 	if test -f $${TEST_DIR}/run.sh; then \
 	    bash $${TEST_DIR}/run.sh >$${TEST_DIR}/result.txt; \
 	else \
 	    ./bin/ytt -f $${APP_DIR} >$${TEST_DIR}/result.txt; \
-	fi; \
-	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt
+	fi
 
-test/overlay/%/result.txt: ; $(info $(M) Testing $@...)
+.SECONDARY:
+test/overlay/%/result.txt:
 	@set -o errexit; \
 	TEST_DIR=$(@:%/result.txt=%) ; \
 	mkdir -p $${TEST_DIR}; \
@@ -52,8 +68,7 @@ test/overlay/%/result.txt: ; $(info $(M) Testing $@...)
 	else \
 	    test -f $${TEST_DIR}/test.yaml; \
 	    ./bin/ytt -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
-	fi; \
-	diff -u $${TEST_DIR}/expected.txt $${TEST_DIR}/result.txt
+	fi
 
 bin:
 	@mkdir -p bin

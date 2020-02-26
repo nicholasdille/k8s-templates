@@ -1,26 +1,9 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: traefik-dashboard
-  namespace: #@ data.values.traefik.namespace
-  labels:
-    #@yaml/text-templated-strings
-    (@= data.values.traefik.domain @)/loadbalancer: default
-spec:
-  type: ClusterIP
-  selector:
-    app: traefik
-  ports:
-  - name: dashboard
-    port: 80
-    targetPort: 8080
----
-apiVersion: v1
 kind: Secret
 metadata:
-  name: traefik-dashboard
+  name: traefik-api
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
@@ -32,20 +15,20 @@ stringData:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: traefik-dashboard-auth
+  name: traefik-api-auth
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
     (@= data.values.traefik.domain @)/loadbalancer: default
 spec:
   basicAuth:
-    realm: "traefik dashboard"
-    secret: traefik-dashboard
+    realm: "traefik api"
+    secret: traefik-api
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: traefik-dashboard
+  name: traefik-api
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
@@ -54,12 +37,11 @@ spec:
   entryPoints:
     - http
   routes:
-    - match: #@ "Host(`traefik.{}`)".format(data.values.traefik.domain)
+    - match: #@ "Host(`traefik.{}`) && PathPrefix(`/api`)".format(data.values.traefik.domain)
       kind: Rule
       priority: 12
       services:
-      - name: traefik-dashboard
-        port: 80
-        strategy: RoundRobin
+      - name: api@internal
+        kind: TraefikService
       middlewares:
-      - name: traefik-dashboard-auth
+      - name: traefik-api-auth
