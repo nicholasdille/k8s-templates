@@ -10,7 +10,7 @@ spec:
       volumes:
       #@overlay/match by="name",missing_ok=True
       - name: gitea-data
-        emptryDir: {}
+        emptyDir: {}
       containers:
       #@overlay/match by="name"
       - name: gitea

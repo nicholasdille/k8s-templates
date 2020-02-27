@@ -18,7 +18,7 @@ debug:
 	echo OVERLAY_TEST_RESULTS=$(OVERLAY_TEST_RESULTS)
 
 .PHONY:
-test: test-app test-overlay
+test: tools test-app test-overlay
 
 .PHONY:
 test-app: $(APP_TESTS)
@@ -54,8 +54,9 @@ test/app/%/result.txt:
 	if test -f $${TEST_DIR}/run.sh; then \
 	    bash $${TEST_DIR}/run.sh >$${TEST_DIR}/result.txt; \
 	else \
-	    ./bin/ytt -f $${APP_DIR} >$${TEST_DIR}/result.txt; \
-	fi
+	    ./bin/ytt --ignore-unknown-comments -f $${APP_DIR} >$${TEST_DIR}/result.txt; \
+	fi; \
+	cat $${TEST_DIR}/result.txt | ./bin/kubeyaml
 
 .SECONDARY:
 test/overlay/%/result.txt:
@@ -67,7 +68,7 @@ test/overlay/%/result.txt:
 	    bash $${TEST_DIR}/run.sh >$${TEST_DIR}/result.txt; \
 	else \
 	    test -f $${TEST_DIR}/test.yaml; \
-	    ./bin/ytt -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
+	    ./bin/ytt --ignore-unknown-comments -f $${TEST_DIR}/test.yaml -f $${OVERLAY_DIR} >$${TEST_DIR}/result.txt; \
 	fi
 
 bin:
@@ -76,6 +77,9 @@ bin:
 .PHONY:
 docker: ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
+
+.PHONY:
+tools: ytt kapp kubeyaml
 
 .PHONY:
 ytt: bin/ytt

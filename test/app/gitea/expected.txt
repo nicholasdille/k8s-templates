@@ -35,7 +35,7 @@ spec:
         hostPath:
           path: /usr/share/zoneinfo/Europe/Berlin
       - name: gitea-data
-        emptryDir: {}
+        emptyDir: {}
 ---
 kind: Service
 apiVersion: v1
