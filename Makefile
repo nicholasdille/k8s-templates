@@ -9,6 +9,9 @@ YTT_REF=master
 
 M = $(shell printf "\033[34;1m▶\033[0m")
 
+.DEFAULT:
+all: tools test
+
 .PHONY:
 debug:
 	@echo APP_DIR=$(APP_DIR) OVERLAY_DIR=$(OVERLAY_DIR); \
@@ -18,7 +21,7 @@ debug:
 	echo OVERLAY_TEST_RESULTS=$(OVERLAY_TEST_RESULTS)
 
 .PHONY:
-test: ytt test-app test-overlay
+test: test-app test-overlay
 
 .PHONY:
 test-app: $(APP_TESTS)
