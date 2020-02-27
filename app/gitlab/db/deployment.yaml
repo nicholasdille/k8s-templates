@@ -36,15 +36,15 @@ spec:
         - name: POSTGRES_PASSWORD
           value: #@ data.values.gitlab.db.password
         volumeMounts:
-        - name: config
-          mountPath: /etc/postgresql/postgresql.conf
-        - name: init
-          mountPath: /docker-entrypoint-initdb.d
-        - name: db
-          mountPath: "/var/lib/postgresql/data"
+        - mountPath: /etc/postgresql/postgresql.conf
+          name: config
+        - mountPath: /docker-entrypoint-initdb.d
+          name: init
+        - mountPath: "/var/lib/postgresql/data"
+          name: db
           subPath: db-data
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
         ports:
         - name: db
           containerPort: 5432

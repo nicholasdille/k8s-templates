@@ -320,15 +320,15 @@ spec:
         - name: POSTGRES_PASSWORD
           value: uLhEv7zzkvQGy879F5FUhQ==
         volumeMounts:
-        - name: config
-          mountPath: /etc/postgresql/postgresql.conf
-        - name: init
-          mountPath: /docker-entrypoint-initdb.d
-        - name: db
-          mountPath: /var/lib/postgresql/data
+        - mountPath: /etc/postgresql/postgresql.conf
+          name: config
+        - mountPath: /docker-entrypoint-initdb.d
+          name: init
+        - mountPath: /var/lib/postgresql/data
+          name: db
           subPath: db-data
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
         ports:
         - name: db
           containerPort: 5432
@@ -432,17 +432,17 @@ spec:
         - name: gitaly
           containerPort: 8075
         volumeMounts:
-        - name: gitaly
-          mountPath: /var/opt/gitlab
+        - mountPath: /var/opt/gitlab
+          name: gitaly
           subPath: gitaly-data
-        - name: gitaly
-          mountPath: /etc/gitlab
+        - mountPath: /etc/gitlab
+          name: gitaly
           subPath: gitaly-config
-        - name: gitaly
-          mountPath: /var/log/gitlab
+        - mountPath: /var/log/gitlab
+          name: gitaly
           subPath: gitaly-log
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
       volumes:
       - name: gitaly
         emptyDir: {}
@@ -537,17 +537,17 @@ spec:
         - name: redis
           containerPort: 6379
         volumeMounts:
-        - name: redis
-          mountPath: /var/opt/gitlab
+        - mountPath: /var/opt/gitlab
+          name: redis
           subPath: redis-data
-        - name: redis
-          mountPath: /etc/gitlab
+        - mountPath: /etc/gitlab
+          name: redis
           subPath: redis-config
-        - name: redis
-          mountPath: /var/log/gitlab
+        - mountPath: /var/log/gitlab
+          name: redis
           subPath: redis-log
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
       volumes:
       - name: redis
         emptyDir: {}
@@ -654,11 +654,11 @@ spec:
         - name: server
           containerPort: 80
         volumeMounts:
-        - name: server
-          mountPath: /var/opt/gitlab
+        - mountPath: /var/opt/gitlab
+          name: server
           subPath: server-data
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
       volumes:
       - name: server
         emptyDir: {}

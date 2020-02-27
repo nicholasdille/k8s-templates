@@ -26,17 +26,17 @@ spec:
         - name: redis
           containerPort: 6379
         volumeMounts:
-        - name: redis
-          mountPath: "/var/opt/gitlab"
+        - mountPath: "/var/opt/gitlab"
+          name: redis
           subPath: redis-data
-        - name: redis
-          mountPath: "/etc/gitlab"
+        - mountPath: "/etc/gitlab"
+          name: redis
           subPath: redis-config
-        - name: redis
-          mountPath: "/var/log/gitlab"
+        - mountPath: "/var/log/gitlab"
+          name: redis
           subPath: redis-log
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
       volumes:
       - name: redis
         emptyDir: {}

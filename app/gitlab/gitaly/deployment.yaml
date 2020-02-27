@@ -26,17 +26,17 @@ spec:
         - name: gitaly
           containerPort: 8075
         volumeMounts:
-        - name: gitaly
-          mountPath: "/var/opt/gitlab"
+        - mountPath: "/var/opt/gitlab"
+          name: gitaly
           subPath: gitaly-data
-        - name: gitaly
-          mountPath: "/etc/gitlab"
+        - mountPath: "/etc/gitlab"
+          name: gitaly
           subPath: gitaly-config
-        - name: gitaly
-          mountPath: "/var/log/gitlab"
+        - mountPath: "/var/log/gitlab"
+          name: gitaly
           subPath: gitaly-log
-        - name: tz-config
-          mountPath: /etc/localtime
+        - mountPath: /etc/localtime
+          name: tz-config
       volumes:
       - name: gitaly
         emptyDir: {}
