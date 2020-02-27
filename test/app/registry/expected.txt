@@ -25,9 +25,7 @@ spec:
           mountPath: /var/lib/registry
       volumes:
       - name: registry-data
-        hostPath:
-          path: /data/registry-data
-          type: DirectoryOrCreate
+        emptyDir: {}
 ---
 kind: Service
 apiVersion: v1

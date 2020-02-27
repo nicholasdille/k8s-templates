@@ -5,6 +5,4 @@ registry:
   #@overlay/match missing_ok=True
   volume:
   - name: registry-data
-    hostPath:
-      path: /data/registry-data
-      type: DirectoryOrCreate
+    emptyDir: {}

@@ -5,6 +5,4 @@ gitea:
   #@overlay/match missing_ok=True
   volume:
   - name: gitea-data
-    hostPath:
-      path: /data/gitea-data
-      type: DirectoryOrCreate
+    emptryDir: {}

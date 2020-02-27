@@ -5,6 +5,4 @@ drone:
   #@overlay/match missing_ok=True
   volume:
   - name: drone-data
-    hostPath:
-      path: /data/drone-data
-      type: DirectoryOrCreate
+    emptyDir: {}

@@ -31,6 +31,12 @@ spec:
           value: http
         - name: DRONE_USER_CREATE
           value: username:admin,machine:false,admin:true,token:4a93d742480b7ee93d1b2dd280a7771f
+        volumeMounts:
+        - name: drone-data
+          mountPath: /var/lib/drone
+      volumes:
+      - name: drone-data
+        emptyDir: {}
 ---
 kind: Service
 apiVersion: v1
