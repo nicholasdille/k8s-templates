@@ -25,6 +25,13 @@ spec:
           value: user
         - name: PASSWORD
           value: abc
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute

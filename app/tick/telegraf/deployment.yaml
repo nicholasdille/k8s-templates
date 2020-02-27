@@ -67,6 +67,8 @@ spec:
           readOnly: true
         - mountPath: /etc/telegraf
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
       restartPolicy: Always
       serviceAccount: monitoring
       serviceAccountName: monitoring
@@ -91,3 +93,6 @@ spec:
           defaultMode: 420
           name: monitoring
         name: config
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

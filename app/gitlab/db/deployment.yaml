@@ -17,6 +17,9 @@ spec:
       - name: init
         configMap:
           name: db
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - name: main
         image: #@ "postgres:{}".format(data.values.gitlab.db.version)
@@ -30,6 +33,8 @@ spec:
         volumeMounts:
         - name: init
           mountPath: /docker-entrypoint-initdb.d
+        - name: tz-config
+          mountPath: /etc/localtime
         ports:
         - name: db
           containerPort: 5432

@@ -36,6 +36,13 @@ spec:
             port: 8081
           initialDelaySeconds: 5
           timeoutSeconds: 5
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: kube-state-metrics

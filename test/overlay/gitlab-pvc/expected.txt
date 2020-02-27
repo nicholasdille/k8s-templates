@@ -57,6 +57,9 @@ spec:
       - name: init
         configMap:
           name: db
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: db
         persistentVolumeClaim:
           claimName: gitlab
@@ -73,6 +76,8 @@ spec:
         volumeMounts:
         - name: init
           mountPath: /docker-entrypoint-initdb.d
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: db
           mountPath: /var/lib/postgresql/data
           subPath: db-data
@@ -179,6 +184,8 @@ spec:
         - name: gitaly
           containerPort: 8075
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: gitaly
           mountPath: /var/opt/gitlab
           subPath: gitaly-data
@@ -189,6 +196,9 @@ spec:
           mountPath: /var/log/gitlab
           subPath: gitaly-log
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: gitaly
         persistentVolumeClaim:
           claimName: gitlab
@@ -293,6 +303,8 @@ spec:
         - name: redis
           containerPort: 6379
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: redis
           mountPath: /var/opt/gitlab
           subPath: redis-data
@@ -303,6 +315,9 @@ spec:
           mountPath: /var/log/gitlab
           subPath: redis-log
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: redis
         persistentVolumeClaim:
           claimName: gitlab
@@ -406,10 +421,15 @@ spec:
         - name: server
           containerPort: 80
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: server
           mountPath: /var/opt/gitlab
           subPath: server-data
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: server
         persistentVolumeClaim:
           claimName: gitlab

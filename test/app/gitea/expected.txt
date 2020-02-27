@@ -26,9 +26,14 @@ spec:
         - name: ROOT_URL
           value: http://git.example.com
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: gitea-data
           mountPath: /var/lib/drone
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: gitea-data
         emptryDir: {}
 ---

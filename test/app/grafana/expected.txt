@@ -63,6 +63,8 @@ spec:
           subPath: mysql
         - mountPath: /etc/mysql/conf.d/
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: nfs-mysql-grafana
         persistentVolumeClaim:
@@ -71,6 +73,9 @@ spec:
           defaultMode: 420
           name: mysql-grafana
         name: config
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: Namespace
@@ -131,3 +136,10 @@ spec:
         - containerPort: 3000
           name: http
           protocol: TCP
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin

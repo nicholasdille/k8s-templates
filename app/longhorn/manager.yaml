@@ -42,6 +42,8 @@ spec:
           mountPropagation: Bidirectional
         - name: longhorn-default-setting
           mountPath: /var/lib/longhorn-setting/
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -73,6 +75,9 @@ spec:
       - name: longhorn-default-setting
         configMap:
           name: longhorn-default-setting
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       serviceAccountName: longhorn-service-account
 ---
 kind: Service

@@ -7,12 +7,15 @@ spec:
   template:
     spec:
       #@overlay/match missing_ok=True
-      volumes: #@ data.values.gitea.volume
+      volumes:
+      #@overlay/match by="name",missing_ok=True
+      - name: gitea-data
+        emptryDir: {}
       containers:
       #@overlay/match by="name"
       - name: gitea
         #@overlay/match missing_ok=True
         volumeMounts:
-        #@overlay/match by="name"
+        #@overlay/match by="name",missing_ok=True
         - name: gitea-data  
           mountPath: "/var/lib/drone"

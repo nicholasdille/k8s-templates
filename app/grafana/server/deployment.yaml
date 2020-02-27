@@ -49,3 +49,10 @@ spec:
         - containerPort: 3000
           name: http
           protocol: TCP
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

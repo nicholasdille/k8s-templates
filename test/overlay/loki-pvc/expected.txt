@@ -79,6 +79,8 @@ spec:
         - mountPath: /var/log/pods
           name: pods
           readOnly: true
+        - name: tz-config
+          mountPath: /etc/localtime
       restartPolicy: Always
       serviceAccount: promtail
       serviceAccountName: promtail
@@ -99,6 +101,9 @@ spec:
           path: /var/log/pods
           type: ""
         name: pods
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -150,6 +155,8 @@ spec:
         volumeMounts:
         - mountPath: /etc/loki
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: server
           mountPath: /data
           subPath: server-data
@@ -158,6 +165,9 @@ spec:
         secret:
           defaultMode: 420
           secretName: loki
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: server
         persistentVolumeClaim:
           claimName: loki

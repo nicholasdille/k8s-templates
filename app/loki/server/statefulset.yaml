@@ -48,8 +48,13 @@ spec:
         volumeMounts:
         - mountPath: /etc/loki
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         secret:
           defaultMode: 420
           secretName: loki
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

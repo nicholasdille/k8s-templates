@@ -25,6 +25,13 @@ spec:
         ports:
         - name: gitaly
           containerPort: 8075
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: v1
 kind: Service

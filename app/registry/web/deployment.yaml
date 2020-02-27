@@ -27,6 +27,13 @@ spec:
           value: "registry"
         - name: ENV_DOCKER_REGISTRY_PORT
           value: "5000"
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 kind: Service
 apiVersion: v1

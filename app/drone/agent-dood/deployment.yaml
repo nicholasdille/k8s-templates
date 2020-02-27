@@ -16,6 +16,9 @@ spec:
       - name: docker-socket
         hostPath:
           path: /var/run/docker.sock
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
         - name: drone-agent
           image: drone/agent:0.8
@@ -28,3 +31,5 @@ spec:
           volumeMounts:
           - name: docker-socket
             mountPath: /var/run/docker.sock
+          - name: tz-config
+            mountPath: /etc/localtime

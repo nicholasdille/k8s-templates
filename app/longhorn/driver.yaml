@@ -42,4 +42,11 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.serviceAccountName
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       serviceAccountName: longhorn-service-account

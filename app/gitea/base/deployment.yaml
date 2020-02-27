@@ -25,6 +25,13 @@ spec:
           value: #@ "{}".format(data.values.gitea.ssh_port)
         - name: ROOT_URL
           value: #@ data.values.gitea.url
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 kind: Service
 apiVersion: v1

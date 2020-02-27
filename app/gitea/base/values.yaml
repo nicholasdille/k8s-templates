@@ -1,6 +1,8 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
 gitea:
   version: 1.11
   namespace: gitea

@@ -21,10 +21,15 @@ spec:
         - name: api
           containerPort: 5000
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: registry
           mountPath: /var/lib/registry
           subPath: registry-data
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: registry
         persistentVolumeClaim:
           claimName: registry

@@ -58,6 +58,13 @@ spec:
           httpGet:
             path: /readiness
             port: 9097
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       serviceAccountName: tekton-dashboard
 ---
 apiVersion: tekton.dev/v1alpha1
@@ -506,6 +513,8 @@ spec:
         volumeMounts:
         - name: config-logging
           mountPath: /etc/config-logging
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: SYSTEM_NAMESPACE
           valueFrom:
@@ -525,6 +534,9 @@ spec:
       - name: config-logging
         configMap:
           name: config-logging
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -995,6 +1007,8 @@ spec:
         volumeMounts:
         - name: config-logging
           mountPath: /etc/config-logging
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: SYSTEM_NAMESPACE
           valueFrom:
@@ -1010,6 +1024,9 @@ spec:
       - name: config-logging
         configMap:
           name: config-logging-triggers
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: apps/v1
 kind: Deployment

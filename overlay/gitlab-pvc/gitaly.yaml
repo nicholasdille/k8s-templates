@@ -8,6 +8,7 @@ spec:
     spec:
       #@overlay/match missing_ok=True
       volumes:
+      #@overlay/match by="name",missing_ok=True
       - name: gitaly
         persistentVolumeClaim:
           claimName: gitlab
@@ -16,15 +17,15 @@ spec:
       - name: main
         #@overlay/match missing_ok=True
         volumeMounts:
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: gitaly
           mountPath: "/var/opt/gitlab"
           subPath: gitaly-data
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: gitaly
           mountPath: "/etc/gitlab"
           subPath: gitaly-config
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: gitaly
           mountPath: "/var/log/gitlab"
           subPath: gitaly-log

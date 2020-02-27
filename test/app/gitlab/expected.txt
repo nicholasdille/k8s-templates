@@ -49,6 +49,9 @@ spec:
       - name: init
         configMap:
           name: db
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       containers:
       - name: main
         image: postgres:9.6
@@ -62,6 +65,8 @@ spec:
         volumeMounts:
         - name: init
           mountPath: /docker-entrypoint-initdb.d
+        - name: tz-config
+          mountPath: /etc/localtime
         ports:
         - name: db
           containerPort: 5432
@@ -164,6 +169,13 @@ spec:
         ports:
         - name: gitaly
           containerPort: 8075
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: Service
@@ -264,6 +276,13 @@ spec:
         ports:
         - name: redis
           containerPort: 6379
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: Service
@@ -363,6 +382,13 @@ spec:
         ports:
         - name: server
           containerPort: 80
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: Service

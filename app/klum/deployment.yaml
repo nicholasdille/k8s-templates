@@ -17,3 +17,10 @@ spec:
       containers:
       - name: main
         image: #@ "ibuildthecloud/klum:v{}-amd64".format(data.values.klum.version)
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

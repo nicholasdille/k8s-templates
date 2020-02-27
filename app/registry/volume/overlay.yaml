@@ -7,12 +7,15 @@ spec:
   template:
     spec:
       #@overlay/match missing_ok=True
-      volumes: #@ data.values.registry.volume
+      volumes:
+      #@overlay/match by="name",missing_ok=True
+      - name: registry-data
+        emptyDir: {}
       containers:
       #@overlay/match by="name"
       - name: main
         #@overlay/match missing_ok=True
         volumeMounts:
-        #@overlay/match by="name"
+        #@overlay/match by="name",missing_ok=True
         - name: registry-data
           mountPath: "/var/lib/registry"

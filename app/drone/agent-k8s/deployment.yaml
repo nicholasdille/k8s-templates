@@ -29,3 +29,10 @@ spec:
           value: #@ data.values.drone.secret
         - name: DRONE_RUNNER_CAPACITY
           value: "1"
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

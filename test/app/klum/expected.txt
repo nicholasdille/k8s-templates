@@ -17,6 +17,13 @@ spec:
       containers:
       - name: main
         image: ibuildthecloud/klum:v0.0.1-amd64
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: Namespace

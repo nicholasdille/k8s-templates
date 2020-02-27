@@ -21,9 +21,14 @@ spec:
         - name: api
           containerPort: 5000
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: registry-data
           mountPath: /var/lib/registry
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: registry-data
         emptyDir: {}
 ---
@@ -92,6 +97,13 @@ spec:
           value: registry
         - name: ENV_DOCKER_REGISTRY_PORT
           value: "5000"
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 kind: Service
 apiVersion: v1

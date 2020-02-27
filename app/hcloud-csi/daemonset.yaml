@@ -53,6 +53,8 @@ spec:
               mountPath: /csi
             - name: device-dir
               mountPath: /dev
+            - name: tz-config
+              mountPath: /etc/localtime
           securityContext:
             privileged: true
       volumes:
@@ -72,3 +74,6 @@ spec:
           hostPath:
             path: /dev
             type: Directory
+        - name: tz-config
+          hostPath:
+            path: #@ "/usr/share/zoneinfo/" + data.values.timezone

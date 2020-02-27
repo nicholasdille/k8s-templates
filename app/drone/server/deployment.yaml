@@ -31,6 +31,13 @@ spec:
             value: "http"
           - name: DRONE_USER_CREATE
             value: #@ "username:{},machine:false,admin:true,token:{}".format("admin", data.values.drone.admin.password)
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 kind: Service
 apiVersion: v1

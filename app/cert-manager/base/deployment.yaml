@@ -86,8 +86,15 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
           resources:
             {}
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -32,9 +32,14 @@ spec:
         - name: DRONE_USER_CREATE
           value: username:admin,machine:false,admin:true,token:4a93d742480b7ee93d1b2dd280a7771f
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: drone-data
           mountPath: /var/lib/drone
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: drone-data
         emptyDir: {}
 ---
@@ -132,7 +137,12 @@ spec:
         - name: config
           mountPath: /etc/docker/daemon.json
           subPath: daemon.json
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:
           name: dind
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin

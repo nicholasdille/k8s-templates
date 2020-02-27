@@ -45,7 +45,12 @@ spec:
           - name: config
             mountPath: /etc/docker/daemon.json
             subPath: daemon.json
+          - name: tz-config
+            mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:
           name: dind
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

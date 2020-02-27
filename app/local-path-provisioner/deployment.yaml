@@ -27,6 +27,8 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config/
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -36,3 +38,6 @@ spec:
         - name: config-volume
           configMap:
             name: local-path-config
+        - name: tz-config
+          hostPath:
+            path: #@ "/usr/share/zoneinfo/" + data.values.timezone

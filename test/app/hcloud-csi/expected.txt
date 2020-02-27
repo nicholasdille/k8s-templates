@@ -53,6 +53,8 @@ spec:
           mountPath: /csi
         - name: device-dir
           mountPath: /dev
+        - name: tz-config
+          mountPath: /etc/localtime
         securityContext:
           privileged: true
       volumes:
@@ -72,6 +74,9 @@ spec:
         hostPath:
           path: /dev
           type: Directory
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -298,6 +303,8 @@ spec:
         volumeMounts:
         - name: socket-dir
           mountPath: /var/lib/csi/sockets/pluginproxy/
+        - name: tz-config
+          mountPath: /etc/localtime
         securityContext:
           privileged: true
           capabilities:
@@ -307,6 +314,9 @@ spec:
       volumes:
       - name: socket-dir
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 kind: StorageClass
 apiVersion: storage.k8s.io/v1

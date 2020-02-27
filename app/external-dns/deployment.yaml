@@ -36,3 +36,10 @@ spec:
             secretKeyRef:
               name: cloudflare
               key: CF_API_EMAIL
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

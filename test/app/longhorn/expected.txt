@@ -205,6 +205,13 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.serviceAccountName
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       serviceAccountName: longhorn-service-account
 ---
 apiVersion: traefik.containo.us/v1alpha1
@@ -268,6 +275,8 @@ spec:
           mountPropagation: Bidirectional
         - name: longhorn-default-setting
           mountPath: /var/lib/longhorn-setting/
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -299,6 +308,9 @@ spec:
       - name: longhorn-default-setting
         configMap:
           name: longhorn-default-setting
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       serviceAccountName: longhorn-service-account
 ---
 kind: Service
@@ -480,6 +492,13 @@ spec:
         env:
         - name: LONGHORN_MANAGER_IP
           value: http://longhorn-backend:9500
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       serviceAccountName: longhorn-service-account
 ---
 kind: Service

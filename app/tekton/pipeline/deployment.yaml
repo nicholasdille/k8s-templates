@@ -39,6 +39,8 @@ spec:
         volumeMounts:
         - name: config-logging
           mountPath: /etc/config-logging
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: SYSTEM_NAMESPACE
           valueFrom:
@@ -58,6 +60,9 @@ spec:
       - name: config-logging
         configMap:
           name: config-logging
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment

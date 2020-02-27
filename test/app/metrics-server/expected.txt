@@ -30,6 +30,9 @@ spec:
       volumes:
       - name: tmp-dir
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       containers:
       - name: metrics-server
         image: k8s.gcr.io/metrics-server-amd64:v0.3.6
@@ -37,6 +40,8 @@ spec:
         volumeMounts:
         - name: tmp-dir
           mountPath: /tmp
+        - name: tz-config
+          mountPath: /etc/localtime
 ---
 apiVersion: v1
 kind: ServiceAccount

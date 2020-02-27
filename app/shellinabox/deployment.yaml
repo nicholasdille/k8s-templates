@@ -25,3 +25,10 @@ spec:
             value: "user"
           - name: PASSWORD
             value: #@ data.values.siab.password
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

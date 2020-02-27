@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -6,7 +7,7 @@ metadata:
     app: tekton-dashboard
     version: v0.5.2
   name: tekton-dashboard
-  namespace: tekton-pipelines
+  namespace: #@ data.values.tekton.namespace
 spec:
   replicas: 1
   selector:
@@ -42,4 +43,11 @@ spec:
           httpGet:
             path: /readiness
             port: 9097
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       serviceAccountName: tekton-dashboard

@@ -8,6 +8,7 @@ spec:
     spec:
       #@overlay/match missing_ok=True
       volumes:
+      #@overlay/match by="name",missing_ok=True
       - name: redis
         persistentVolumeClaim:
           claimName: gitlab
@@ -16,15 +17,15 @@ spec:
       - name: main
         #@overlay/match missing_ok=True
         volumeMounts:
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: redis
           mountPath: "/var/opt/gitlab"
           subPath: redis-data
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: redis
           mountPath: "/etc/gitlab"
           subPath: redis-config
-        #@overlay/match by="name"
+        #@overlay/match by="mountPath",missing_ok=True
         - name: redis
           mountPath: "/var/log/gitlab"
           subPath: redis-log

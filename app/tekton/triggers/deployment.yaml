@@ -1,9 +1,10 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: tekton-triggers-controller
-  namespace: tekton-pipelines
+  namespace: #@ data.values.tekton.namespace
   labels:
     app.kubernetes.io/name: tekton-triggers
     app.kubernetes.io/component: controller
@@ -28,6 +29,8 @@ spec:
         volumeMounts:
         - name: config-logging
           mountPath: /etc/config-logging
+        - name: tz-config
+          mountPath: /etc/localtime
         env:
         - name: SYSTEM_NAMESPACE
           valueFrom:
@@ -43,6 +46,9 @@ spec:
       - name: config-logging
         configMap:
           name: config-logging-triggers
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -67,6 +67,8 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
+            - name: tz-config
+              mountPath: /etc/localtime
           securityContext:
             privileged: true
             capabilities:
@@ -75,3 +77,6 @@ spec:
       volumes:
         - name: socket-dir
           emptyDir: {}
+        - name: tz-config
+          hostPath:
+            path: #@ "/usr/share/zoneinfo/" + data.values.timezone

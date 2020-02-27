@@ -7,12 +7,15 @@ spec:
   template:
     spec:
       #@overlay/match missing_ok=True
-      volumes: #@ data.values.drone.volume
+      volumes:
+      #@overlay/match by="name",missing_ok=True
+      - name: drone-data
+        emptyDir: {}
       containers:
         #@overlay/match by="name"
         - name: main
           #@overlay/match missing_ok=True
           volumeMounts:
-          #@overlay/match by="name"
+          #@overlay/match by="name",missing_ok=True
           - name: drone-data
             mountPath: "/var/lib/drone"

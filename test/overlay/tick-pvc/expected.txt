@@ -70,10 +70,15 @@ spec:
             cpu: 250m
             memory: 100Mi
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: tick
           mountPath: /usr/share/chronograf/resources
           subPath: chronograf-data
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: chronograf
         persistentVolumeClaim:
           claimName: tick
@@ -138,10 +143,15 @@ spec:
             cpu: 250m
             memory: 1Gi
         volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         - name: tick
           mountPath: /var/lib/influxdb
           subPath: influxdb-data
       volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
       - name: influxdb
         persistentVolumeClaim:
           claimName: tick
@@ -259,6 +269,8 @@ spec:
           readOnly: true
         - mountPath: /etc/telegraf
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
       restartPolicy: Always
       serviceAccount: monitoring
       serviceAccountName: monitoring
@@ -283,6 +295,9 @@ spec:
           defaultMode: 420
           name: monitoring
         name: config
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

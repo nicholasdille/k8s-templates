@@ -5426,7 +5426,14 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
         resources: {}
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: /usr/share/zoneinfo/Europe/Berlin
 ---
 apiVersion: apps/v1
 kind: Deployment

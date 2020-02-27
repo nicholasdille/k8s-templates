@@ -20,3 +20,10 @@ spec:
           ports:
           - name: web
             containerPort: 80
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

@@ -56,6 +56,8 @@ spec:
         - mountPath: /var/log/pods
           name: pods
           readOnly: true
+        - name: tz-config
+          mountPath: /etc/localtime
       restartPolicy: Always
       serviceAccount: promtail
       serviceAccountName: promtail
@@ -76,3 +78,6 @@ spec:
           path: /var/log/pods
           type: ""
         name: pods
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
