@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: #@ data.values.minecraft.namespace
+  name: #@ data.values.theia.namespace
   metadata:
     labels:
-      name: #@ data.values.minecraft.namespace
+      name: #@ data.values.theia.namespace

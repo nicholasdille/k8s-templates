@@ -318,6 +318,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: longhorn
+  metadata:
+    labels:
+      name: longhorn
 ---
 apiVersion: v1
 kind: ServiceAccount

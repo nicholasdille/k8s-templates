@@ -38,6 +38,14 @@ spec:
       port: 80
       strategy: RoundRobin
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: theia
+  metadata:
+    labels:
+      name: theia
+---
 kind: Service
 apiVersion: v1
 metadata:

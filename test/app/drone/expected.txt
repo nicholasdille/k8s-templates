@@ -69,6 +69,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: drone
+  metadata:
+    labels:
+      name: drone
 ---
 apiVersion: v1
 kind: ConfigMap

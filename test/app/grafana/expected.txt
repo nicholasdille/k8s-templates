@@ -72,6 +72,14 @@ spec:
           name: mysql-grafana
         name: config
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grafana
+  metadata:
+    labels:
+      name: grafana
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

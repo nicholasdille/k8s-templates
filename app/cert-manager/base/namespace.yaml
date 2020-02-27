@@ -4,3 +4,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: #@ data.values.certmanager.namespace
+  metadata:
+    labels:
+      name: #@ data.values.certmanager.namespace

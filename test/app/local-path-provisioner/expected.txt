@@ -57,6 +57,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: local-path-storage
+  metadata:
+    labels:
+      name: local-path-storage
 ---
 apiVersion: v1
 kind: ServiceAccount

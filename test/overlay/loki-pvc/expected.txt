@@ -1,4 +1,12 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: loki
+  metadata:
+    labels:
+      name: loki
+---
+apiVersion: v1
 data:
   promtail.yaml: "client:\n  backoff_config:\n    maxbackoff: 5s\n    maxretries:
     20\n    minbackoff: 100ms\n  batchsize: 102400\n  batchwait: 1s\n  external_labels:

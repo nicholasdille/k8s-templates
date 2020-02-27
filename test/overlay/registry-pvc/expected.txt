@@ -63,6 +63,9 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: registry
+  metadata:
+    labels:
+      name: registry
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

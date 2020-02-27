@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: #@ data.values.minecraft.namespace
+  name: #@ data.values.grafana.namespace
   metadata:
     labels:
-      name: #@ data.values.minecraft.namespace
+      name: #@ data.values.grafana.namespace

@@ -147,6 +147,14 @@ spec:
           claimName: tick
 ---
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: tick
+  metadata:
+    labels:
+      name: tick
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   namespace: tick

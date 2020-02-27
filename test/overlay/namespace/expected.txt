@@ -28,4 +28,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: qa
+  metadata:
+    labels:
+      name: qa
   namespace: qa
