@@ -14,9 +14,12 @@ spec:
       labels: #@ data.values.gitlab.db.matchLabels
     spec:
       volumes:
-      - name: init
+      - name: config
         configMap:
           name: db
+      - name: init
+        configMap:
+          name: db-extensions
       - name: db
         emptyDir: {}
       - name: tz-config
@@ -33,6 +36,8 @@ spec:
         - name: POSTGRES_PASSWORD
           value: #@ data.values.gitlab.db.password
         volumeMounts:
+        - name: config
+          mountPath: /etc/postgresql/postgresql.conf
         - name: init
           mountPath: /docker-entrypoint-initdb.d
         - name: db
