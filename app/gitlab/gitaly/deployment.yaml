@@ -26,9 +26,20 @@ spec:
         - name: gitaly
           containerPort: 8075
         volumeMounts:
+        - name: gitaly
+          mountPath: "/var/opt/gitlab"
+          subPath: gitaly-data
+        - name: gitaly
+          mountPath: "/etc/gitlab"
+          subPath: gitaly-config
+        - name: gitaly
+          mountPath: "/var/log/gitlab"
+          subPath: gitaly-log
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: gitaly
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone

@@ -26,9 +26,14 @@ spec:
         - name: server
           containerPort: 80
         volumeMounts:
+        - name: server
+          mountPath: "/var/opt/gitlab"
+          subPath: server-data
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: server
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone

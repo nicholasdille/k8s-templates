@@ -26,9 +26,20 @@ spec:
         - name: redis
           containerPort: 6379
         volumeMounts:
+        - name: redis
+          mountPath: "/var/opt/gitlab"
+          subPath: redis-data
+        - name: redis
+          mountPath: "/etc/gitlab"
+          subPath: redis-config
+        - name: redis
+          mountPath: "/var/log/gitlab"
+          subPath: redis-log
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: redis
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone

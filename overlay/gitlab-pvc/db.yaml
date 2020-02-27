@@ -6,18 +6,11 @@
 spec:
   template:
     spec:
-      #@overlay/match missing_ok=True
       volumes:
-      #@overlay/match by="name",missing_ok=True
+      #@overlay/match by="name"
       - name: db
+        #@overlay/remove
+        emptyDir:
+        #@overlay/match missing_ok=True
         persistentVolumeClaim:
           claimName: gitlab
-      containers:
-      #@overlay/match by="name"
-      - name: main
-        #@overlay/match missing_ok=True
-        volumeMounts:
-        #@overlay/match by="name",missing_ok=True
-        - name: db
-          mountPath: "/var/lib/postgresql/data"
-          subPath: db-data

@@ -26,6 +26,8 @@ spec:
       - name: init
         configMap:
           name: db
+      - name: db
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: /usr/share/zoneinfo/Europe/Berlin
@@ -42,6 +44,9 @@ spec:
         volumeMounts:
         - name: init
           mountPath: /docker-entrypoint-initdb.d
+        - name: db
+          mountPath: /var/lib/postgresql/data
+          subPath: db-data
         - name: tz-config
           mountPath: /etc/localtime
         ports:
@@ -147,9 +152,20 @@ spec:
         - name: gitaly
           containerPort: 8075
         volumeMounts:
+        - name: gitaly
+          mountPath: /var/opt/gitlab
+          subPath: gitaly-data
+        - name: gitaly
+          mountPath: /etc/gitlab
+          subPath: gitaly-config
+        - name: gitaly
+          mountPath: /var/log/gitlab
+          subPath: gitaly-log
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: gitaly
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: /usr/share/zoneinfo/Europe/Berlin
@@ -254,9 +270,20 @@ spec:
         - name: redis
           containerPort: 6379
         volumeMounts:
+        - name: redis
+          mountPath: /var/opt/gitlab
+          subPath: redis-data
+        - name: redis
+          mountPath: /etc/gitlab
+          subPath: redis-config
+        - name: redis
+          mountPath: /var/log/gitlab
+          subPath: redis-log
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: redis
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: /usr/share/zoneinfo/Europe/Berlin
@@ -360,9 +387,14 @@ spec:
         - name: server
           containerPort: 80
         volumeMounts:
+        - name: server
+          mountPath: /var/opt/gitlab
+          subPath: server-data
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: server
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: /usr/share/zoneinfo/Europe/Berlin

@@ -17,6 +17,8 @@ spec:
       - name: init
         configMap:
           name: db
+      - name: db
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
@@ -33,6 +35,9 @@ spec:
         volumeMounts:
         - name: init
           mountPath: /docker-entrypoint-initdb.d
+        - name: db
+          mountPath: "/var/lib/postgresql/data"
+          subPath: db-data
         - name: tz-config
           mountPath: /etc/localtime
         ports:
