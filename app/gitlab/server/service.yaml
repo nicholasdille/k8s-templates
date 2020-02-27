@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: #@ data.values.gitlab.namespace
+spec:
+  selector: #@ data.values.gitlab.server.matchLabels
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80

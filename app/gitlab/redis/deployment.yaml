@@ -43,15 +43,3 @@ spec:
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis
-  namespace: #@ data.values.gitlab.namespace
-spec:
-  selector: #@ data.values.gitlab.redis.matchLabels
-  ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379

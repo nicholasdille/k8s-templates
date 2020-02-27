@@ -43,15 +43,3 @@ spec:
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gitaly
-  namespace: #@ data.values.gitlab.namespace
-spec:
-  selector: #@ data.values.gitlab.gitaly.matchLabels
-  ports:
-    - protocol: TCP
-      port: 8075
-      targetPort: 8075
