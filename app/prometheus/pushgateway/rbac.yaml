@@ -1,0 +1,46 @@
+---
+# Source: prometheus/templates/pushgateway-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    component: "pushgateway"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-10.4.0
+    heritage: Helm
+  name: prometheus-pushgateway
+---
+# Source: prometheus/templates/pushgateway-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  labels:
+    component: "pushgateway"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-10.4.0
+    heritage: Helm
+  name: prometheus-pushgateway
+rules:
+  []
+---
+# Source: prometheus/templates/pushgateway-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    component: "pushgateway"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-10.4.0
+    heritage: Helm
+  name: prometheus-pushgateway
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-pushgateway
+    namespace: artifactory-qa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-pushgateway

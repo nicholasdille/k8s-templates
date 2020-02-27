@@ -1,0 +1,12 @@
+---
+# Source: prometheus/templates/node-exporter-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    component: "node-exporter"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-10.4.0
+    heritage: Helm
+  name: prometheus-node-exporter

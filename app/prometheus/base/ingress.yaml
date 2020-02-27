@@ -1,0 +1,14 @@
+---
+# Source: prometheus/templates/server-ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  labels:
+    component: "server"
+    app: prometheus
+    release: prometheus
+    chart: prometheus-10.4.0
+    heritage: Helm
+  name: prometheus-server
+spec:
+  rules:
