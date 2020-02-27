@@ -21,12 +21,12 @@ spec:
       - name: external-dns
         image: registry.opensource.zalan.do/teapot/external-dns:latest
         args:
-          - --txt-owner-id=traefik
-          - --source=service
-          - #@ "--namespace={}".format(data.values.traefik.namespace)
-          - #@ "--domain-filter={}.".format(data.values.traefik.domain)
-          - --provider=cloudflare
-          - --publish-host-ip
+        - --txt-owner-id=traefik
+        - --source=service
+        - #@ "--namespace={}".format(data.values.traefik.namespace)
+        - #@ "--domain-filter={}.".format(data.values.traefik.domain)
+        - --provider=cloudflare
+        - --publish-host-ip
         env:
         - name: CF_API_KEY
           valueFrom:

@@ -8,6 +8,6 @@ metadata:
 spec:
   selector: #@ data.values.minecraft.matchLabels
   ports:
-    - protocol: TCP
-      port: #@ data.values.minecraft.port
-      targetPort: #@ data.values.minecraft.port
+  - protocol: TCP
+    port: #@ data.values.minecraft.port
+    targetPort: #@ data.values.minecraft.port

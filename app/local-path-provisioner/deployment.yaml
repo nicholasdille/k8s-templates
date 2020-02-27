@@ -35,9 +35,9 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
       volumes:
-        - name: config-volume
-          configMap:
-            name: local-path-config
-        - name: tz-config
-          hostPath:
-            path: #@ "/usr/share/zoneinfo/" + data.values.timezone
+      - name: config-volume
+        configMap:
+          name: local-path-config
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

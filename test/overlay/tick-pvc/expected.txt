@@ -215,7 +215,10 @@ spec:
         service: influxdb
     spec:
       containers:
-      - env:
+      - name: telegraf
+        image: telegraf:1.13
+        imagePullPolicy: IfNotPresent
+        env:
         - name: HOSTNAME
           valueFrom:
             fieldRef:
@@ -245,9 +248,6 @@ spec:
             secretKeyRef:
               key: monitor_database
               name: monitoring
-        image: telegraf:1.13
-        imagePullPolicy: IfNotPresent
-        name: telegraf
         resources:
           limits:
             cpu: "1"

@@ -16,37 +16,37 @@ spec:
         app: agent
     spec:
       containers:
-        - name: main
-          image: #@ "drone/agent:{}".format(data.values.drone.version)
-          imagePullPolicy: Always
-          env:
-          - name: DRONE_RPC_HOST
-            value: #@ data.values.drone.fqdn
-          - name: DRONE_RPC_PROTO
-            value: #@ data.values.drone.protocol
-          - name: DRONE_RPC_SECRET
-            value: #@ data.values.drone.secret
-          - name: DRONE_RUNNER_CAPACITY
-            value: 1
-          - name: DOCKER_HOST
-            value: "tcp://localhost:2375"
-        - name: dind
-          image: docker:stable-dind
-          args:
-          - --host
-          - 0.0.0.0:2375
-          imagePullPolicy: Always
-          securityContext:
-            privileged: true
-          ports:
-            - name: http
-              containerPort: 2375
-          volumeMounts:
-          - name: config
-            mountPath: /etc/docker/daemon.json
-            subPath: daemon.json
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: main
+        image: #@ "drone/agent:{}".format(data.values.drone.version)
+        imagePullPolicy: Always
+        env:
+        - name: DRONE_RPC_HOST
+          value: #@ data.values.drone.fqdn
+        - name: DRONE_RPC_PROTO
+          value: #@ data.values.drone.protocol
+        - name: DRONE_RPC_SECRET
+          value: #@ data.values.drone.secret
+        - name: DRONE_RUNNER_CAPACITY
+          value: 1
+        - name: DOCKER_HOST
+          value: "tcp://localhost:2375"
+      - name: dind
+        image: docker:stable-dind
+        args:
+        - --host
+        - 0.0.0.0:2375
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        ports:
+          - name: http
+            containerPort: 2375
+        volumeMounts:
+        - name: config
+          mountPath: /etc/docker/daemon.json
+          subPath: daemon.json
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:

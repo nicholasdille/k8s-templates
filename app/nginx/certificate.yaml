@@ -14,8 +14,8 @@ spec:
   keyAlgorithm: rsa
   keyEncoding: pkcs1
   usages:
-    - server auth
-    - client auth
+  - server auth
+  - client auth
   dnsNames:
   - #@ data.values.nginx.fqdn
   issuerRef:

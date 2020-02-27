@@ -20,16 +20,16 @@ spec:
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
-        - name: drone-agent
-          image: drone/agent:0.8
-          imagePullPolicy: Always
-          env:
-          - name: DRONE_SERVER
-            value: "drone:9000"
-          - name: DRONE_SECRET
-            value: "mydronesecret"
-          volumeMounts:
-          - name: docker-socket
-            mountPath: /var/run/docker.sock
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: drone-agent
+        image: drone/agent:0.8
+        imagePullPolicy: Always
+        env:
+        - name: DRONE_SERVER
+          value: "drone:9000"
+        - name: DRONE_SECRET
+          value: "mydronesecret"
+        volumeMounts:
+        - name: docker-socket
+          mountPath: /var/run/docker.sock
+        - name: tz-config
+          mountPath: /etc/localtime

@@ -7,12 +7,12 @@ metadata:
   namespace: #@ data.values.minecraft.namespace
 spec:
   entryPoints:
-    - http
+  - http
   routes:
-    - match: HostSNI(`*`)
-      kind: Rule
-      priority: 12
-      services:
-      - name: minecraft
-        port: #@ data.values.minecraft.port
-        strategy: RoundRobin
+  - match: HostSNI(`*`)
+    kind: Rule
+    priority: 12
+    services:
+    - name: minecraft
+      port: #@ data.values.minecraft.port
+      strategy: RoundRobin

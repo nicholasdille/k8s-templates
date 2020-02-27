@@ -7,16 +7,16 @@ spec:
   template:
     spec:
       containers:
-        #@overlay/match by="name"
-        - name: main
-          #@overlay/match missing_ok=True
-          env:
-          #@overlay/match by="name",missing_ok=True
-          - name: DRONE_GITEA_CLIENT_ID
-            value: #@ data.values.drone.gitea.oauth.id
-          #@overlay/match by="name",missing_ok=True
-          - name: DRONE_GITEA_CLIENT_SECRET
-            value: #@ data.values.drone.gitea.oauth.secret
-          #@overlay/match by="name",missing_ok=True
-          - name: DRONE_GITEA_SERVER
-            value: #@ data.values.drone.gitea.url
+      #@overlay/match by="name"
+      - name: main
+        #@overlay/match missing_ok=True
+        env:
+        #@overlay/match by="name",missing_ok=True
+        - name: DRONE_GITEA_CLIENT_ID
+          value: #@ data.values.drone.gitea.oauth.id
+        #@overlay/match by="name",missing_ok=True
+        - name: DRONE_GITEA_CLIENT_SECRET
+          value: #@ data.values.drone.gitea.oauth.secret
+        #@overlay/match by="name",missing_ok=True
+        - name: DRONE_GITEA_SERVER
+          value: #@ data.values.drone.gitea.url

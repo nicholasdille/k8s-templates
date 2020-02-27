@@ -8,6 +8,6 @@ spec:
   type: ClusterIP
   selector: #@ data.values.nginx.matchLabels
   ports:
-    - protocol: TCP
-      port: #@ data.values.nginx.port
-      targetPort: #@ data.values.nginx.port
+  - protocol: TCP
+    port: #@ data.values.nginx.port
+    targetPort: #@ data.values.nginx.port

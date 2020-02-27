@@ -12,10 +12,10 @@ spec:
       - name: drone-data
         emptyDir: {}
       containers:
-        #@overlay/match by="name"
-        - name: main
-          #@overlay/match missing_ok=True
-          volumeMounts:
-          #@overlay/match by="name",missing_ok=True
-          - name: drone-data
-            mountPath: "/var/lib/drone"
+      #@overlay/match by="name"
+      - name: main
+        #@overlay/match missing_ok=True
+        volumeMounts:
+        #@overlay/match by="name",missing_ok=True
+        - name: drone-data
+          mountPath: "/var/lib/drone"

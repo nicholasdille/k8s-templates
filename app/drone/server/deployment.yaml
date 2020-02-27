@@ -14,26 +14,26 @@ spec:
       labels: #@ data.values.drone.matchLabels
     spec:
       containers:
-        - name: main
-          image: #@ "drone/drone:{}".format(data.values.drone.version)
-          imagePullPolicy: Always
-          ports:
-          - name: web
-            containerPort: 80
-          - name: other
-            containerPort: 9000
-          env:
-          - name: DRONE_RPC_SECRET
-            value: #@ data.values.drone.secret
-          - name: DRONE_SERVER_HOST
-            value: #@ data.values.drone.fqdn
-          - name: DRONE_SERVER_PROTO
-            value: "http"
-          - name: DRONE_USER_CREATE
-            value: #@ "username:{},machine:false,admin:true,token:{}".format("admin", data.values.drone.admin.password)
-          volumeMounts:
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: main
+        image: #@ "drone/drone:{}".format(data.values.drone.version)
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 80
+        - name: other
+          containerPort: 9000
+        env:
+        - name: DRONE_RPC_SECRET
+          value: #@ data.values.drone.secret
+        - name: DRONE_SERVER_HOST
+          value: #@ data.values.drone.fqdn
+        - name: DRONE_SERVER_PROTO
+          value: "http"
+        - name: DRONE_USER_CREATE
+          value: #@ "username:{},machine:false,admin:true,token:{}".format("admin", data.values.drone.admin.password)
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: tz-config
         hostPath:

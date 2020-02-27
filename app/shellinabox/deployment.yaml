@@ -14,20 +14,20 @@ spec:
       labels: #@ data.values.siab.matchLabels
     spec:
       containers:
-        - name: shellinabox
-          image: nicholasdille/shellinabox
-          imagePullPolicy: Always
-          ports:
-          - name: web
-            containerPort: 4200
-          env:
-          - name: USERNAME
-            value: "user"
-          - name: PASSWORD
-            value: #@ data.values.siab.password
-          volumeMounts:
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: shellinabox
+        image: nicholasdille/shellinabox
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 4200
+        env:
+        - name: USERNAME
+          value: "user"
+        - name: PASSWORD
+          value: #@ data.values.siab.password
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: tz-config
         hostPath:

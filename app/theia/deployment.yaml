@@ -14,15 +14,15 @@ spec:
       labels: #@ data.values.theia.matchLabels
     spec:
       containers:
-        - name: theia
-          image: theiaide/theia:latest
-          imagePullPolicy: Always
-          ports:
-          - name: web
-            containerPort: 3000
-          volumeMounts:
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: theia
+        image: theiaide/theia:latest
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 3000
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: tz-config
         hostPath:

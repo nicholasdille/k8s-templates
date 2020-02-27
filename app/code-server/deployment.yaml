@@ -14,15 +14,15 @@ spec:
       labels: #@ data.values.codeServer.matchLabels
     spec:
       containers:
-        - name: main
-          image: codercom/code-server
-          imagePullPolicy: Always
-          ports:
-          - name: web
-            containerPort: 80
-          volumeMounts:
-          - name: tz-config
-            mountPath: /etc/localtime
+      - name: main
+        image: codercom/code-server
+        imagePullPolicy: Always
+        ports:
+        - name: web
+          containerPort: 80
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: tz-config
         hostPath:
