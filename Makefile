@@ -18,7 +18,7 @@ debug:
 	echo OVERLAY_TEST_RESULTS=$(OVERLAY_TEST_RESULTS)
 
 .PHONY:
-test: tools test-app test-overlay
+test: ytt test-app test-overlay
 
 .PHONY:
 test-app: $(APP_TESTS)
@@ -75,7 +75,7 @@ bin:
 	@mkdir -p bin
 
 .PHONY:
-docker: ; $(info $(M) Building tools...)
+docker: Dockerfile ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
 
 .PHONY:
