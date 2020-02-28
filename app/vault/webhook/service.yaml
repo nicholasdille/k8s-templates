@@ -1,0 +1,23 @@
+---
+# Source: vault-secrets-webhook/templates/webhook-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-secrets-webhook
+  namespace: default
+  labels:
+    helm.sh/chart: vault-secrets-webhook-0.8.0
+    app.kubernetes.io/name: vault-secrets-webhook
+    app.kubernetes.io/instance: vault-secrets-webhook
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mutating-webhook
+spec:
+  type: ClusterIP
+  ports:
+    - port: 443
+      targetPort: 8443
+      protocol: TCP
+      name: vault-secrets-webhook
+  selector:
+    app.kubernetes.io/name: vault-secrets-webhook
+    app.kubernetes.io/instance: vault-secrets-webhook

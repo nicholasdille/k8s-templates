@@ -1,0 +1,70 @@
+---
+# Source: vault-secrets-webhook/templates/apiservice-webhook.yaml
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: vault-secrets-webhook
+  namespace: default
+webhooks:
+- name: pods.vault-secrets-webhook.admission.banzaicloud.com
+  clientConfig:
+    service:
+      namespace: default
+      name: vault-secrets-webhook
+      path: /pods
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM5akNDQWQ2Z0F3SUJBZ0lRUmtlakZWem9rclRwMFZRUjJJSnJZREFOQmdrcWhraUc5dzBCQVFzRkFEQVYKTVJNd0VRWURWUVFERXdwemRtTXRZMkYwTFdOaE1CNFhEVEl3TURJeU9ERXlNRFV5TWxvWERUTXdNREl5TlRFeQpNRFV5TWxvd0ZURVRNQkVHQTFVRUF4TUtjM1pqTFdOaGRDMWpZVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFECmdnRVBBRENDQVFvQ2dnRUJBTHdQUVRIQk1pTWtJRFB3anpPRWRmcEE5NUlMSTYwUmMzcG9ibUhoM0VuVjJIM2MKOTlocHRoeGp3SkJYcGZCMDlkbGt2V2VJUVEvWXNJRFhlUm92ZWlSN0RjbVFpcENDR3R5K1ZwQkFzVUROdjJoYwpQb3RKR25xRnBlMGVXRTU2VWJBVlJtYjRRand2alVoMWorbFhDcmZ2eUkvRC9UWUQ1Y1hRbHZHLzVOb3ZZVGNjCjBQZzlXSDViSzBjbVR3WlcvOVkxdkpoT1hpM0RST1VRVlQrQmRsalN5QW9qZllqNkhucWZsb1hRN2p2Q3c5M2IKVTE0aXRuRCt5dFJ2WUhobkxQbHNyaXoxV2dxNExJU0dTdXJGVDBMZnhsVk9LbDk3WXZvSGlBbExBOVFwV3g1TwoxY1kzK0x3cFRzalNIV0tWNkpXbndRSDNkaVRnV29IalB0bXRTd1VDQXdFQUFhTkNNRUF3RGdZRFZSMFBBUUgvCkJBUURBZ0trTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQVBCZ05WSFJNQkFmOEUKQlRBREFRSC9NQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUEwZnhBYXE1L255blI3azljSjRiU045emRreU9waApQenBrcGI0WWlzcG1IU1FJdDJNN0Q4SzF5WExJUjYxUlV0S2g2TXVKMW83Rk9PRERiWTBhMHY4T3BHM0lzN1lzClVIaTNhYlN0N0dUTlhZUHlrOHR6bitYTXVTNVptUjdHVnRqQUdtTFoyUkdvVkhvM2M0SUx2N2ZOV3BmTDNxZ2cKUmd6bHJxOXY4dnUyRDRrQ0l5WGZqSWNzdTdaZ0l2TWk0NDRXdDA1emY4OGRWeVlQUDRYd21HVVhRQk52U3graApGdHppQzF4dVh2eGNRbjQ0ZEJ1eTBRWld3RzlrMkI3elE5Vnh0WjJJbkZPaGttQXJYNncyaWZEdUdVRU9HdWVGCjRjdm56alBINWlLeENmNENXY0JNRHZ0QkxFM3dXSWFrVU5hOGFvM29tZk1zYTFTdlc3blFTMGl1Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  rules:
+  - operations:
+    - CREATE
+    apiGroups:
+    - "*"
+    apiVersions:
+    - "*"
+    resources:
+    - pods
+  failurePolicy: Ignore
+  namespaceSelector:
+    matchExpressions:
+    - key: name
+      operator: NotIn
+      values:
+      - kube-system
+    - key: name
+      operator: NotIn
+      values:
+      - default
+  objectSelector:
+    matchExpressions:
+    - key: security.banzaicloud.io/mutate
+      operator: NotIn
+      values:
+      - skip
+- name: secrets.vault-secrets-webhook.admission.banzaicloud.com
+  clientConfig:
+    service:
+      namespace: default
+      name: vault-secrets-webhook
+      path: /secrets
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM5akNDQWQ2Z0F3SUJBZ0lRUmtlakZWem9rclRwMFZRUjJJSnJZREFOQmdrcWhraUc5dzBCQVFzRkFEQVYKTVJNd0VRWURWUVFERXdwemRtTXRZMkYwTFdOaE1CNFhEVEl3TURJeU9ERXlNRFV5TWxvWERUTXdNREl5TlRFeQpNRFV5TWxvd0ZURVRNQkVHQTFVRUF4TUtjM1pqTFdOaGRDMWpZVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFECmdnRVBBRENDQVFvQ2dnRUJBTHdQUVRIQk1pTWtJRFB3anpPRWRmcEE5NUlMSTYwUmMzcG9ibUhoM0VuVjJIM2MKOTlocHRoeGp3SkJYcGZCMDlkbGt2V2VJUVEvWXNJRFhlUm92ZWlSN0RjbVFpcENDR3R5K1ZwQkFzVUROdjJoYwpQb3RKR25xRnBlMGVXRTU2VWJBVlJtYjRRand2alVoMWorbFhDcmZ2eUkvRC9UWUQ1Y1hRbHZHLzVOb3ZZVGNjCjBQZzlXSDViSzBjbVR3WlcvOVkxdkpoT1hpM0RST1VRVlQrQmRsalN5QW9qZllqNkhucWZsb1hRN2p2Q3c5M2IKVTE0aXRuRCt5dFJ2WUhobkxQbHNyaXoxV2dxNExJU0dTdXJGVDBMZnhsVk9LbDk3WXZvSGlBbExBOVFwV3g1TwoxY1kzK0x3cFRzalNIV0tWNkpXbndRSDNkaVRnV29IalB0bXRTd1VDQXdFQUFhTkNNRUF3RGdZRFZSMFBBUUgvCkJBUURBZ0trTUIwR0ExVWRKUVFXTUJRR0NDc0dBUVVGQndNQkJnZ3JCZ0VGQlFjREFqQVBCZ05WSFJNQkFmOEUKQlRBREFRSC9NQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUEwZnhBYXE1L255blI3azljSjRiU045emRreU9waApQenBrcGI0WWlzcG1IU1FJdDJNN0Q4SzF5WExJUjYxUlV0S2g2TXVKMW83Rk9PRERiWTBhMHY4T3BHM0lzN1lzClVIaTNhYlN0N0dUTlhZUHlrOHR6bitYTXVTNVptUjdHVnRqQUdtTFoyUkdvVkhvM2M0SUx2N2ZOV3BmTDNxZ2cKUmd6bHJxOXY4dnUyRDRrQ0l5WGZqSWNzdTdaZ0l2TWk0NDRXdDA1emY4OGRWeVlQUDRYd21HVVhRQk52U3graApGdHppQzF4dVh2eGNRbjQ0ZEJ1eTBRWld3RzlrMkI3elE5Vnh0WjJJbkZPaGttQXJYNncyaWZEdUdVRU9HdWVGCjRjdm56alBINWlLeENmNENXY0JNRHZ0QkxFM3dXSWFrVU5hOGFvM29tZk1zYTFTdlc3blFTMGl1Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  rules:
+  - operations:
+    - CREATE
+    - UPDATE
+    apiGroups:
+    - "*"
+    apiVersions:
+    - "*"
+    resources:
+    - secrets
+  failurePolicy: Ignore
+  namespaceSelector:
+    matchExpressions:
+    - key: name
+      operator: NotIn
+      values:
+      - kube-system
+    - key: name
+      operator: NotIn
+      values:
+      - default
+  sideEffects: NoneOnDryRun

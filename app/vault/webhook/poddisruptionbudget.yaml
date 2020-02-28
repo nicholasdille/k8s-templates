@@ -1,0 +1,19 @@
+---
+# Source: vault-secrets-webhook/templates/webhook-pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: vault-secrets-webhook
+  namespace: default
+  labels:
+    helm.sh/chart: vault-secrets-webhook-0.8.0
+    app.kubernetes.io/name: vault-secrets-webhook
+    app.kubernetes.io/instance: vault-secrets-webhook
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: mutating-webhook
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-secrets-webhook
+      app.kubernetes.io/instance: vault-secrets-webhook
