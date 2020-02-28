@@ -19,12 +19,12 @@ spec:
       - name: external-dns
         image: registry.opensource.zalan.do/teapot/external-dns:latest
         args:
-          - --txt-owner-id=external-dns-crd
-          - --source=crd
-          - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
-          - --crd-source-kind=DNSEndpoint
-          - #@ "--domain-filter={}".format(data.values.externaldns.domain)
-          - --provider=cloudflare
+        - --txt-owner-id=external-dns-crd
+        - --source=crd
+        - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+        - --crd-source-kind=DNSEndpoint
+        - #@ "--domain-filter={}".format(data.values.externaldns.domain)
+        - --provider=cloudflare
         env:
         - name: CF_API_KEY
           valueFrom:
