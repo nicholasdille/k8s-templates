@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -6,14 +7,13 @@ metadata:
   labels:
     name: sealed-secrets-controller
   name: sealed-secrets-controller
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 spec:
   minReadySeconds: 30
   replicas: 1
   revisionHistoryLimit: 10
   selector:
-    matchLabels:
-      name: sealed-secrets-controller
+    matchLabels: #@ data.values.kubeseal.matchLabels
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -22,8 +22,7 @@ spec:
   template:
     metadata:
       annotations: {}
-      labels:
-        name: sealed-secrets-controller
+      labels: #@ data.values.kubeseal.matchLabels
     spec:
       containers:
       - args: []
@@ -53,8 +52,6 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp
-      imagePullSecrets: []
-      initContainers: []
       securityContext:
         fsGroup: 65534
       serviceAccountName: sealed-secrets-controller
@@ -62,19 +59,3 @@ spec:
       volumes:
       - emptyDir: {}
         name: tmp
----
-apiVersion: v1
-kind: Service
-metadata:
-  annotations: {}
-  labels:
-    name: sealed-secrets-controller
-  name: sealed-secrets-controller
-  namespace: kube-system
-spec:
-  ports:
-  - port: 8080
-    targetPort: 8080
-  selector:
-    name: sealed-secrets-controller
-  type: ClusterIP

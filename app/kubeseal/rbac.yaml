@@ -1,3 +1,4 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
@@ -6,7 +7,7 @@ metadata:
   labels:
     name: sealed-secrets-service-proxier
   name: sealed-secrets-service-proxier
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -23,7 +24,7 @@ metadata:
   labels:
     name: sealed-secrets-key-admin
   name: sealed-secrets-key-admin
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 rules:
 - apiGroups:
   - ""
@@ -74,7 +75,7 @@ metadata:
   labels:
     name: sealed-secrets-controller
   name: sealed-secrets-controller
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -82,7 +83,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: sealed-secrets-controller
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
@@ -98,7 +99,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: sealed-secrets-controller
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -107,7 +108,7 @@ metadata:
   labels:
     name: sealed-secrets-controller
   name: sealed-secrets-controller
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
@@ -116,7 +117,7 @@ metadata:
   labels:
     name: sealed-secrets-service-proxier
   name: sealed-secrets-service-proxier
-  namespace: kube-system
+  namespace: #@ data.values.kubeseal.namespace
 rules:
 - apiGroups:
   - ""

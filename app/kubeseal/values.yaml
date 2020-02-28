@@ -1,0 +1,6 @@
+#@data/values
+---
+kubeseal:
+  namespace: kubeseal
+  matchLabels:
+    name: sealed-secrets-controller
