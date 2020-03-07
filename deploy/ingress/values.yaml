@@ -9,11 +9,16 @@ cloudflare:
 #@overlay/match missing_ok=True
 traefik:
   domain: dille.io
+  #@overlay/match missing_ok=True
   lb: lb.dille.io
   dashboard:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
   api:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
+traefikinitdns:
+  namespace: traefik
+  domain: dille.io
+  label_name: public-ip
 #@overlay/match missing_ok=True
 certmanager:
   #@overlay/match missing_ok=True

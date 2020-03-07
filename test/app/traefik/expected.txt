@@ -171,7 +171,7 @@ spec:
     spec:
       serviceAccountName: traefik
       strategy:
-        type: Recreate
+        type: recreate
       containers:
       - name: main
         image: traefik:v2.1
@@ -207,12 +207,13 @@ spec:
           path: /usr/share/zoneinfo/Europe/Berlin
       initContainers:
       - name: traefik-init-dns
-        image: alpine
+        image: nicholasdille/tools:stable
         command:
         - sh
         args:
         - -c
         - |
+          set -o errexit; \
           curl -sLo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
           chmod +x /usr/local/bin/kubectl; \
           kubectl config set-cluster self --server=${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT} --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt; \
@@ -220,14 +221,14 @@ spec:
           kubectl config set-context self --cluster=self --user=self; \
           NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
           NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
-          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.'${DOMAIN}/${LABEL_NAME}'"); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.\"${DOMAIN}/${LABEL_NAME}\""); \
           echo Update DNS with ${PUBLIC_IP}; \
           flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
         env:
         - name: LABEL_NAME
           value: public-ip
         - name: DOMAIN
-          value: dille.io
+          value: example.com
         - name: CF_API_KEY
           valueFrom:
             secretKeyRef:
@@ -244,6 +245,19 @@ spec:
       - key: node-role.kubernetes.io/master
         operator: Equal
         effect: NoSchedule
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  endpoints:
+  - dnsName: traefik.example.com
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - lb.example.com
 ---
 apiVersion: v1
 kind: Service
@@ -266,6 +280,12 @@ metadata:
   metadata:
     labels:
       name: traefik
+---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: traefik
+  namespace: traefik
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -300,48 +320,23 @@ rules:
   - traefik.containo.us
   resources:
   - middlewares
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - ingressroutes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - ingressroutetcps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - tlsoptions
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - traefikservices
   verbs:
   - get
   - list
   - watch
----
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: traefik
-  namespace: traefik
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -551,5 +546,5 @@ metadata:
   namespace: traefik
 type: Opaque
 stringData:
-  CF_API_EMAIL: cf-api-key
+  CF_API_EMAIL: cf-api-email
   CF_API_KEY: cf-api-key

@@ -5,7 +5,7 @@ timezone: Europe/Berlin
 #@overlay/match missing_ok=True
 traefikinitdns:
   namespace: traefik
-  domain: dille.io
+  domain: example.com
   label_name: public-ip
   cloudflare:
     email: cf-api-email

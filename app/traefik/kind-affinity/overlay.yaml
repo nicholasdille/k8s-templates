@@ -15,3 +15,6 @@ spec:
       - key: node-role.kubernetes.io/master
         operator: "Equal"
         effect: "NoSchedule"
+      #@overlay/match missing_ok=True
+      strategy:
+        type: recreate

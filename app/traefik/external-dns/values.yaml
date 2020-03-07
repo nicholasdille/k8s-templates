@@ -1,14 +1,6 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
-timezone: Europe/Berlin
-#@overlay/match missing_ok=True
-traefik:
-  namespace: traefik
-  domain: example.com
-  #@overlay/match missing_ok=True
-  lb: lb.example.com
-#@overlay/match missing_ok=True
 cloudflare:
   email: cf-api-email
   key: cf-api-key

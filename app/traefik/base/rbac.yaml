@@ -1,5 +1,11 @@
 #@ load("@ytt:data", "data")
 ---
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: traefik
+  namespace: #@ data.values.traefik.namespace
+---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
@@ -33,48 +39,14 @@ rules:
   - traefik.containo.us
   resources:
   - middlewares
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - ingressroutes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - ingressroutetcps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - tlsoptions
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - traefik.containo.us
-  resources:
   - traefikservices
   verbs:
   - get
   - list
   - watch
----
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: traefik
-  namespace: #@ data.values.traefik.namespace
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1

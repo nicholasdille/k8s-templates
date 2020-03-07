@@ -82,7 +82,7 @@ docker: Dockerfile ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
 
 .PHONY:
-tools: ytt kapp kubeyaml
+tools: ytt kapp kind kubeyaml
 
 .PHONY:
 ytt: bin/ytt
@@ -103,6 +103,16 @@ bin/kapp: bin ; $(info $(M) Installing kapp...)
 	    jq --raw-output '.assets[] | select(.name == "kapp-linux-amd64") | .browser_download_url' | \
 	    xargs curl -sLfo ./bin/kapp; \
 	chmod +x ./bin/kapp
+
+.PHONY:
+kind: bin/kind
+
+bin/kind: bin ; $(info $(M) Installing kind...)
+	@set -o errexit; \
+	curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases/latest | \
+    		jq --raw-output '.assets[] | select(.name == "kind-linux-amd64") | .browser_download_url' | \
+    		xargs curl -sLfo ./bin/kind; \
+	chmod +x ./bin/kind
 
 .PHONY:
 kubeyaml: bin/kubeyaml

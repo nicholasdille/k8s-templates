@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: traefik-dashboard
+  namespace: #@ data.values.traefik.namespace
+spec:
+  endpoints:
+  - dnsName: #@ "traefik.{}".format(data.values.traefik.domain)
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - #@ data.values.traefik.lb

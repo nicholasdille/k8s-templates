@@ -10,12 +10,13 @@ spec:
       initContainers:
       #@overlay/match by="name",missing_ok=True
       - name: traefik-init-dns
-        image: alpine
+        image: nicholasdille/tools:stable
         command:
         - sh
         args:
         - -c
         - |
+          set -o errexit; \
           curl -sLo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; \
           chmod +x /usr/local/bin/kubectl; \
           kubectl config set-cluster self --server=${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT} --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt; \
@@ -23,7 +24,7 @@ spec:
           kubectl config set-context self --cluster=self --user=self; \
           NODE_IP=$(kubectl get pods ${HOSTNAME} -o json | jq --raw-output '.status.hostIP'); \
           NODE_NAME=$(kubectl get nodes -o wide | tail -n +2 | grep "${NODE_IP}" | cut -d' ' -f1); \
-          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.'${DOMAIN}/${LABEL_NAME}'"); \
+          PUBLIC_IP=$(kubectl get nodes ${NODE_NAME} -o json | jq --raw-output ".metadata.labels.\"${DOMAIN}/${LABEL_NAME}\""); \
           echo Update DNS with ${PUBLIC_IP}; \
           flarectl dns create-or-update --zone ${DOMAIN} --name lb --type A --content ${PUBLIC_IP}
         env:

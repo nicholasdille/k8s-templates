@@ -8,6 +8,7 @@ traefik:
   matchLabels:
     app: traefik
   domain: example.com
+  lb: lb.example.com
   dashboard:
     htpasswd: ""
   api:

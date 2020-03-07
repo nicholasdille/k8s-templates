@@ -1,0 +1,16 @@
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "ClusterRole"}), overlay.subset({"metadata": {"name": "traefik-ingress-controller"}})),expects="1+"
+---
+#@overlay/merge
+rules:
+#@overlay/match by="resources",missing_ok=True
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
