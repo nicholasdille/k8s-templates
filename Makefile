@@ -87,11 +87,12 @@ tools: ytt kapp kubeyaml
 .PHONY:
 ytt: bin/ytt
 
-bin/ytt: bin docker ; $(info $(M) Installing ytt...)
+bin/ytt: bin ; $(info $(M) Installing ytt...)
 	@set -o errexit; \
-	docker create --name tools tools; \
-	docker cp tools:/ytt bin/; \
-	docker rm tools
+	curl -s https://api.github.com/repos/k14s/ytt/releases/latest | \
+	    jq --raw-output '.assets[] | select(.name == "ytt-linux-amd64") | .browser_download_url' | \
+	    xargs curl -sLfo ./bin/ytt; \
+	chmod +x ./bin/ytt
 
 .PHONY:
 kapp: bin/kapp
