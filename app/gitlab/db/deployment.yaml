@@ -28,6 +28,9 @@ spec:
       containers:
       - name: main
         image: #@ "postgres:{}".format(data.values.gitlab.db.version)
+        args:
+        - -c
+        - logging_collector=off
         env:
         - name: POSTGRES_DB
           value: gitlab
