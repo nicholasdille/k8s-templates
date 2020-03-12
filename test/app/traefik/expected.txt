@@ -238,6 +238,12 @@ spec:
             secretKeyRef:
               name: cloudflare
               key: CF_API_EMAIL
+      nodeSelector:
+        example.com/node-type: loadbalancer
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Equal
+        effect: NoSchedule
 ---
 apiVersion: v1
 kind: Service

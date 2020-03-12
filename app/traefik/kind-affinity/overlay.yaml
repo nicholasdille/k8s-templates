@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "traefik"}})),expects="1+"
+---
+spec:
+  template:
+    spec:
+      #@overlay/match missing_ok=True
+      nodeSelector:
+        #@yaml/text-templated-strings
+        (@= data.values.traefik.domain @)/node-type: loadbalancer
+      #@overlay/match missing_ok=True
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: "Equal"
+        effect: "NoSchedule"

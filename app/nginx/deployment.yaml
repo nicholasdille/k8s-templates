@@ -16,9 +16,6 @@ spec:
       - name: data
         configMap:
           name: nginx
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - name: main
         image: #@ "nginx:{}".format(data.values.nginx.tag)
@@ -27,5 +24,3 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /var/share/nginx/html
-        - name: tz-config
-          mountPath: /etc/localtime

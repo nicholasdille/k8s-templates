@@ -1,7 +1,5 @@
 #@data/values
 ---
-#@overlay/match missing_ok=True
-timezone: Europe/Berlin
 nginx:
   port: 80
   tag: latest
