@@ -7,3 +7,4 @@ localPathProvisioner:
   version: 0.0.12
   matchLabels:
     app: local-path-provisioner
+  storageClassName: local-path

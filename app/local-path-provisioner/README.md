@@ -4,7 +4,11 @@ XXX https://github.com/rancher/local-path-provisioner
 
 XXX based on version 0.0.12
 
-XXX available in [kind](https://github.com/kubernetes-sigs/kind) and [k3d](https://github.com/rancher/k3d) by default
+XXX in [k3s](https://github.com/rancher/k3s) this is available by default
+
+XXX in [k3d](https://github.com/rancher/k3d) ???
+
+XXX in [kind](https://github.com/kubernetes-sigs/kind) is available when worker nodes > 0 (storageClass: standard)
 
 ## Usage
 
