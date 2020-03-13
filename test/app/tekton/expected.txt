@@ -416,6 +416,12 @@ metadata:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: config-artifact-bucket
+  namespace: tekton-pipelines
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: config-artifact-pvc
   namespace: tekton-pipelines
 data:
