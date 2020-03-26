@@ -1,0 +1,45 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: #@ data.values.prometheus.operator.matchLabels
+  name: prometheus-operator
+  namespace: #@ data.values.prometheus.operator.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.prometheus.operator.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.prometheus.operator.matchLabels
+    spec:
+      containers:
+      - name: prometheus-operator
+        image: quay.io/coreos/prometheus-operator:v0.38.0
+        args:
+        - --kubelet-service=kube-system/kubelet
+        - --logtostderr=true
+        - --config-reloader-image=jimmidyson/configmap-reload:v0.3.0
+        - --prometheus-config-reloader=quay.io/coreos/prometheus-config-reloader:v0.38.0
+        env:
+        - name: TZ
+          value: #@ data.values.timezone
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      serviceAccountName: prometheus-operator

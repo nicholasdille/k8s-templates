@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
@@ -8,10 +8,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: #@ data.values.grafana.matchLabels
+    matchLabels: #@ data.values.grafana.server.matchLabels
   template:
     metadata:
-      labels: #@ data.values.grafana.matchLabels
+      labels: #@ data.values.grafana.server.matchLabels
     spec:
       restartPolicy: Always
       containers:
@@ -20,39 +20,32 @@ spec:
         imagePullPolicy: Always
         env:
         - name: GF_SERVER_ROOT_URL
-          value: https://dev.maas.haufedev.systems
+          value: #@ data.values.grafana.url
         - name: GF_SECURITY_ADMIN_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: grafana-admin-pass
-              name: maas-dev
+            secretKeyRef:
+              key: admin-pass
+              name: grafana
         - name: GF_DATABASE_NAME
           valueFrom:
-            configMapKeyRef:
-              key: mysql-db-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-name
+              name: grafana
         - name: GF_DATABASE_TYPE
           value: mysql
         - name: GF_DATABASE_HOST
           value: db:3306
         - name: GF_DATABASE_USER
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-user
+              name: grafana
         - name: GF_DATABASE_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-pass
-              name: maas-dev
+            secretKeyRef:
+              key: database-pass
+              name: grafana
         ports:
         - containerPort: 3000
           name: http
           protocol: TCP
-        volumeMounts:
-        - name: tz-config
-          mountPath: /etc/localtime
-      volumes:
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

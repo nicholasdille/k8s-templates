@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: db
+  name: mysql-grafana
   namespace: #@ data.values.grafana.namespace
 data:
   docker.cnf: |

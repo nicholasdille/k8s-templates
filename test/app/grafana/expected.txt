@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: db
+  name: mysql-grafana
   namespace: grafana
 data:
   docker.cnf: |
@@ -12,7 +12,7 @@ data:
     [mysqld]
     max_connections = 50
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-grafana
@@ -21,11 +21,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      pod: grafana
+      pod: mysql-grafana
   template:
     metadata:
       labels:
-        pod: grafana
+        pod: mysql-grafana
     spec:
       restartPolicy: Always
       containers:
@@ -33,49 +33,47 @@ spec:
         image: mysql
         imagePullPolicy: Always
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: mysql-root-pass
-              name: maas-dev
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: "true"
         - name: MYSQL_DATABASE
           valueFrom:
-            configMapKeyRef:
-              key: mysql-db-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-name
+              name: grafana
         - name: MYSQL_USER
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-user
+              name: grafana
         - name: MYSQL_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-pass
-              name: maas-dev
+            secretKeyRef:
+              key: database-pass
+              name: grafana
         ports:
         - containerPort: 3306
           name: http
           protocol: TCP
         volumeMounts:
-        - mountPath: /var/lib/mysql
-          name: nfs-mysql-grafana
-          subPath: mysql
         - mountPath: /etc/mysql/conf.d/
           name: config
-        - name: tz-config
-          mountPath: /etc/localtime
       volumes:
-      - name: nfs-mysql-grafana
-        persistentVolumeClaim:
-          claimName: nfs-storage-dev
       - configMap:
-          defaultMode: 420
           name: mysql-grafana
         name: config
-      - name: tz-config
-        hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: db
+  namespace: grafana
+spec:
+  selector:
+    pod: mysql-grafana
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: 3306
 ---
 apiVersion: v1
 kind: Namespace
@@ -85,7 +83,19 @@ metadata:
     labels:
       name: grafana
 ---
-apiVersion: extensions/v1beta1
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana
+  namespace: grafana
+type: Opaque
+stringData:
+  admin-pass: test123
+  database-name: grafana
+  database-user: grafana
+  database-pass: test123
+---
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
@@ -107,39 +117,61 @@ spec:
         imagePullPolicy: Always
         env:
         - name: GF_SERVER_ROOT_URL
-          value: https://dev.maas.haufedev.systems
+          value: https://grafana.example.com
         - name: GF_SECURITY_ADMIN_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: grafana-admin-pass
-              name: maas-dev
+            secretKeyRef:
+              key: admin-pass
+              name: grafana
         - name: GF_DATABASE_NAME
           valueFrom:
-            configMapKeyRef:
-              key: mysql-db-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-name
+              name: grafana
         - name: GF_DATABASE_TYPE
           value: mysql
         - name: GF_DATABASE_HOST
           value: db:3306
         - name: GF_DATABASE_USER
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-user
+              name: grafana
         - name: GF_DATABASE_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-pass
-              name: maas-dev
+            secretKeyRef:
+              key: database-pass
+              name: grafana
         ports:
         - containerPort: 3000
           name: http
           protocol: TCP
-        volumeMounts:
-        - name: tz-config
-          mountPath: /etc/localtime
-      volumes:
-      - name: tz-config
-        hostPath:
-          path: /usr/share/zoneinfo/Europe/Berlin
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  namespace: grafana
+  labels:
+    pod: grafana
+spec:
+  selector:
+    pod: grafana
+  ports:
+  - name: web
+    port: 3000
+    targetPort: 3000
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  jobLabel: app.kubernetes.io/name
+  endpoints:
+  - port: web
+    honorLabels: true
+  selector:
+    matchLabels:
+      pod: grafana

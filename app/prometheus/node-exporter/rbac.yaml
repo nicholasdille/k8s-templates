@@ -1,12 +1,36 @@
 ---
-# Source: prometheus/templates/node-exporter-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  labels:
-    component: "node-exporter"
-    app: prometheus
-    release: prometheus
-    chart: prometheus-10.4.0
-    heritage: Helm
   name: prometheus-node-exporter
+  namespace: prometheus
+  labels:
+    app: prometheus-node-exporter
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: psp-prometheus-node-exporter
+  labels:     
+    app: prometheus-node-exporter
+rules:
+- apiGroups: ['extensions']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - node-exporter-prometheus-node-exporter
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: psp-prometheus-node-exporter
+  labels:     
+    app: prometheus-node-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: psp-node-exporter-prometheus-node-exporter
+subjects:
+- kind: ServiceAccount
+  name: node-exporter-prometheus-node-exporter
+  namespace: prometheus

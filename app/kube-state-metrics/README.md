@@ -2,4 +2,4 @@
 
 XXX https://github.com/kubernetes/kube-state-metrics
 
-XXX base on 1.9.4
+XXX base on 1.9.5

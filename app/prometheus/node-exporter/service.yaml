@@ -1,26 +1,19 @@
 ---
-# Source: prometheus/templates/node-exporter-service.yaml
 apiVersion: v1
 kind: Service
 metadata:
+  name: prometheus-node-exporter
+  namespace: prometheus
   annotations:
     prometheus.io/scrape: "true"
-  labels:
-    component: "node-exporter"
-    app: prometheus
-    release: prometheus
-    chart: prometheus-10.4.0
-    heritage: Helm
-  name: prometheus-node-exporter
+  labels:     
+    app: prometheus-node-exporter
 spec:
-  clusterIP: None
+  type: ClusterIP
   ports:
-    - name: metrics
-      port: 9100
-      protocol: TCP
+    - port: 9100
       targetPort: 9100
+      protocol: TCP
+      name: metrics
   selector:
-    component: "node-exporter"
-    app: prometheus
-    release: prometheus
-  type: "ClusterIP"
+    app: prometheus-node-exporter

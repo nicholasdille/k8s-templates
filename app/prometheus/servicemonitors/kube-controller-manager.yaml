@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+  labels:
+    app: kube-controller-manager
+spec:
+  clusterIP: None
+  ports:
+    - name: http-metrics
+      port: 10252
+      protocol: TCP
+      targetPort: 10252
+  selector:
+    component: kube-controller-manager
+  type: ClusterIP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  jobLabel: jobLabel
+  selector:
+    matchLabels:
+      app: kube-controller-manager
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+  - port: http-metrics
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token

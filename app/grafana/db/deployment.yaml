@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql-grafana
@@ -8,10 +8,10 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: #@ data.values.grafana.matchLabels
+    matchLabels: #@ data.values.grafana.db.matchLabels
   template:
     metadata:
-      labels: #@ data.values.grafana.matchLabels
+      labels: #@ data.values.grafana.db.matchLabels
     spec:
       restartPolicy: Always
       containers:
@@ -19,46 +19,31 @@ spec:
         image: mysql
         imagePullPolicy: Always
         env:
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            configMapKeyRef:
-              key: mysql-root-pass
-              name: maas-dev
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: "true"
         - name: MYSQL_DATABASE
           valueFrom:
-            configMapKeyRef:
-              key: mysql-db-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-name
+              name: grafana
         - name: MYSQL_USER
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-name
-              name: maas-dev
+            secretKeyRef:
+              key: database-user
+              name: grafana
         - name: MYSQL_PASSWORD
           valueFrom:
-            configMapKeyRef:
-              key: mysql-user-pass
-              name: maas-dev
+            secretKeyRef:
+              key: database-pass
+              name: grafana
         ports:
         - containerPort: 3306
           name: http
           protocol: TCP
         volumeMounts:
-        - mountPath: /var/lib/mysql
-          name: nfs-mysql-grafana
-          subPath: mysql
         - mountPath: /etc/mysql/conf.d/
           name: config
-        - name: tz-config
-          mountPath: /etc/localtime
       volumes:
-      - name: nfs-mysql-grafana
-        persistentVolumeClaim:
-          claimName: nfs-storage-dev
       - configMap:
-          defaultMode: 420
           name: mysql-grafana
         name: config
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

@@ -4,5 +4,16 @@
 timezone: Europe/Berlin
 grafana:
   namespace: grafana
-  matchLabels:
-    pod: grafana
+  db:
+    matchLabels:
+      pod: mysql-grafana
+  server:
+    matchLabels:
+      pod: grafana
+  database:
+    name: grafana
+    username: grafana
+    password: test123
+  url: https://grafana.example.com
+  admin:
+    password: test123

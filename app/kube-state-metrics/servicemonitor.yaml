@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-state-metrics
+  namespace: #@ data.values.kubeStateMetrics.namespace
+  labels:
+    app: kube-state-metrics
+spec:
+  jobLabel: app.kubernetes.io/name
+  endpoints:
+  - port: http-metrics
+    honorLabels: true
+  selector:
+    matchLabels: #@ data.values.kubeStateMetrics.matchLabels

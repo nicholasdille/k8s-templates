@@ -1,59 +1,87 @@
 ---
-# Source: prometheus/templates/node-exporter-daemonset.yaml
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  labels:
-    component: "node-exporter"
-    app: prometheus
-    release: prometheus
-    chart: prometheus-10.4.0
-    heritage: Helm
   name: prometheus-node-exporter
+  namespace: prometheus
+  labels:     
+    app: prometheus-node-exporter
 spec:
   selector:
     matchLabels:
-      component: "node-exporter"
-      app: prometheus
-      release: prometheus
+      app: prometheus-node-exporter
   updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
     type: RollingUpdate
   template:
     metadata:
-      labels:
-        component: "node-exporter"
-        app: prometheus
-        release: prometheus
-        chart: prometheus-10.4.0
-        heritage: Helm
+      labels:         
+        app: prometheus-node-exporter
     spec:
-      serviceAccountName: prometheus-node-exporter
-      containers:
-        - name: prometheus-node-exporter
-          image: "prom/node-exporter:v0.18.1"
-          imagePullPolicy: "IfNotPresent"
-          args:
-            - --path.procfs=/host/proc
-            - --path.sysfs=/host/sys
-          ports:
-            - name: metrics
-              containerPort: 9100
-              hostPort: 9100
-          resources:
-            {}
-          volumeMounts:
-            - name: proc
-              mountPath: /host/proc
-              readOnly:  true
-            - name: sys
-              mountPath: /host/sys
-              readOnly: true
-      hostNetwork: true
-      hostPID: true
       volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      serviceAccountName: prometheus-node-exporter
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      hostNetwork: false
+      hostPID: true
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoSchedule
+        key: haufedev.systems/node-type
+        operator: Equal
+        value: loadbalancer
+      - effect: NoExecute
+        key: haufedev.systems/node-type
+        operator: Equal
+        value: loadbalancer
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 300
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 300
+      containers:
+      - name: node-exporter
+        image: "quay.io/prometheus/node-exporter:v0.18.1"
+        imagePullPolicy: IfNotPresent
+        args:
+        - --path.procfs=/host/proc
+        - --path.sysfs=/host/sys
+        - --web.listen-address=$(HOST_IP):9100
+        env:
+        - name: HOST_IP
+          value: 0.0.0.0
+        - name: TZ
+          value: "Europe/Berlin"
+        ports:
+        - name: metrics
+          containerPort: 9100
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 9100
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9100
+        resources:
+          {}
+        volumeMounts:
         - name: proc
-          hostPath:
-            path: /proc
+          mountPath: /host/proc
+          readOnly:  true
         - name: sys
-          hostPath:
-            path: /sys
+          mountPath: /host/sys
+          readOnly: true

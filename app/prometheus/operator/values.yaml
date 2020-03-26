@@ -1,0 +1,9 @@
+#@data/values
+---
+timezone: Europe/Berlin
+prometheus:
+  operator:
+    namespace: prometheus
+    matchLabels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/name: prometheus-operator

@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prometheus-node-exporter
+  namespace: prometheus
+  labels:
+    app: prometheus-node-exporter
+spec:
+  jobLabel: jobLabel
+  selector:
+    matchLabels:
+      app: prometheus-node-exporter
+  endpoints:
+  - port: metrics

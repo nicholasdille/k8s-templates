@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: grafana
+  namespace: #@ data.values.grafana.namespace
+spec:
+  jobLabel: app.kubernetes.io/name
+  endpoints:
+  - port: web
+    honorLabels: true
+  selector:
+    matchLabels: #@ data.values.grafana.server.matchLabels

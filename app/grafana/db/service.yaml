@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: db
+  namespace: #@ data.values.grafana.namespace
+spec:
+  selector: #@ data.values.grafana.db.matchLabels
+  ports:
+  - name: mysql
+    port: 3306
+    targetPort: 3306

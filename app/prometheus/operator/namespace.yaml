@@ -1,0 +1,9 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: #@ data.values.prometheus.operator.namespace
+  metadata:
+    labels:
+      name: #@ data.values.prometheus.operator.namespace

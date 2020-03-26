@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  namespace: #@ data.values.grafana.namespace
+  labels: #@ data.values.grafana.server.matchLabels
+spec:
+  selector: #@ data.values.grafana.server.matchLabels
+  ports:
+  - name: web
+    port: 3000
+    targetPort: 3000

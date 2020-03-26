@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/name: prometheus-operator
+    app.kubernetes.io/version: v0.38.0
+  name: prometheus-operator
+  namespace: #@ data.values.prometheus.operator.namespace
+spec:
+  endpoints:
+  - honorLabels: true
+    port: http
+  selector:
+    matchLabels: #@ data.values.prometheus.operator.matchLabels
