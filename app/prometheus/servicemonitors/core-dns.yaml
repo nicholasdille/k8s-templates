@@ -6,6 +6,8 @@ metadata:
   namespace: kube-system
   labels:
     app: coredns
+  annotations:
+    kapp.k14s.io/disable-label-scoping: ""
 spec:
   clusterIP: None
   ports:
