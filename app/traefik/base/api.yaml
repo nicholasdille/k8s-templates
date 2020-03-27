@@ -7,7 +7,7 @@ metadata:
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
-    (@= data.values.traefik.domain @)/loadbalancer: default
+    (@= data.values.domain @)/loadbalancer: default
 type: Opaque
 stringData:
   traefik: #@ data.values.traefik.dashboard.htpasswd
@@ -19,7 +19,7 @@ metadata:
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
-    (@= data.values.traefik.domain @)/loadbalancer: default
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   basicAuth:
     realm: "traefik api"
@@ -32,12 +32,12 @@ metadata:
   namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
-    (@= data.values.traefik.domain @)/loadbalancer: default
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   entryPoints:
   - http
   routes:
-  - match: #@ "Host(`traefik.{}`) && PathPrefix(`/api`)".format(data.values.traefik.domain)
+  - match: #@ "Host(`traefik.{}`) && PathPrefix(`/api`)".format(data.values.domain)
     kind: Rule
     priority: 12
     services:

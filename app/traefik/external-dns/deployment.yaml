@@ -24,7 +24,7 @@ spec:
         - --txt-owner-id=traefik
         - --source=service
         - #@ "--namespace={}".format(data.values.traefik.namespace)
-        - #@ "--domain-filter={}.".format(data.values.traefik.domain)
+        - #@ "--domain-filter={}.".format(data.values.domain)
         - --provider=cloudflare
         - --publish-host-ip
         env:

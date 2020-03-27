@@ -3,11 +3,12 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
+domain: example.com
+#@overlay/match missing_ok=True
 traefik:
   namespace: traefik
   matchLabels:
     app: traefik
-  domain: example.com
   lb: lb.example.com
   dashboard:
     htpasswd: ""

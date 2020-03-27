@@ -5,6 +5,8 @@ kind: Service
 metadata:
   name: traefik-metrics
   namespace: #@ data.values.traefik.namespace
+  labels:
+    app: traefik-metrics
 spec:
   type: ClusterIP
   selector:

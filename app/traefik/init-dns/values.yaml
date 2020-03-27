@@ -3,10 +3,12 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
+domain: example.com
+#@overlay/match missing_ok=True
+cloudflare:
+  email: cf-api-email
+  key: cf-api-key
+#@overlay/match missing_ok=True
 traefikinitdns:
   namespace: traefik
-  domain: example.com
   label_name: public-ip
-  cloudflare:
-    email: cf-api-email
-    key: cf-api-key

@@ -9,7 +9,7 @@ spec:
       #@overlay/match missing_ok=True
       nodeSelector:
         #@yaml/text-templated-strings
-        (@= data.values.traefik.domain @)/node-type: loadbalancer
+        (@= data.values.domain @)/node-type: loadbalancer
       #@overlay/match missing_ok=True
       tolerations:
       - key: node-role.kubernetes.io/master

@@ -1,10 +1,10 @@
 #@data/values
 ---
+domain: example.io
 nginx:
   port: 80
   tag: latest
   matchLabels:
     pod: nginx
-  domain: example.io
   fqdn: nginx.example.io
   lb: lb.example.io

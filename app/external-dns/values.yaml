@@ -3,11 +3,12 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
+domain: example.com
+#@overlay/match missing_ok=True
 externaldns:
   namespace: external-dns
   matchLabels:
     app: external-dns
-  domain: example.com
 #@overlay/match missing_ok=True
 cloudflare:
   email: cf-api-email

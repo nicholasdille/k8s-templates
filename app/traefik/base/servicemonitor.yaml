@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: traefik
+  namespace: #@ data.values.traefik.namespace
+spec:
+  endpoints:
+  - port: metrics
+  selector:
+    matchLabels:
+      app: traefik-metrics

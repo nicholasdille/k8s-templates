@@ -3,12 +3,12 @@
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
-  name: traefik-dashboard
-  namespace: #@ data.values.traefik.namespace
+  name: grafana
+  namespace: #@ data.values.grafana.namespace
 spec:
   endpoints:
-  - dnsName: #@ "traefik.{}".format(data.values.domain)
+  - dnsName: #@ data.values.grafana.fqdn
     recordTTL: 180
     recordType: CNAME
     targets:
-    - #@ data.values.traefik.lb
+    - #@ data.values.grafana.lb

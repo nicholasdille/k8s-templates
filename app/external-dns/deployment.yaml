@@ -23,7 +23,7 @@ spec:
         - --source=crd
         - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
         - --crd-source-kind=DNSEndpoint
-        - #@ "--domain-filter={}".format(data.values.externaldns.domain)
+        - #@ "--domain-filter={}".format(data.values.domain)
         - --provider=cloudflare
         env:
         - name: CF_API_KEY

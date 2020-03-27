@@ -6,7 +6,7 @@ metadata:
   name: nginx-insecure
   labels:
     #@yaml/text-templated-strings
-    (@= data.values.nginx.domain @)/loadbalancer: default
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   entryPoints:
   - http
@@ -25,7 +25,7 @@ metadata:
   name: nginx-secure
   labels:
     #@yaml/text-templated-strings
-    (@= data.values.nginx.domain @)/loadbalancer: default
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   entryPoints:
   - https

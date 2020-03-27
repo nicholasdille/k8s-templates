@@ -2,6 +2,8 @@
 ---
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+domain: example.com
 grafana:
   namespace: grafana
   db:
@@ -14,6 +16,8 @@ grafana:
     name: grafana
     username: grafana
     password: test123
+  fqdn: grafana.example.com
   url: https://grafana.example.com
+  lb: lb.example.com
   admin:
     password: test123

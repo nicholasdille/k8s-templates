@@ -3,21 +3,22 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
+domain: dille.io
+#@overlay/match missing_ok=True
 cloudflare:
   email: nicholas.dille@mailbox.org
   key: cf-api-key
 #@overlay/match missing_ok=True
 traefik:
-  domain: dille.io
   #@overlay/match missing_ok=True
   lb: lb.dille.io
   dashboard:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
   api:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
+#@overlay/match missing_ok=True
 traefikinitdns:
   namespace: traefik
-  domain: dille.io
   label_name: public-ip
 #@overlay/match missing_ok=True
 certmanager:
@@ -28,10 +29,6 @@ certmanager:
   domains:
   - dille.io
 #@overlay/match missing_ok=True
-externaldns:
-  domain: dille.io
-#@overlay/match missing_ok=True
 nginx:
-  domain: dille.io
   fqdn: nginx.dille.io
   lb: lb.dille.io
