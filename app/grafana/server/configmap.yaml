@@ -23,7 +23,7 @@ metadata:
   namespace: #@ data.values.grafana.namespace
 data:
   #@yaml/text-templated-strings
-  prometheus.yaml:
+  prometheus.yaml: |
     apiVersion: 1
     datasources:
     - name: Prometheus

@@ -35,4 +35,4 @@ data:
         address: ":8080"
     providers:
       kubernetesCRD:
-        (@= data.values.domain @)/loadbalancer: default
+        labelselector: "(@= data.values.domain @)/loadbalancer=default"

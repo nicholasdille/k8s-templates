@@ -12,21 +12,28 @@ if ! docker version 2>&1; then
     echo "Error: Docker not running"
     exit 1
 fi
+if ! make --version 2>&1; then
+    echo "Error: Docker not running"
+    exit 1
+fi
 
 make kind ytt kapp
 
 ./bin/kind create cluster --config deploy/base/kind/kind.yaml
 
-kubectl create namespace kapp
-export KAPP_NAMESPACE=kapp
-
 ip address show dev ${INTERFACE} | grep " inet " | tr -s ' ' | cut -d' ' -f3 | cut -d'/' -f1 \
-| xargs -I{} kubectl label node kind-control-plane dille.io/public-ip={}
+| xargs -I{} ./bin/kubectl label node kind-control-plane dille.io/public-ip={}
 
-kubectl -n kube-system get configmaps kube-proxy -o yaml | \
+./bin/kubectl -n kube-system get configmaps kube-proxy -o yaml | \
     sed 's/metricsBindAddress: 127.0.0.1:10249/metricsBindAddress: 0.0.0.0:10249/' | \
     sed 's/metricsBindAddress: ""/metricsBindAddress: 0.0.0.0:10249/' | \
-    kubectl apply -f -
+    ./bin/kubectl apply -f -
+./bin/kubectl -n kube-system get pod -l k8s-app=kube-proxy -o name | xargs ./bin/kubectl -n kube-system delete
+
+./bin/kubectl create namespace kapp
+export KAPP_NAMESPACE=kapp
+
+./bin/kubectl apply -f app/prometheus/operator/crd.yaml
 
 ./bin/ytt \
     -f app/cert-manager/base/ \
