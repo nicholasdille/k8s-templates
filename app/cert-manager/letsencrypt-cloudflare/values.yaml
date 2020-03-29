@@ -1,17 +1,10 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
+domain: example.com
+#@overlay/match missing_ok=True
 certmanager:
   namespace: cert-manager
-  #@overlay/match missing_ok=True
-  email: webmaster@example.com
-  #@overlay/match missing_ok=True
-  domains:
-  - example.com
-  #@overlay/match missing_ok=True
-  api:
-    staging: https://acme-staging-v02.api.letsencrypt.org/directory
-    production: https://acme-v02.api.letsencrypt.org/directory
 #@overlay/match missing_ok=True
 cloudflare:
   email: cf-api-email

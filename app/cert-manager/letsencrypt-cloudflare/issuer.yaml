@@ -6,8 +6,8 @@ metadata:
   name: letsencrypt-staging
 spec:
   acme:
-    email: #@ data.values.certmanager.email
-    server: #@ data.values.certmanager.api.staging
+    email: #@ "webmaster@{}".format(data.values.domain)
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
@@ -18,7 +18,8 @@ spec:
             name: cloudflare-token
             key: token
       selector:
-        dnsZones: #@ data.values.certmanager.domains
+        dnsZones:
+        - #@ data.values.domain
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
@@ -26,8 +27,8 @@ metadata:
   name: letsencrypt
 spec:
   acme:
-    email: #@ data.values.certmanager.email
-    server: #@ data.values.certmanager.api.production
+    email: #@ "webmaster@{}".format(data.values.domain)
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt
     solvers:
@@ -38,4 +39,5 @@ spec:
             name: cloudflare-token
             key: token
       selector:
-        dnsZones: #@ data.values.certmanager.domains
+        dnsZones:
+        - #@ data.values.domain
