@@ -7,8 +7,8 @@ metadata:
   namespace: #@ data.values.grafana.namespace
 spec:
   endpoints:
-  - dnsName: #@ data.values.grafana.fqdn
+  - dnsName: #@ "{}.{}".format(data.values.grafana.dns.name, data.values.domain)
     recordTTL: 180
     recordType: CNAME
     targets:
-    - #@ data.values.grafana.lb
+    - #@ "{}.{}".format(data.values.grafana.dns.lb, data.values.domain)

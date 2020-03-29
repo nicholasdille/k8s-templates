@@ -12,7 +12,7 @@ spec:
   entryPoints:
   - http
   routes:
-  - match: #@ "Host(`{}`)".format(data.values.grafana.fqdn)
+  - match: #@ "Host(`{}.{}`)".format(data.values.grafana.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:
@@ -32,7 +32,7 @@ spec:
   entryPoints:
   - https
   routes:
-  - match: #@ "Host(`{}`)".format(data.values.grafana.fqdn)
+  - match: #@ "Host(`{}`)".format(data.values.grafana.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:

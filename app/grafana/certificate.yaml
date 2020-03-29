@@ -9,7 +9,7 @@ spec:
   secretName: certificate-grafana
   duration: 2160h
   renewBefore: 360h
-  commonName: #@ data.values.grafana.fqdn
+  commonName: #@ "{}.{}".format(data.values.grafana.dns.name, data.values.domain)
   isCA: false
   keySize: 2048
   keyAlgorithm: rsa
@@ -18,7 +18,7 @@ spec:
   - server auth
   - client auth
   dnsNames:
-  - #@ data.values.grafana.fqdn
+  - #@ "{}.{}".format(data.values.grafana.dns.name, data.values.domain)
   issuerRef:
     name: letsencrypt-staging
     kind: ClusterIssuer

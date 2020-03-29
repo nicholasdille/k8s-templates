@@ -32,8 +32,5 @@ certmanager:
 grafana:
   database:
     password: f9935fca0c0562feff19074b9befefb2
-  fqdn: grafana.dille.io
-  url: https://grafana.dille.io
-  lb: lb.dille.io
   admin:
     password: 790c2b777c410482546a290659dd0b38

@@ -16,8 +16,8 @@ grafana:
     name: grafana
     username: grafana
     password: test123
-  fqdn: grafana.example.com
-  url: https://grafana.example.com
-  lb: lb.example.com
+  dns:
+    name: grafana
+    lb: lb
   admin:
     password: test123

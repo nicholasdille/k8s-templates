@@ -20,7 +20,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: GF_SERVER_ROOT_URL
-          value: #@ data.values.grafana.url
+          value: #@ "https://{}.{}".format(data.values.grafana.dns.name, data.values.domain)
         - name: GF_SECURITY_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
