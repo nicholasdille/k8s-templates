@@ -7,8 +7,8 @@ metadata:
   namespace: #@ data.values.traefik.namespace
 spec:
   endpoints:
-  - dnsName: #@ "traefik.{}".format(data.values.domain)
+  - dnsName: #@ "{}.{}".format(data.values.traefik.dns.name, data.values.domain)
     recordTTL: 180
     recordType: CNAME
     targets:
-    - #@ data.values.traefik.lb
+    - #@ "{}.{}".format(data.values.traefik.dns.lb, data.values.domain)

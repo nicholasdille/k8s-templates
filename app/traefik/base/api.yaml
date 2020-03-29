@@ -37,7 +37,7 @@ spec:
   entryPoints:
   - http
   routes:
-  - match: #@ "Host(`traefik.{}`) && PathPrefix(`/api`)".format(data.values.domain)
+  - match: #@ "Host(`{}.{}`) && PathPrefix(`/api`)".format(data.values.traefik.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:

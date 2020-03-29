@@ -6,6 +6,7 @@ metadata:
   name: traefik
   namespace: #@ data.values.traefik.namespace
 data:
+  #@yaml/text-templated-strings
   traefik.yaml: |
     global:
       checkNewVersion: false
@@ -33,4 +34,5 @@ data:
       traefik:
         address: ":8080"
     providers:
-      kubernetesCRD: {}
+      kubernetesCRD:
+        (@= data.values.domain @)/loadbalancer: default

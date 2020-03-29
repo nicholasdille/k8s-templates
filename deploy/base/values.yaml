@@ -10,16 +10,10 @@ cloudflare:
   key: cf-api-key
 #@overlay/match missing_ok=True
 traefik:
-  #@overlay/match missing_ok=True
-  lb: lb.dille.io
   dashboard:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
   api:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
-#@overlay/match missing_ok=True
-traefikinitdns:
-  namespace: traefik
-  label_name: public-ip
 #@overlay/match missing_ok=True
 certmanager:
   #@overlay/match missing_ok=True

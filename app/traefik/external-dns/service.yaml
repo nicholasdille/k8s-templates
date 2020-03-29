@@ -6,7 +6,7 @@ metadata:
   name: traefik
   namespace: #@ data.values.traefik.namespace
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: #@ data.values.traefik.lb
+    external-dns.alpha.kubernetes.io/hostname: #@ "{}.{}".format(data.values.traefik.dns.lb, data.values.domain)
 spec:
   selector:
     app: traefik
