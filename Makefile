@@ -82,7 +82,7 @@ docker: Dockerfile ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
 
 .PHONY:
-tools: ytt kapp kind kubeyaml
+tools: ytt kapp kind kubectl kubeyaml
 
 .PHONY:
 ytt: bin/ytt
@@ -113,6 +113,15 @@ bin/kind: bin ; $(info $(M) Installing kind...)
     		jq --raw-output '.assets[] | select(.name == "kind-linux-amd64") | .browser_download_url' | \
     		xargs curl -sLfo ./bin/kind; \
 	chmod +x ./bin/kind
+
+.PHONY:
+kubectl: bin/kubectl
+
+bin/kubectl: bin ; $(info $(M) Installing kubectl...)
+	@set -o errexit; \
+	curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt | \
+    	xargs -I{} curl -sLo ./bin/kubectl https://storage.googleapis.com/kubernetes-release/release/{}/bin/linux/amd64/kubectl; \
+	chmod +x ./bin/kubectl
 
 .PHONY:
 kubeyaml: bin/kubeyaml
