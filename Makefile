@@ -82,7 +82,7 @@ docker: Dockerfile ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
 
 .PHONY:
-tools: ytt kapp kind kubectl kubeyaml
+tools: ytt kapp kind kubectl
 
 .PHONY:
 ytt: bin/ytt
