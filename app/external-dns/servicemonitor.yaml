@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: external-dns
+  namespace: #@ data.values.externaldns.namespace
+  labels: #@ data.values.externaldns.matchLabels
+spec:
+  jobLabel: cert-manager
+  selector:
+    matchLabels: #@ data.values.externaldns.matchLabels
+  endpoints:
+  - targetPort: 7979
