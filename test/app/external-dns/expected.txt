@@ -196,3 +196,18 @@ type: Opaque
 stringData:
   CF_API_EMAIL: cf-api-email
   CF_API_KEY: cf-api-key
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: external-dns
+  namespace: external-dns
+  labels:
+    app: external-dns
+spec:
+  jobLabel: cert-manager
+  selector:
+    matchLabels:
+      app: external-dns
+  endpoints:
+  - targetPort: 7979
