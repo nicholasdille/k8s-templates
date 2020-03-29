@@ -1,10 +1,11 @@
 # App for Traefik
 
-XXX base
+The deployment of traefik is located in the subdirectory `base/`.
 
-XXX external-dns
-
-XXX init-dns
+Multiple options are available to choose from:
+- `external-dns`: The DNS record for the load balancer served by traefik is updated from the node IP using a headless service which is deployed by `base`
+- `init-dns`: The DNS record for the load balancer served by traefik is updated by an init container using a node label containing the public IP address
+- `kind-affinity`: Forced the deployment of traefik to be scheduled in a specific node to match the port publishings in kind
 
 ## Usage
 
@@ -24,6 +25,12 @@ Apply base with autoamtically updated DNS record from host label:
 
 ```bash
 ytt -f app/traefik/base/ -f app/traefik/init-dns/
+```
+
+Apply base with affinity for kind where port publishing are only available on a specific host:
+
+```bash
+ytt -f app/traefik/base/ -f app/traefik/kind-affinity/
 ```
 
 ## Variables
