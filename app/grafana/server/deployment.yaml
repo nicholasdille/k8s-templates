@@ -14,6 +14,13 @@ spec:
       labels: #@ data.values.grafana.server.matchLabels
     spec:
       restartPolicy: Always
+      volumes:
+      - name: config
+        configMap:
+          name: grafana-config
+      - name: datasources
+        configMap:
+          name: grafana-datasources
       containers:
       - name: grafana
         image: grafana/grafana:latest
@@ -49,3 +56,8 @@ spec:
         - containerPort: 3000
           name: http
           protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/grafana/
+          name: config
+        - mountPath: /etc/grafana/provisioning/datasources/
+          name: datasources

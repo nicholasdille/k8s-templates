@@ -1,0 +1,33 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: #@ data.values.grafana.namespace
+data:
+  #@yaml/text-templated-strings
+  grafana.ini: |
+    analytics:
+      check_for_updates: true
+    log:
+      mode: console
+    grafana_net:
+      url: https://grafana.net
+    root_url: https://(@= data.values.grafana.dns.name @).(@= data.values.domain @)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: #@ data.values.grafana.namespace
+data:
+  #@yaml/text-templated-strings
+  prometheus.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-operated.prometheus:9090
+      access: proxy
+      isDefault: true
