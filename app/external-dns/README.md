@@ -1,6 +1,6 @@
 # App for external-dns
 
-XXX
+XXX https://github.com/kubernetes-sigs/external-dns
 
 ## Variables
 
