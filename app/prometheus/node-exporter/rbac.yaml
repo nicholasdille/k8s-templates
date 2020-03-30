@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: prometheus-node-exporter
-  namespace: prometheus
+  namespace: #@ data.values.prometheus.operator.namespace
   labels:
     app: prometheus-node-exporter
 ---
@@ -33,4 +33,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: node-exporter-prometheus-node-exporter
-  namespace: prometheus
+  namespace: #@ data.values.prometheus.operator.namespace
