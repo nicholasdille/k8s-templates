@@ -16,15 +16,13 @@ spec:
       volumes:
       - name: tmp-dir
         emptyDir: {}
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - name: metrics-server
         image: k8s.gcr.io/metrics-server-amd64:v0.3.6
         imagePullPolicy: Always
+        env:
+        - name: TZ
+          value: #@ data.values.timezone
         volumeMounts:
         - name: tmp-dir
           mountPath: /tmp
-        - name: tz-config
-          mountPath: /etc/localtime

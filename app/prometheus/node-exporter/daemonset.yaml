@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: prometheus-node-exporter
-  namespace: prometheus
+  namespace: #@ data.values.prometheus.operator.namespace
   labels:     
     app: prometheus-node-exporter
 spec:
@@ -47,7 +47,7 @@ spec:
         - name: HOST_IP
           value: 0.0.0.0
         - name: TZ
-          value: "Europe/Berlin"
+          value: #@ data.values.timezone
         ports:
         - name: metrics
           containerPort: 9100

@@ -36,6 +36,8 @@ spec:
             secretKeyRef:
               key: database-pass
               name: grafana
+        - name: TZ
+          value: #@ data.values.timezone
         ports:
         - containerPort: 3306
           name: http

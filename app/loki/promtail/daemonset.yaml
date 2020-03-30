@@ -33,6 +33,8 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
+        - name: TZ
+          value: #@ data.values.timezone
         ports:
         - containerPort: 3101
           name: http-metrics

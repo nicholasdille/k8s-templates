@@ -86,15 +86,10 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        volumeMounts:
-        - name: tz-config
-          mountPath: /etc/localtime
+        - name: TZ
+          value: #@ data.values.timezone
         resources:
           {}
-      volumes:
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -148,6 +143,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: TZ
+          value: #@ data.values.timezone
         resources:
           requests:
             cpu: 10m
@@ -199,6 +196,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: TZ
+          value: #@ data.values.timezone
         resources:
           {}
 
