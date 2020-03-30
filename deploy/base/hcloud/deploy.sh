@@ -74,6 +74,10 @@ sleep 10
 | ./bin/kapp deploy --app kube-state-metrics --file - --yes
 
 ./bin/ytt \
+    -f app/loki/ \
+| ./bin/kapp deploy --app loki --file - --yes
+
+./bin/ytt \
     -f app/grafana/ \
     -f deploy/base/values.yaml \
 | ./bin/kapp deploy --app grafana --file - --yes

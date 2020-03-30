@@ -25,9 +25,13 @@ if [[ -z "${IP}" ]]; then
     exit 1
 fi
 
-if kind get clusters | grep -vq kind; then
-    ./bin/ytt -f deploy/base/kind/kind.yaml -f app/traefik/init-dns/values.yaml -f deploy/base/values.yaml -v kind.master.ip=${IP} | \
-        ./bin/kind create cluster --config -
+if ! kind get clusters | grep -q demo; then
+    ./bin/ytt \
+        -f deploy/base/kind/kind.yaml \
+        -f app/traefik/init-dns/values.yaml \
+        -f deploy/base/values.yaml \
+        -v kind.master.ip=${IP} \
+    | ./bin/kind create cluster --name demo --config -
 fi
 
 ./bin/kubectl -n kube-system get configmaps kube-proxy -o yaml | \
@@ -88,6 +92,10 @@ sleep 10
 ./bin/ytt \
     -f app/kube-state-metrics/ \
 | ./bin/kapp deploy --app kube-state-metrics --file - --yes
+
+./bin/ytt \
+    -f app/loki/ \
+| ./bin/kapp deploy --app loki --file - --yes
 
 ./bin/ytt \
     -f app/grafana/ \
