@@ -26,8 +26,16 @@ data:
   prometheus.yaml: |
     apiVersion: 1
     datasources:
-    - name: Prometheus
+    - name: Cluster Prometheus
       type: prometheus
       url: http://prometheus-operated.prometheus:9090
       access: proxy
       isDefault: true
+  loki.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Cluster Loki
+      type: loki
+      url: http://loki.loki:3100
+      access: proxy
+      isDefault: false

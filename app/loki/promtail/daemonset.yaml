@@ -1,12 +1,12 @@
 #@ load("@ytt:data", "data")
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  labels:
-    service: promtail
   name: promtail
   namespace: #@ data.values.loki.namespace
+  labels:
+    service: promtail
 spec:
   selector:
     matchLabels: #@ data.values.loki.collector.matchLabels
@@ -14,19 +14,25 @@ spec:
     metadata:
       labels: #@ data.values.loki.collector.matchLabels
     spec:
+      restartPolicy: Always
+      serviceAccount: promtail
+      serviceAccountName: promtail
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
       containers:
-      - args:
+      - name: promtail
+        image: grafana/promtail:v0.4.0
+        imagePullPolicy: IfNotPresent
+        args:
         - -config.file=/etc/promtail/promtail.yaml
-        - #@ "-client.url={}/loki/api/v1/push".format(data.values.loki.url)
+        - -client.url=http://loki:3100/loki/api/v1/push
         env:
         - name: HOSTNAME
           valueFrom:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        image: grafana/promtail:v0.4.0
-        imagePullPolicy: IfNotPresent
-        name: promtail
         ports:
         - containerPort: 3101
           name: http-metrics
@@ -56,28 +62,17 @@ spec:
         - mountPath: /var/log/pods
           name: pods
           readOnly: true
-        - name: tz-config
-          mountPath: /etc/localtime
-      restartPolicy: Always
-      serviceAccount: promtail
-      serviceAccountName: promtail
       volumes:
-      - configMap:
-          defaultMode: 420
+      - name: config
+        configMap:
           name: promtail
-        name: config
-      - hostPath:
-          path: /run/promtail
-          type: ""
-        name: run
-      - hostPath:
-          path: /var/lib/docker/containers
-          type: ""
-        name: docker
-      - hostPath:
-          path: /var/log/pods
-          type: ""
-        name: pods
-      - name: tz-config
+      - name: run
         hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
+          path: /run/promtail
+      - name: docker
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: pods
+        hostPath:
+          path: /var/log/pods
+          

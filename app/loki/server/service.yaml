@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: loki
+  namespace: #@ data.values.loki.namespace
+  labels: #@ data.values.loki.server.matchLabels
+spec:
+  selector: #@ data.values.loki.server.matchLabels
+  ports:
+  - name: web
+    port: 3100
+    targetPort: 3100

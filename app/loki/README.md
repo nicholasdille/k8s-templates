@@ -1,5 +1,5 @@
 # App for loki
 
-XXX base
+XXX server (loki)
 
-XXX promtail
+XXX promtail (daemonset)

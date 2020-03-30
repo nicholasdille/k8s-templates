@@ -3,9 +3,12 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
+domain: example.com
+#@overlay/match missing_ok=True
 loki:
   namespace: loki
-  url: http://loki.example.com
+  dns:
+    name: loki
   server:
     matchLabels:
       pod: loki

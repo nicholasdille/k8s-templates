@@ -3,7 +3,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: server
+  name: loki
   namespace: #@ data.values.loki.namespace
 spec:
   replicas: 1
@@ -52,9 +52,8 @@ spec:
           mountPath: /etc/localtime
       volumes:
       - name: config
-        secret:
-          defaultMode: 420
-          secretName: loki
+        configMap:
+          name: loki
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
