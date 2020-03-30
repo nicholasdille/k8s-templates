@@ -13,16 +13,22 @@ if ! docker version 2>&1; then
     exit 1
 fi
 if ! make --version 2>&1; then
-    echo "Error: Docker not running"
+    echo "Error: make not found"
     exit 1
 fi
 
 make kind ytt kapp
 
-./bin/kind create cluster --config deploy/base/kind/kind.yaml
+IP=$(ip address show dev ${INTERFACE} | grep " inet " | tr -s ' ' | cut -d' ' -f3 | cut -d'/' -f1)
+if [[ -z "${IP}" ]]; then
+    echo "Error: Unable to determine IP address for interface ${INTERFACE}"
+    exit 1
+fi
 
-ip address show dev ${INTERFACE} | grep " inet " | tr -s ' ' | cut -d' ' -f3 | cut -d'/' -f1 \
-| xargs -I{} ./bin/kubectl label node kind-control-plane dille.io/public-ip={}
+if kind get clusters | grep -vq kind; then
+    ./bin/ytt -f deploy/base/kind/kind.yaml -f app/traefik/init-dns/values.yaml -f deploy/base/values.yaml -v kind.master.ip=${IP} | \
+        ./bin/kind create cluster --config -
+fi
 
 ./bin/kubectl -n kube-system get configmaps kube-proxy -o yaml | \
     sed 's/metricsBindAddress: 127.0.0.1:10249/metricsBindAddress: 0.0.0.0:10249/' | \
@@ -30,7 +36,7 @@ ip address show dev ${INTERFACE} | grep " inet " | tr -s ' ' | cut -d' ' -f3 | c
     ./bin/kubectl apply -f -
 ./bin/kubectl -n kube-system get pod -l k8s-app=kube-proxy -o name | xargs ./bin/kubectl -n kube-system delete
 
-./bin/kubectl create namespace kapp
+./bin/kubectl apply -f deploy/namespace.yaml
 export KAPP_NAMESPACE=kapp
 
 ./bin/kubectl apply -f app/prometheus/operator/crd.yaml

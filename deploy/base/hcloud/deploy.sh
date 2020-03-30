@@ -1,12 +1,11 @@
 #!/bin/bash
 set -o errexit
 
-if [[ "$#" -ne 2 ]]; then
+if [[ "$#" -ne 1 ]]; then
     echo "Usage: $0 <cloudflare-key>"
     exit 1
 fi
-INTERFACE=$1
-CF_API_KEY=$2
+CF_API_KEY=$1
 
 if ! docker version 2>&1; then
     echo "Error: Docker not running"
@@ -21,7 +20,7 @@ make kind ytt kapp
     ./bin/kubectl apply -f -
 ./bin/kubectl -n kube-system get pod -l k8s-app=kube-proxy -o name | xargs ./bin/kubectl -n kube-system delete
 
-./bin/kubectl create namespace kapp
+./bin/kubectl apply -f deploy/namespace.yaml
 export KAPP_NAMESPACE=kapp
 
 ./bin/kubectl apply -f app/prometheus/operator/crd.yaml

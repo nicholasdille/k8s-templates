@@ -1,14 +1,16 @@
+#@ load("@ytt:data", "data")
 ---
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   kubeadmConfigPatches:
+  #@yaml/text-templated-strings
   - |
     kind: InitConfiguration
     nodeRegistration:
       kubeletExtraArgs:
-        node-labels: "dille.io/node-type=loadbalancer"
+        node-labels: "(@= data.values.domain @)/node-type=loadbalancer,(@= data.values.domain @)/(@= data.values.traefikinitdns.label_name @)=(@= data.values.kind.master.ip @)"
         authorization-mode: "AlwaysAllow"
   extraPortMappings:
   - containerPort: 80

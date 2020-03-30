@@ -1,6 +1,10 @@
 #@data/values
 ---
 #@overlay/match missing_ok=True
+kind:
+  master:
+    ip: ""
+#@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
 domain: dille.io
