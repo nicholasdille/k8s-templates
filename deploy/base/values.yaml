@@ -18,9 +18,3 @@ traefik:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
   api:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
-#@overlay/match missing_ok=True
-grafana:
-  database:
-    password: f9935fca0c0562feff19074b9befefb2
-  admin:
-    password: 790c2b777c410482546a290659dd0b38
