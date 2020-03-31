@@ -44,7 +44,6 @@ export KAPP_NAMESPACE=kapp
 
 ./bin/ytt \
     -f app/traefik/base/ \
-    -f app/traefik/kind-affinity/ \
     -f app/traefik/external-dns/ \
     -f deploy/base/values.yaml \
     -v cloudflare.key=${CF_API_KEY} \
