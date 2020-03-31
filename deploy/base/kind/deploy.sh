@@ -87,6 +87,7 @@ sleep 10
 
 ./bin/ytt \
     -f app/prometheus/node-exporter/ \
+    -f app/prometheus/operator/values.yaml \
 | ./bin/kapp deploy --app node-exporter --file - --yes
 
 ./bin/ytt \
