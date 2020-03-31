@@ -1,0 +1,13 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+domain: example.com
+dex:
+  namespace: dex
+  matchLabels:
+    app: dex
+  dns:
+    name: dex
+    lb: lb

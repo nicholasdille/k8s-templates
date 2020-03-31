@@ -1,0 +1,15 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openldap
+  namespace: #@ data.values.openldap.namespace
+  labels: #@ data.values.openldap.matchLabels
+data:
+  LDAP_ORGANISATION: "OpenLDAP"
+  LDAP_DOMAIN: #@ data.values.domain
+  LDAP_BACKEND: "hdb"
+  LDAP_TLS: "true"
+  LDAP_TLS_ENFORCE: "false"
+  LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"

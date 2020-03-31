@@ -1,0 +1,20 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+domain: example.com
+openldap:
+  namespace: openldap
+  matchLabels:
+    app: openldap
+  password:
+    config: test123
+    admin: test123
+  dns:
+    name: openldap
+    lb: lb
+phpldapadmin:
+  namespace: phpldapadmin
+  matchLabels:
+    app: phpldapadmin

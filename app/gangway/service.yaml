@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: gangway
+  namespace: #@ data.values.gangway.namespace
+  labels: #@ data.values.gangway.matchLabels
+spec:
+  type: ClusterIP
+  ports:
+    - name: "http"
+      protocol: TCP
+      port: 80
+      targetPort: "http"
+  selector: #@ data.values.gangway.matchLabels

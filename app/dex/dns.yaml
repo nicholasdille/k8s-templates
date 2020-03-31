@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: dex
+  namespace: #@ data.values.dex.namespace
+spec:
+  endpoints:
+  - dnsName: #@ "{}.{}".format(data.values.dex.dns.name, data.values.domain)
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - #@ "{}.{}".format(data.values.dex.dns.lb, data.values.domain)

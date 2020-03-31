@@ -1,0 +1,13 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+domain: example.com
+gangway:
+  namespace: gangway
+  matchLabels:
+    app: gangway
+  dns:
+    name: gangway
+    lb: lb

@@ -1,0 +1,55 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  openldap
+  namespace: #@ data.values.openldap.namespace
+  labels: #@ data.values.openldap.matchLabels
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.openldap.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.openldap.matchLabels
+    spec:
+      containers:
+      - name: openldap
+        image: "osixia/openldap:1.2.4"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: openldap
+        - secretRef:
+            name: openldap
+        ports:
+        - name: ldap-port
+          containerPort: 389
+        - name: ssl-ldap-port
+          containerPort: 636
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/ldap
+          subPath: data
+        - name: data
+          mountPath: /etc/ldap/slapd.d
+          subPath: config-data
+        livenessProbe:
+          tcpSocket:
+            port: ldap-port
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          failureThreshold: 10
+        readinessProbe:
+          tcpSocket:
+            port: ldap-port
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          failureThreshold: 10
+      volumes:
+      - name: certs
+        emptyDir:
+          medium: Memory
+      - name: data
+        emptyDir: {}

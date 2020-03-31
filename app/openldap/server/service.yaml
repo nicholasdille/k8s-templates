@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openldap
+  namespace: #@ data.values.openldap.namespace
+  labels: #@ data.values.openldap.matchLabels
+spec:
+  selector: #@ data.values.openldap.matchLabels
+  type: ClusterIP
+  ports:
+  - name: ldap-port
+    protocol: TCP
+    port: 389
+    targetPort: ldap-port
+  - name: ssl-ldap-port
+    protocol: TCP
+    port: 636
+    targetPort: ssl-ldap-port

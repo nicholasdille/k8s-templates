@@ -1,0 +1,35 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpldapadmin
+  namespace: #@ data.values.phpldapadmin.namespace
+  labels: #@ data.values.phpldapadmin.matchLabels
+spec:
+  replicas: 1
+  selector:
+    matchLabels: #@ data.values.phpldapadmin.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.phpldapadmin.matchLabels
+    spec:
+      containers:
+      - name: phpldapadmin
+        image: "osixia/phpldapadmin:0.7.1"
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: phpldapadmin
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http

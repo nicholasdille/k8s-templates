@@ -1,0 +1,12 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phpldapadmin
+  namespace: #@ data.values.phpldapadmin.namespace
+  labels: #@ data.values.phpldapadmin.matchLabels
+data:
+  PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'openldap.openldap': [{'server': [{'tls': True}]},{'login': [{'bind_id': 'cn=admin,dc=example,dc=com'}], 'password': [{'test123'}]}]}]"
+  PHPLDAPADMIN_HTTPS: "false"
+  PHPLDAPADMIN_TRUST_PROXY_SSL: "true"
