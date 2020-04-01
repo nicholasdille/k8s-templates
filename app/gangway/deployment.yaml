@@ -1,6 +1,6 @@
 #@ load("@ytt:data", "data")
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gangway
@@ -15,17 +15,26 @@ spec:
     metadata:
       labels: #@ data.values.gangway.matchLabels
     spec:
+      volumes:
+        - name: gangway
+          configMap:
+            name: gangway
       containers:
         - name: gangway
           image: gcr.io/heptio-images/gangway:v3.1.0
           imagePullPolicy: Always
-          command: ["gangway", "-config", "/gangway/gangway.yaml"]
+          command:
+          - gangway
+          - -config
+          - /gangway/gangway.yaml
           env:
-            - name: GANGWAY_SESSION_SECURITY_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: gangway-key
-                  key: sesssionkey
+          - name: GANGWAY_PORT
+            value: "8080"
+          - name: GANGWAY_SESSION_SECURITY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: gangway
+                key: sesssionkey
           ports:
             - name: http
               containerPort: 8080
@@ -55,7 +64,3 @@ spec:
             timeoutSeconds: 1
             periodSeconds: 10
             failureThreshold: 3
-      volumes:
-        - name: gangway
-          configMap:
-            name: gangway

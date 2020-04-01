@@ -3,12 +3,12 @@
 apiVersion: externaldns.k8s.io/v1alpha1
 kind: DNSEndpoint
 metadata:
-  name: grafana
-  namespace: #@ data.values.dex.namespace
+  name: gangway
+  namespace: #@ data.values.gangway.namespace
 spec:
   endpoints:
-  - dnsName: #@ "{}.{}".format(data.values.dex.dns.name, data.values.domain)
+  - dnsName: #@ "{}.{}".format(data.values.gangway.dns.name, data.values.domain)
     recordTTL: 180
     recordType: CNAME
     targets:
-    - #@ "{}.{}".format(data.values.dex.dns.lb, data.values.domain)
+    - #@ "{}.{}".format(data.values.gangway.dns.lb, data.values.domain)

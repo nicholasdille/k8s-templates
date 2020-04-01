@@ -6,6 +6,7 @@ metadata:
   name: gangway
   namespace: #@ data.values.gangway.namespace
 data:
+  #@yaml/text-templated-strings
   gangway.yaml: |
     # The address to listen on. Defaults to 0.0.0.0 to listen on all interfaces.
     # Env var: GANGWAY_HOST
@@ -30,20 +31,20 @@ data:
 
     # The cluster name. Used in UI and kubectl config instructions.
     # Env var: GANGWAY_CLUSTER_NAME
-    clusterName: "${GANGWAY_CLUSTER_NAME}"
+    clusterName: "gangway"
 
     # OAuth2 URL to start authorization flow.
     # Env var: GANGWAY_AUTHORIZE_URL
-    authorizeURL: "https://${DNS_NAME}/authorize"
+    authorizeURL: "https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/auth"
 
     # OAuth2 URL to obtain access tokens.
     # Env var: GANGWAY_TOKEN_URL
-    tokenURL: "https://${DNS_NAME}/oauth/token"
+    tokenURL: "https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/token"
 
     # Endpoint that provides user profile information [optional]. Not all providers
     # will require this.
     # Env var: GANGWAY_AUDIENCE
-    audience: "https://${DNS_NAME}/userinfo"
+    audience: "https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/userinfo"
 
     # Used to specify the scope of the requested Oauth authorization.
     # scopes: ["openid", "profile", "email", "offline_access"]
@@ -52,15 +53,15 @@ data:
     # Typically this also needs to be registered as part of the oauth application
     # with the oAuth provider.
     # Env var: GANGWAY_REDIRECT_URL
-    redirectURL: "https://${GANGWAY_REDIRECT_URL}/callback"
+    redirectURL: "https://(@= data.values.gangway.dns.name @).(@= data.values.domain @)/callback"
 
     # API client ID as indicated by the identity provider
     # Env var: GANGWAY_CLIENT_ID
-    clientID: "${GANGWAY_CLIENT_ID}"
+    clientID: "(@= data.values.gangway.client.id @)"
 
     # API client secret as indicated by the identity provider
     # Env var: GANGWAY_CLIENT_SECRET
-    clientSecret: "${GANGWAY_CLIENT_SECRET}"
+    clientSecret: "(@= data.values.gangway.client.secret @)"
 
     # Some identity providers accept an empty client secret, this
     # is not generally considered a good idea. If you have to use an
@@ -74,9 +75,14 @@ data:
     # Env var: GANGWAY_USERNAME_CLAIM
     usernameClaim: "sub"
 
+    # The JWT claim to use as the email claim. This is used to name the
+    # "user" part of the config. Default is "email".
+    # Env var: GANGWAY_EMAIL_CLAIM
+    emailClaim: "email"
+
     # The API server endpoint used to configure kubectl
     # Env var: GANGWAY_APISERVER_URL
-    apiServerURL: "https://${GANGWAY_APISERVER_URL}"
+    apiServerURL: "https://k8s.(@= data.values.domain @):6443"
 
     # The path to find the CA bundle for the API server. Used to configure kubectl.
     # This is typically mounted into the default location for workloads running on

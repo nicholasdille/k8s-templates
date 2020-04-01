@@ -32,7 +32,7 @@ spec:
   entryPoints:
   - https
   routes:
-  - match: #@ "Host(`{}`)".format(data.values.dex.dns.name, data.values.domain)
+  - match: #@ "Host(`{}.{}`)".format(data.values.dex.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:
@@ -40,4 +40,4 @@ spec:
       port: 5556
       strategy: RoundRobin
   tls:
-    secretName: certificate-grafana
+    secretName: certificate-dex

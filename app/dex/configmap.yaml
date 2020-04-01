@@ -6,39 +6,56 @@ metadata:
   name: dex
   namespace: #@ data.values.dex.namespace
 data:
+  #@yaml/text-templated-strings
   config.yaml: |
-    issuer: https://dex.example.com:32000
+    issuer: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)
+
     storage:
       type: kubernetes
       config:
         inCluster: true
+
     web:
-      https: 0.0.0.0:5556
-      tlsCert: /etc/dex/tls/tls.crt
-      tlsKey: /etc/dex/tls/tls.key
+      http: 0.0.0.0:5556
+
+    #frontend:
+    #  theme: "coreos"
+    #  issuer: "Example Co"
+    #  issuerUrl: "https://example.com"
+    #  logoUrl: https://example.com/images/logo-250x25.png
+      
+    #expiry:
+    #  signingKeys: "6h"
+    #  idTokens: "24h"
+
     connectors:
-    - type: github
-      id: github
-      name: GitHub
+    - type: gitlab
+      id: gitlab
+      name: gitlabcom
       config:
-        clientID: $GITHUB_CLIENT_ID
-        clientSecret: $GITHUB_CLIENT_SECRET
-        redirectURI: https://dex.example.com:32000/callback
-        org: kubernetes
-    oauth2:
-      skipApprovalScreen: true
+        baseURL: https://gitlab.com
+        clientID: $GITLAB_APPLICATION_ID
+        clientSecret: $GITLAB_CLIENT_SECRET
+        redirectURI: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/callback
+        #groups:
+        #- dex-test
+        useLoginAsID: false
 
     staticClients:
-    - id: example-app
+    - id: (@= data.values.gangway.client.id @)
       redirectURIs:
-      - 'http://127.0.0.1:5555/callback'
-      name: 'Example App'
-      secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+      - https://(@= data.values.gangway.dns.name @).(@= data.values.domain @)/callback
+      name: "(@= data.values.gangway.client.id @)"
+      secret: (@= data.values.gangway.client.secret @)
+    - id: k8sauth
+      redirectURIs:
+      - https://auth.dille.io/callback
+      name: "k8sauth"
+      secret: test123
 
     enablePasswordDB: true
     staticPasswords:
-    - email: "admin@example.com"
-      # bcrypt hash of the string "password"
-      hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
+    - email: "admin@(@= data.values.domain @)"
+      hash: "(@= data.values.dex.admin.password @)"
       username: "admin"
       userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"

@@ -4,6 +4,7 @@
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
 domain: example.com
+#@overlay/match missing_ok=True
 dex:
   namespace: dex
   matchLabels:
@@ -11,3 +12,8 @@ dex:
   dns:
     name: dex
     lb: lb
+  gitlabcom:
+    id: 123abc
+    secret: 456def
+  admin:
+    password: $2y$10$5c31GjsZxYINf9NMW4bSyedsbp8s5u.S0ZgWJWVF5iNgjYwJaN3T6

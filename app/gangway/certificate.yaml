@@ -20,5 +20,5 @@ spec:
   dnsNames:
   - #@ "{}.{}".format(data.values.gangway.dns.name, data.values.domain)
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt
     kind: ClusterIssuer

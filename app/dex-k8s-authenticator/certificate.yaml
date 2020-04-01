@@ -1,15 +1,14 @@
-#@ load("@ytt:data", "data")
 ---
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: dex
-  namespace: #@ data.values.dex.namespace
+  name: k8sauth
+  namespace: dex
 spec:
-  secretName: certificate-dex
+  secretName: certificate-k8sauth
   duration: 2160h
   renewBefore: 360h
-  commonName: #@ "{}.{}".format(data.values.dex.dns.name, data.values.domain)
+  commonName: auth.dille.io
   isCA: false
   keySize: 2048
   keyAlgorithm: rsa
@@ -18,7 +17,7 @@ spec:
   - digital signature
   - key encipherment
   dnsNames:
-  - #@ "{}.{}".format(data.values.dex.dns.name, data.values.domain)
+  - auth.dille.io
   issuerRef:
     name: letsencrypt
     kind: ClusterIssuer
