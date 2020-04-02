@@ -1,27 +1,28 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: k8sauth-insecure
-  namespace: dex
+  name: k8s-authenticator-insecure
+  namespace: #@ data.values.k8sauth.namespace
   labels:
     dille.io/loadbalancer: default
 spec:
   entryPoints:
   - http
   routes:
-  - match: Host(`auth.dille.io`)
+  - match: #@ "Host(`{}.{}`)".format(data.values.k8sauth.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:
-    - name: dex-k8s-authenticator
+    - name: k8s-authenticator
       port: 5555
       strategy: RoundRobin
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: k8sauth
+  name: k8s-authenticator
   namespace: dex
   labels:
     dille.io/loadbalancer: default
@@ -29,11 +30,11 @@ spec:
   entryPoints:
   - https
   routes:
-  - match: Host(`auth.dille.io`)
+  - match: #@ "Host(`{}.{}`)".format(data.values.k8sauth.dns.name, data.values.domain)
     kind: Rule
     priority: 12
     services:
-    - name: dex-k8s-authenticator
+    - name: k8s-authenticator
       port: 5555
       strategy: RoundRobin
   tls:

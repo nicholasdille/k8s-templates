@@ -1,11 +1,11 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: dex-k8s-authenticator
-  namespace: dex
-  labels:
-    app: dex-k8s-authenticator
+  name: k8s-authenticator
+  namespace: #@ data.values.k8sauth.namespace
+  labels: #@ data.values.k8sauth.matchLabels
 spec:
   type: ClusterIP
   ports:
@@ -13,5 +13,4 @@ spec:
     port: 5555
     targetPort: 5555
     protocol: TCP
-  selector:
-    app: dex-k8s-authenticator
+  selector: #@ data.values.k8sauth.matchLabels

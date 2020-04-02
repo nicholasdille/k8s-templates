@@ -1,25 +1,42 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dex-k8s-authenticator
-  namespace: dex
-  labels:
-    app: dex-k8s-authenticator
+  name: k8s-authenticator
+  namespace: #@ data.values.k8sauth.namespace
+  labels: #@ data.values.k8sauth.matchLabels
 data:
+  #@yaml/text-templated-strings
   config.yaml: |-
     listen: http://0.0.0.0:5555
     web_path_prefix: /
     debug: false
     #logo_uri: {{ .logoUrl }}
     clusters:
-    - name: dilleio
+    - name: k8sauth
       short_description: "My Cluster"
       description: "Example Cluster Long Description..."
       client_secret: test123
-      issuer: https://dex.dille.io
-      k8s_master_uri: https://78.47.163.162:6443
+      issuer: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)
+      k8s_master_uri: https://49.12.40.118:6443
       client_id: k8sauth
-      redirect_uri: https://auth.dille.io/callback/dilleio
-      #k8s_ca_uri: https://url-to-your-ca.crt
-      #k8s_ca_pem: |
+      redirect_uri: https://(@= data.values.k8sauth.dns.name @).(@= data.values.domain @)/callback/k8sauth
+      k8s_ca_pem: |
+        -----BEGIN CERTIFICATE-----
+        MIICyDCCAbCgAwIBAgIBADANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwprdWJl
+        cm5ldGVzMB4XDTIwMDQwMjA4NTMzOVoXDTMwMDMzMTA4NTMzOVowFTETMBEGA1UE
+        AxMKa3ViZXJuZXRlczCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANML
+        7oB5NwaN7qGcYzr48jGkBvA0CutGLQOnI/MLSSKrlmWm+QH54DdV1jtg8Wn4yjxf
+        lIzePWZNuusOw2D4bQC/93565yv7b9BLKP76jeuB995ajPQlY/QQSMP1IvC5WVqa
+        qiILIEK3OS67TfTDWHxrS+bu7qk9yozzbpHcA+ThCqcGoB6okgGtx2xubJwwz/Og
+        H9cbRsRy/bxZkRui008/b6tLWtaOg7Z39GenaPszN3RH9xSG8l0wpVuegXBx8DiW
+        gFBeS0LoVtxQTg1Bwe5AgjQvc6rXnJDh/q1avrZKlG99V/Qtp/3vqRsQBhwk152J
+        w6zrmp9F6O0rY3ydbhkCAwEAAaMjMCEwDgYDVR0PAQH/BAQDAgKkMA8GA1UdEwEB
+        /wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBADffKDMAxX0jdaxUVod9d1MVXC+Z
+        UBxn+Weiy2iowa3MmxDv8srVJBRIpehz7fW1Slg3OAoarNh138ZhFt5hEYsV96Z+
+        DCoBgNy/dGtdfkLx/Xg0YzoxH06uuPcv/XUk0yzh/2VmAJ0RaLOM3R+ULplOrzxl
+        KCjN8Kl6lGEBPbxVMZ7f3eiLVPTnLo9i2HfGrZ9853kh+u3p4x/RyHZ7sp7a4rUf
+        2AbyB+mOnK4aRyWBcJgTWDqZ0SaLikpcBtG153JCcqP6Hku0w3AjnWUDz/af9Quh
+        pK3E6LmBiDUv1uc0fz1w13uWYK8MnhM3ThxRW6P+Tc6HCMuShlqJoquwj/Y=
+        -----END CERTIFICATE-----

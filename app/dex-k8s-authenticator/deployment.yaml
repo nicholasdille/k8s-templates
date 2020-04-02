@@ -1,20 +1,18 @@
+#@ load("@ytt:data", "data")
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dex-k8s-authenticator
-  namespace: dex
-  labels:
-    app: dex-k8s-authenticator
+  name: k8s-authenticator
+  namespace: #@ data.values.k8sauth.namespace
+  labels: #@ data.values.k8sauth.matchLabels
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: dex-k8s-authenticator
+    matchLabels: #@ data.values.k8sauth.matchLabels
   template:
     metadata:
-      labels:
-        app: dex-k8s-authenticator
+      labels: #@ data.values.k8sauth.matchLabels
     spec:
       containers:
       - name: dex-k8s-authenticator
