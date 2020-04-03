@@ -91,7 +91,7 @@ bin/ytt: bin ; $(info $(M) Installing ytt...)
 	@set -o errexit; \
 	curl -s https://api.github.com/repos/k14s/ytt/releases/latest | \
 	    jq --raw-output '.assets[] | select(.name == "ytt-linux-amd64") | .browser_download_url' | \
-	    xargs curl -sLfo ./bin/ytt; \
+	    xargs curl -Lfo ./bin/ytt; \
 	chmod +x ./bin/ytt
 
 .PHONY:
@@ -101,7 +101,7 @@ bin/kapp: bin ; $(info $(M) Installing kapp...)
 	@set -o errexit; \
 	curl -s https://api.github.com/repos/k14s/kapp/releases/latest | \
 	    jq --raw-output '.assets[] | select(.name == "kapp-linux-amd64") | .browser_download_url' | \
-	    xargs curl -sLfo ./bin/kapp; \
+	    xargs curl -Lfo ./bin/kapp; \
 	chmod +x ./bin/kapp
 
 .PHONY:
@@ -111,7 +111,7 @@ bin/kind: bin ; $(info $(M) Installing kind...)
 	@set -o errexit; \
 	curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases/latest | \
     		jq --raw-output '.assets[] | select(.name == "kind-linux-amd64") | .browser_download_url' | \
-    		xargs curl -sLfo ./bin/kind; \
+    		xargs curl -Lfo ./bin/kind; \
 	chmod +x ./bin/kind
 
 .PHONY:
@@ -120,7 +120,7 @@ kubectl: bin/kubectl
 bin/kubectl: bin ; $(info $(M) Installing kubectl...)
 	@set -o errexit; \
 	curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt | \
-    	xargs -I{} curl -sLo ./bin/kubectl https://storage.googleapis.com/kubernetes-release/release/{}/bin/linux/amd64/kubectl; \
+    	xargs -I{} curl -Lo ./bin/kubectl https://storage.googleapis.com/kubernetes-release/release/{}/bin/linux/amd64/kubectl; \
 	chmod +x ./bin/kubectl
 
 .PHONY:
