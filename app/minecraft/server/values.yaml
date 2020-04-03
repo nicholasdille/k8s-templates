@@ -7,4 +7,4 @@ minecraft:
   matchLabels:
     pod: minecraft
   port: 25565
-  fqdn: minecraft.dille.io
+  fqdn: minecraft.example.com

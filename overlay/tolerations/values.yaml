@@ -2,6 +2,6 @@
 ---
 #@overlay/match missing_ok=True
 tolerations:
-  domain: dille.io
+  domain: example.com
   node:
     type: loadbalancer

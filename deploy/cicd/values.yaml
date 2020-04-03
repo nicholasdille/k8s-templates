@@ -3,21 +3,21 @@
 #@overlay/match missing_ok=True
 registry:
   namespace: cicd
-  fqdn: reg.cicd.dille.io
+  fqdn: reg.cicd.example.com
 #@overlay/match missing_ok=True
 gitea:
   namespace: cicd
-  fqdn: git.cicd.dille.io
-  url: http://git.cicd.dille.io
+  fqdn: git.cicd.example.com
+  url: http://git.cicd.example.com
 #@overlay/match missing_ok=True
 drone:
   version: 1.6
   namespace: cicd
-  fqdn: ci.cicd.dille.io
-  url: http://ci.cicd.dille.io
+  fqdn: ci.cicd.example.com
+  url: http://ci.cicd.example.com
   #@overlay/match missing_ok=True
   gitea:
-    url: http://git.cicd.dille.io
+    url: http://git.cicd.example.com
     oauth:
       id: d2d82fbc-8de9-4dc0-bad0-908dd1f73554
       secret: qMI_AnRCWsZ9SyAUvJB8R1QjdVwrrkzJ4htE2ppoTr0=
@@ -25,4 +25,4 @@ drone:
   docker:
     #@overlay/match missing_ok=True
     insecure-registries:
-    - reg.cicd.dille.io
+    - reg.cicd.example.com

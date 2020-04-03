@@ -2,9 +2,9 @@
 ---
 #@overlay/match missing_ok=True
 foo:
-  domain: dille.io
+  domain: example.com
 #@overlay/match missing_ok=True
 labels:
   foo: bar
-  dille.io/node-type: loadbalancer
-  dille.io/public-ip: 10.1.2.3
+  example.com/node-type: loadbalancer
+  example.com/public-ip: 10.1.2.3

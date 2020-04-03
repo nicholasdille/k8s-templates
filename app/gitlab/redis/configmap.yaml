@@ -8,7 +8,7 @@ metadata:
 data:
   #@yaml/text-templated-strings
   GITLAB_OMNIBUS_CONFIG: |
-    external_url 'https://gitlab.dille.io'
+    external_url 'https://gitlab.(@= data.values.domain @)'
 
     # Disable all services except Redis
     redis_master_role['enable'] = true
