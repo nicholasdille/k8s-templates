@@ -18,4 +18,6 @@ roleRef:
   name: gitlabcom
 subjects:
 - kind: Group
-  name: text-dex
+  name: "/dex-test"
+- kind: Group
+  name: "inmylab-de:admins"

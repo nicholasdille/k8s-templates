@@ -7,11 +7,6 @@ if [[ "$#" -ne 1 ]]; then
 fi
 CF_API_KEY=$1
 
-if ! docker version 2>&1; then
-    echo "Error: Docker not running"
-    exit 1
-fi
-
 make kind ytt kapp
 
 ./bin/kubectl -n kube-system get configmaps kube-proxy -o yaml | \

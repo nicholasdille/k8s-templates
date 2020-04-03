@@ -15,7 +15,7 @@ spec:
       labels: #@ data.values.k8sauth.matchLabels
     spec:
       containers:
-      - name: dex-k8s-authenticator
+      - name: k8s-authenticator
         image: "mintel/dex-k8s-authenticator:1.2.0"
         imagePullPolicy: IfNotPresent
         args: [ "--config", "config.yaml" ]
@@ -30,4 +30,4 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: dex-k8s-authenticator
+          name: k8s-authenticator

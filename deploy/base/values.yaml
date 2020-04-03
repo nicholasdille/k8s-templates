@@ -7,7 +7,7 @@ kind:
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
-domain: dille.io
+domain: inmylab.de
 #@overlay/match missing_ok=True
 cloudflare:
   email: nicholas.dille@mailbox.org

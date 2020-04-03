@@ -44,7 +44,7 @@ XXX dex-k8s-authenticator
     -f app/dex-k8s-authenticator/ \
     -f app/dex/values.yaml \
     -f deploy/auth/values.yaml \
-| ./bin/kapp deploy --app gangway --file -
+| ./bin/kapp deploy --app k8s-authenticator --file -
 ```
 
 XXX gangway

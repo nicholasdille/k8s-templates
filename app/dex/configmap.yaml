@@ -23,7 +23,7 @@ data:
     #  issuer: "Example Co"
     #  issuerUrl: "https://example.com"
     #  logoUrl: https://example.com/images/logo-250x25.png
-      
+
     #expiry:
     #  signingKeys: "6h"
     #  idTokens: "24h"
@@ -33,11 +33,25 @@ data:
       id: gitlab
       name: gitlab
       config:
-        baseURL: https://gitlab.haufedev.systems
+        baseURL: https://gitlab.com
         clientID: $GITLAB_APPLICATION_ID
         clientSecret: $GITLAB_CLIENT_SECRET
         redirectURI: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/callback
+        groups:
+        - /dex-test
         useLoginAsID: false
+    - type: github
+      id: github
+      name: github
+      config:
+        clientID: $GITHUB_CLIENT_ID
+        clientSecret: $GITHUB_CLIENT_SECRET
+        redirectURI: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/callback
+        orgs:
+        - name: inmylab-de
+          teams:
+          - admins
+        loadAllGroups: false
 
     staticClients:
     - id: (@= data.values.gangway.client.id @)

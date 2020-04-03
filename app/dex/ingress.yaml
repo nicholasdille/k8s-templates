@@ -1,6 +1,19 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: dex-redirect
+  namespace: #@ data.values.dex.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: dex
@@ -19,6 +32,8 @@ spec:
     - name: dex
       port: 5556
       strategy: RoundRobin
+    middlewares:
+    - name: dex-redirect
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute

@@ -10,7 +10,7 @@ k8sauth:
   matchLabels:
     app: dex-k8s-authenticator
   dns:
-    name: auch
+    name: auth
     lb: lb
   client:
     id: k8sauth

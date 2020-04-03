@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: #@ data.values.name
+  namespace: kube-system
+spec:
+  endpoints:
+  - dnsName: #@ "k8s.{}".format(data.values.domain)
+    recordTTL: 180
+    recordType: A
+    targets:
+    - #@ data.values.ip

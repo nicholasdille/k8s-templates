@@ -37,6 +37,16 @@ spec:
             secretKeyRef:
               name: dex
               key: GITLAB_CLIENT_SECRET
+        - name: GITHUB_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: dex
+              key: GITHUB_CLIENT_ID
+        - name: GITHUB_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: dex
+              key: GITHUB_CLIENT_SECRET
         ports:
         - name: https
           containerPort: 5556

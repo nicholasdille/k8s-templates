@@ -1,12 +1,26 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+kind: Middleware
 metadata:
-  name: k8s-authenticator-insecure
+  name: k8s-authenticator-redirect
   namespace: #@ data.values.k8sauth.namespace
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: k8s-authenticator
+  namespace: #@ data.values.k8sauth.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   entryPoints:
   - http
@@ -18,14 +32,17 @@ spec:
     - name: k8s-authenticator
       port: 5555
       strategy: RoundRobin
+    middlewares:
+    - name: k8s-authenticator-redirect
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: k8s-authenticator
+  name: k8s-authenticator-secure
   namespace: dex
   labels:
-    dille.io/loadbalancer: default
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
 spec:
   entryPoints:
   - https
