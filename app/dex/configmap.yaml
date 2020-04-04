@@ -52,6 +52,28 @@ data:
           teams:
           - admins
         loadAllGroups: false
+    - type: ldap
+      id: ldap
+      name: ldap
+      config:
+        host: openldap.openldap:389
+        insecureNoSSL: true
+        bindDN: cn=admin,(@= data.values.openldap.domain.dn @)
+        bindPW: (@= data.values.openldap.password.admin @)
+        userSearch:
+          baseDN: ou=users,(@= data.values.openldap.domain.dn @)
+          filter: "(objectClass=person)"
+          username: uid
+          idAttr: uid
+          emailAttr: cn
+          nameAttr: cn
+        groupSearch:
+          baseDN: ou=groups,(@= data.values.openldap.domain.dn @)
+          filter: "(objectClass=group)"
+          userMatchers:
+          - userAttr: uid
+            groupAttr: member
+          nameAttr: name
 
     staticClients:
     - id: (@= data.values.gangway.client.id @)

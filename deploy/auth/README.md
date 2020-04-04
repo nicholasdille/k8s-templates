@@ -22,6 +22,22 @@ XXX gangway session secret `session_secret`: openssl rand -base64 32
 GANGWAY_SESSION_SECRET=$(openssl rand -base64 32)
 ```
 
+XXX openldap admin password
+
+```bash
+OPENLDAP_ADMIN_PASSWORD=$(openssl rand -hex 32)
+```
+
+XXX openldap
+
+```bash
+./bin/ytt \
+    -f app/openldap/ \
+    -f deploy/auth/values.yaml \
+    -v openldap.password.admin=${OPENLDAP_ADMIN_PASSWORD} \
+| ./bin/kapp deploy --app openldap --file -
+```
+
 XXX dex
 
 ```bash
@@ -29,11 +45,13 @@ XXX dex
     -f app/dex/ \
     -f app/gangway/values.yaml \
     -f app/dex-k8s-authenticator/values.yaml \
+    -f app/openldap/values.yaml \
     -f deploy/auth/values.yaml \
     -v dex.admin.password=${DEX_ADMIN_PASSWORD} \
     -v dex.gitlabcom.id=${GITLAB_APPLICATION_ID} \
     -v dex.gitlabcom.secret=${GITLAB_APPLICATION_SECRET} \
     -v gangway.client.secret=${GANGWAY_CLIENT_SECRET} \
+    -v openldap.password.admin=${OPENLDAP_ADMIN_PASSWORD} \
 | ./bin/kapp deploy --app dex --file -
 ```
 

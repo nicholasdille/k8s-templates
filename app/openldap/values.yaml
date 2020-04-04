@@ -4,6 +4,7 @@
 timezone: Europe/Berlin
 #@overlay/match missing_ok=True
 domain: example.com
+#@overlay/match missing_ok=True
 openldap:
   namespace: openldap
   domain:
@@ -16,6 +17,7 @@ openldap:
   dns:
     name: openldap
     lb: lb
+#@overlay/match missing_ok=True
 phpldapadmin:
   namespace: openldap
   matchLabels:
