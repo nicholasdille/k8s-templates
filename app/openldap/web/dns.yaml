@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: phpldapadmin
+  namespace: #@ data.values.phpldapadmin.namespace
+spec:
+  endpoints:
+  - dnsName: #@ "{}.{}".format(data.values.phpldapadmin.dns.name, data.values.domain)
+    recordTTL: 180
+    recordType: CNAME
+    targets:
+    - #@ "{}.{}".format(data.values.phpldapadmin.dns.lb, data.values.domain)

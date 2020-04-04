@@ -6,6 +6,8 @@ timezone: Europe/Berlin
 domain: example.com
 openldap:
   namespace: openldap
+  domain:
+    dn: dc=example,dc=com
   matchLabels:
     app: openldap
   password:
@@ -15,6 +17,9 @@ openldap:
     name: openldap
     lb: lb
 phpldapadmin:
-  namespace: phpldapadmin
+  namespace: openldap
   matchLabels:
     app: phpldapadmin
+  dns:
+    name: phpldapadmin
+    lb: lb

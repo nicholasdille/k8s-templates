@@ -7,6 +7,7 @@ metadata:
   namespace: #@ data.values.phpldapadmin.namespace
   labels: #@ data.values.phpldapadmin.matchLabels
 data:
-  PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'openldap.openldap': [{'server': [{'tls': True}]},{'login': [{'bind_id': 'cn=admin,dc=example,dc=com'}], 'password': [{'test123'}]}]}]"
+  #@yaml/text-templated-strings
+  PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:[{'openldap': [{'server': [{'tls': False}]},{'login': [{'bind_id': 'cn=admin,(@= data.values.openldap.domain.dn @)'}]}]}]"
   PHPLDAPADMIN_HTTPS: "false"
   PHPLDAPADMIN_TRUST_PROXY_SSL: "true"
