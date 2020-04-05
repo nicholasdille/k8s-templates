@@ -21,3 +21,5 @@ subjects:
   name: "/dex-test"
 - kind: Group
   name: "inmylab-de:admins"
+#- kind: User
+#  name: "nicholas@inmylab.de"

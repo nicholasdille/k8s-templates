@@ -65,15 +65,15 @@ data:
           filter: "(objectClass=person)"
           username: uid
           idAttr: uid
-          emailAttr: cn
+          emailAttr: mail
           nameAttr: cn
         groupSearch:
           baseDN: ou=groups,(@= data.values.openldap.domain.dn @)
-          filter: "(objectClass=group)"
+          filter: "(objectClass=posixGroup)"
           userMatchers:
           - userAttr: uid
-            groupAttr: member
-          nameAttr: name
+            groupAttr: memberUid
+          nameAttr: cn
 
     staticClients:
     - id: (@= data.values.gangway.client.id @)
@@ -81,11 +81,6 @@ data:
       - https://(@= data.values.gangway.dns.name @).(@= data.values.domain @)/callback
       name: "(@= data.values.gangway.client.id @)"
       secret: (@= data.values.gangway.client.secret @)
-    - id: k8sauth
-      redirectURIs:
-      - https://(@= data.values.k8sauth.dns.name @).(@= data.values.domain @)/callback/k8sauth
-      name: k8sauth
-      secret: test123
 
     enablePasswordDB: true
     staticPasswords:

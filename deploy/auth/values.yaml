@@ -1,10 +1,7 @@
 #@data/values
 ---
-#@overlay/match missing_ok=True
 timezone: Europe/Berlin
-#@overlay/match missing_ok=True
 domain: inmylab.de
-#@overlay/match missing_ok=True
 openldap:
   domain:
     dn: dc=inmylab,dc=de

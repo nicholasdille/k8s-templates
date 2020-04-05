@@ -1,0 +1,50 @@
+#@data/values
+---
+timezone: Europe/Berlin
+domain: example.com
+dex:
+  namespace: dex
+  matchLabels:
+    app: dex
+  dns:
+    name: auth
+    lb: lb
+  gitlabcom:
+    id: 123abc
+    secret: 456def
+  github:
+    id: 234bcd
+    secret: 567efg
+  admin:
+    password: $2y$10$5c31GjsZxYINf9NMW4bSyedsbp8s5u.S0ZgWJWVF5iNgjYwJaN3T6
+gangway:
+  namespace: gangway
+  matchLabels:
+    app: gangway
+  dns:
+    name: login
+    lb: lb
+  client:
+    id: gangway
+    secret: abc123
+  session:
+    secret: def456
+openldap:
+  namespace: openldap
+  domain:
+    dn: dc=example,dc=com
+  matchLabels:
+    app: openldap
+  password:
+    config: test123
+    admin: test123
+  dns:
+    name: openldap
+    lb: lb
+phpldapadmin:
+  namespace: openldap
+  matchLabels:
+    app: phpldapadmin
+  dns:
+    name: phpldapadmin
+    lb: lb
