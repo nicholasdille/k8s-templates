@@ -10,6 +10,6 @@ data:
   LDAP_ORGANISATION: "OpenLDAP"
   LDAP_DOMAIN: #@ data.values.domain
   LDAP_BACKEND: "hdb"
-  LDAP_TLS: "true"
+  LDAP_TLS: "false"
   LDAP_TLS_ENFORCE: "false"
   LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"

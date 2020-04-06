@@ -16,4 +16,4 @@ fi
     -v dex.gitlabcom.secret=${GITLAB_APPLICATION_SECRET} \
     -v gangway.session.secret=${GANGWAY_SESSION_SECRET} \
     -v gangway.client.secret=${GANGWAY_CLIENT_SECRET} \
-| ./bin/kapp deploy --app gangway --file - --yes
+| ./bin/kapp deploy --app auth --file - --yes
