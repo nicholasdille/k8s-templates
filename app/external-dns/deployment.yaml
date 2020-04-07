@@ -17,7 +17,7 @@ spec:
       serviceAccountName: external-dns
       containers:
       - name: external-dns
-        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        image: eu.gcr.io/k8s-artifacts-prod/external-dns/external-dns:v0.7.1
         args:
         - --txt-owner-id=external-dns-crd
         - --source=crd

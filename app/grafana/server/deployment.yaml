@@ -23,7 +23,7 @@ spec:
           name: grafana-datasources
       containers:
       - name: grafana
-        image: grafana/grafana:latest
+        image: grafana/grafana:6.7.2
         imagePullPolicy: Always
         env:
         - name: GF_SERVER_ROOT_URL

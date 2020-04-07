@@ -10,7 +10,6 @@ metadata:
     app.kubernetes.io/name: cert-manager
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
 spec:
   type: ClusterIP
   ports:
@@ -31,7 +30,6 @@ metadata:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
 spec:
   type: ClusterIP
   ports:
@@ -54,7 +52,6 @@ metadata:
     app.kubernetes.io/name: cainjector
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cainjector-v0.11.1
 spec:
   replicas: 1
   selector:
@@ -70,13 +67,12 @@ spec:
         app.kubernetes.io/name: cainjector
         app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cainjector-v0.11.1
       annotations:
     spec:
       serviceAccountName: cert-manager-cainjector
       containers:
       - name: cainjector
-        image: "quay.io/jetstack/cert-manager-cainjector:v0.11.1"
+        image: "quay.io/jetstack/cert-manager-cainjector:v0.14.1"
         imagePullPolicy: IfNotPresent
         args:
         - --v=2
@@ -101,7 +97,6 @@ metadata:
     app.kubernetes.io/name: cert-manager
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
 spec:
   replicas: 1
   selector:
@@ -117,7 +112,6 @@ spec:
         app.kubernetes.io/name: cert-manager
         app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cert-manager-v0.11.1
       annotations:
         prometheus.io/path: "/metrics"
         prometheus.io/scrape: 'true'
@@ -126,7 +120,7 @@ spec:
       serviceAccountName: cert-manager
       containers:
       - name: cert-manager
-        image: "quay.io/jetstack/cert-manager-controller:v0.11.1"
+        image: "quay.io/jetstack/cert-manager-controller:v0.14.1"
         imagePullPolicy: IfNotPresent
         args:
         - --v=2
@@ -160,7 +154,6 @@ metadata:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
   annotations:
     kapp.k14s.io/apps-v1-deployment-wait-minimum-replicas-available: "1"
 spec:
@@ -178,13 +171,12 @@ spec:
         app.kubernetes.io/name: webhook
         app.kubernetes.io/instance:  cert-manager
         app.kubernetes.io/managed-by: Tiller
-        helm.sh/chart: cert-manager-v0.11.1
       annotations:
     spec:
       serviceAccountName: cert-manager-webhook
       containers:
       - name: cert-manager
-        image: "quay.io/jetstack/cert-manager-webhook:v0.11.1"
+        image: "quay.io/jetstack/cert-manager-webhook:v0.14.1"
         imagePullPolicy: IfNotPresent
         args:
         - --v=2
@@ -218,7 +210,6 @@ metadata:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
   annotations:
     cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-tls"
 spec:
@@ -239,7 +230,6 @@ metadata:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
   annotations:
     cert-manager.io/inject-apiserver-ca: "true"
 webhooks:
@@ -276,7 +266,6 @@ metadata:
     app.kubernetes.io/name: webhook
     app.kubernetes.io/instance:  cert-manager
     app.kubernetes.io/managed-by: Tiller
-    helm.sh/chart: cert-manager-v0.11.1
   annotations:
     cert-manager.io/inject-apiserver-ca: "true"
 webhooks:

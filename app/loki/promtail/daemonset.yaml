@@ -22,7 +22,7 @@ spec:
         operator: Exists
       containers:
       - name: promtail
-        image: grafana/promtail:v0.4.0
+        image: grafana/promtail:1.4.1
         imagePullPolicy: IfNotPresent
         args:
         - -config.file=/etc/promtail/promtail.yaml
@@ -77,4 +77,3 @@ spec:
       - name: pods
         hostPath:
           path: /var/log/pods
-          

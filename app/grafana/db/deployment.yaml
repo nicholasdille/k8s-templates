@@ -16,7 +16,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: mysql-grafana
-        image: mysql
+        image: mysql:8
         imagePullPolicy: Always
         env:
         - name: MYSQL_RANDOM_ROOT_PASSWORD
