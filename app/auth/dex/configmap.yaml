@@ -18,22 +18,26 @@ data:
     web:
       http: 0.0.0.0:5556
 
-    #frontend:
-    #  theme: "coreos"
-    #  issuer: "Example Co"
-    #  issuerUrl: "https://example.com"
+    frontend:
+      theme: "coreos"
+      issuer: "Example Co"
+      issuerUrl: "https://example.com"
     #  logoUrl: https://example.com/images/logo-250x25.png
 
     #expiry:
     #  signingKeys: "6h"
     #  idTokens: "24h"
 
+    logger:
+      level: "debug"
+      format: "text"
+
     connectors:
     - type: gitlab
       id: gitlab
       name: gitlab
       config:
-        baseURL: https://gitlab.com
+        baseURL: (@= data.values.dex.gitlab.url @)
         clientID: $GITLAB_APPLICATION_ID
         clientSecret: $GITLAB_CLIENT_SECRET
         redirectURI: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/callback
@@ -62,17 +66,17 @@ data:
         bindPW: (@= data.values.openldap.password.admin @)
         userSearch:
           baseDN: ou=users,(@= data.values.openldap.domain.dn @)
-          filter: "(objectClass=person)"
-          username: uid
-          idAttr: uid
+          filter: "(objectClass=inetOrgPerson)"
+          username: cn
+          idAttr: entryUUID
           emailAttr: mail
           nameAttr: cn
         groupSearch:
           baseDN: ou=groups,(@= data.values.openldap.domain.dn @)
-          filter: "(objectClass=posixGroup)"
+          filter: "(objectClass=groupOfUniqueNames)"
           userMatchers:
-          - userAttr: uid
-            groupAttr: memberUid
+          - userAttr: cn
+            groupAttr: uniqueMember
           nameAttr: cn
 
     staticClients:
@@ -82,9 +86,4 @@ data:
       name: "(@= data.values.gangway.client.id @)"
       secret: (@= data.values.gangway.client.secret @)
 
-    enablePasswordDB: true
-    staticPasswords:
-    - email: "admin@(@= data.values.domain @)"
-      hash: "(@= data.values.dex.admin.password @)"
-      username: "admin"
-      userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
+    enablePasswordDB: false

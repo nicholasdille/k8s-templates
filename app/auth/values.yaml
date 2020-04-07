@@ -9,14 +9,13 @@ dex:
   dns:
     name: auth
     lb: lb
-  gitlabcom:
+  gitlab:
+    url: https://gitlab.com
     id: 123abc
     secret: 456def
   github:
     id: 234bcd
     secret: 567efg
-  admin:
-    password: $2y$10$5c31GjsZxYINf9NMW4bSyedsbp8s5u.S0ZgWJWVF5iNgjYwJaN3T6
 gangway:
   namespace: gangway
   matchLabels:
