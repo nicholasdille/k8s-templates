@@ -12,6 +12,20 @@ nodes:
       kubeletExtraArgs:
         node-labels: "(@= data.values.domain @)/node-type=loadbalancer,(@= data.values.domain @)/(@= data.values.traefikinitdns.label_name @)=(@= data.values.kind.master.ip @)"
         authorization-mode: "AlwaysAllow"
+  - |
+    kind: ClusterConfiguration
+    apiServer:
+      certSANs:
+      - k8s.inmylab.de
+      - 127.0.0.1
+      extraArgs:
+        oidc-issuer-url: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)
+        oidc-client-id: gangway
+        oidc-username-claim: email
+        oidc-groups-claim: groups
+  - |
+    kind: KubeProxyConfiguration
+    metricsBindAddress: "0.0.0.0:10249"
   extraPortMappings:
   - containerPort: 80
     hostPort: 80

@@ -104,3 +104,14 @@ sleep 10
     -v grafana.admin.password=$(openssl rand -hex 16) \
     -v grafana.database.password=$(openssl rand -hex 16) \
 | ./bin/kapp deploy --app grafana --file - --yes
+
+OPENLDAP_ADMIN_PASSWORD=$(openssl rand -hex 32)
+GANGWAY_SESSION_SECRET=$(openssl rand -base64 32)
+GANGWAY_CLIENT_SECRET=$(openssl rand -hex 32)
+./bin/ytt \
+    -f app/auth/ \
+    -f deploy/auth/values.yaml \
+    -v openldap.password.admin=${OPENLDAP_ADMIN_PASSWORD} \
+    -v gangway.session.secret=${GANGWAY_SESSION_SECRET} \
+    -v gangway.client.secret=${GANGWAY_CLIENT_SECRET} \
+| ./bin/kapp deploy --app auth --file - --yes
