@@ -18,8 +18,8 @@ roleRef:
   name: gitlabcom
 subjects:
 - kind: Group
-  name: "/dex-test"
+  name: "dex-test"
 - kind: Group
   name: "inmylab-de:admins"
-#- kind: User
-#  name: "nicholas@inmylab.de"
+- kind: User
+  name: "nicholas.dille@mailbox.org"

@@ -41,8 +41,6 @@ data:
         clientID: $GITLAB_APPLICATION_ID
         clientSecret: $GITLAB_CLIENT_SECRET
         redirectURI: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)/callback
-        groups:
-        - /dex-test
         useLoginAsID: false
     - type: github
       id: github

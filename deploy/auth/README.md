@@ -1,14 +1,8 @@
 # Deployment of authentication layer
 
-XXX https://github.com/alexbrand/gangway-dex-tutorial/tree/master/deployment/dex
+XXX also integrated into `deploy/base`
 
 XXX integration for gitlab.com in GITLAB_APPLICATION_ID and GITLAB_APPLICATION_SECRET
-
-XXX create dex admin password `admin_password`: htpasswd -bnBC 10 "" test123 | tr -d ':\n'
-
-```bash
-DEX_ADMIN_PASSWORD=$(htpasswd -bnBC 10 "" test123 | tr -d ':\n')
-```
 
 XXX create gangway client secret `client_secret`: openssl rand -hex 32
 
