@@ -75,7 +75,7 @@ data:
           baseDN: ou=groups,(@= data.values.openldap.domain.dn @)
           filter: "(objectClass=groupOfUniqueNames)"
           userMatchers:
-          - userAttr: cn
+          - userAttr: DN
             groupAttr: uniqueMember
           nameAttr: cn
 

@@ -23,7 +23,7 @@ spec:
           - key: config.yaml
             path: config.yaml
       containers:
-      - image: quay.io/dexidp/dex:v2.10.0
+      - image: quay.io/dexidp/dex:v2.23.0
         name: dex
         command: ["/usr/local/bin/dex", "serve", "/etc/dex/cfg/config.yaml"]
         env:
