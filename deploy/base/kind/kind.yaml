@@ -18,6 +18,7 @@ nodes:
       certSANs:
       - k8s.inmylab.de
       - 127.0.0.1
+      - (@= data.values.kind.master.ip @)
       extraArgs:
         oidc-issuer-url: https://(@= data.values.dex.dns.name @).(@= data.values.domain @)
         oidc-client-id: gangway
@@ -27,6 +28,8 @@ nodes:
     kind: KubeProxyConfiguration
     metricsBindAddress: "0.0.0.0:10249"
   extraPortMappings:
+  - containerPort: 6443
+    hostPort: 6443
   - containerPort: 80
     hostPort: 80
   - containerPort: 443
