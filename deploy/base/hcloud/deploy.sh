@@ -38,8 +38,8 @@ export KAPP_NAMESPACE=kapp
 | ./bin/kapp deploy --app external-dns --file - --yes
 
 ./bin/ytt \
-    -f app/traefik/base/ \
-    -f app/traefik/external-dns/ \
+    -f app/traefik/ \
+    -f overlay/traefik/external-dns/ \
     -f deploy/base/values.yaml \
     -v cloudflare.key=${CF_API_KEY} \
 | ./bin/kapp deploy --app traefik --file - --yes
