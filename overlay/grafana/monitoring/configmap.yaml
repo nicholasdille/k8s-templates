@@ -1,0 +1,17 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: #@ data.values.grafana.namespace
+data:
+  #@overlay/add
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Cluster Prometheus
+      type: prometheus
+      url: http://prometheus-operated.prometheus:9090
+      access: proxy
+      isDefault: true

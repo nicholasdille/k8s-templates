@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "ConfigMap"}), overlay.subset({"metadata": {"name": "grafana-datasources"}})),expects="1+"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: #@ data.values.grafana.namespace
+data:
+  #@overlay/add
+  loki.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Cluster Loki
+      type: loki
+      url: http://loki.loki:3100
+      access: proxy
+      isDefault: false

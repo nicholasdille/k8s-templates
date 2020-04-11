@@ -1,7 +1,0 @@
-#@data/values
----
-timezone: Europe/Berlin
-domain: inmylab.de
-openldap:
-  domain:
-    dn: dc=inmylab,dc=de

@@ -16,7 +16,7 @@ nodes:
     kind: ClusterConfiguration
     apiServer:
       certSANs:
-      - k8s.inmylab.de
+      - k8s.(@= data.values.domain @)
       - 127.0.0.1
       - (@= data.values.kind.master.ip @)
       extraArgs:

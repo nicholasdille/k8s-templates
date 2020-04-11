@@ -1,0 +1,18 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  type: ClusterIP
+  selector:
+    app: traefik
+  ports:
+  - name: dashboard
+    port: 80
+    targetPort: 8080

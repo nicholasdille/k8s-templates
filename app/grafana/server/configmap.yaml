@@ -22,20 +22,3 @@ metadata:
   name: grafana-datasources
   namespace: #@ data.values.grafana.namespace
 data:
-  #@yaml/text-templated-strings
-  prometheus.yaml: |
-    apiVersion: 1
-    datasources:
-    - name: Cluster Prometheus
-      type: prometheus
-      url: http://prometheus-operated.prometheus:9090
-      access: proxy
-      isDefault: true
-  loki.yaml: |
-    apiVersion: 1
-    datasources:
-    - name: Cluster Loki
-      type: loki
-      url: http://loki.loki:3100
-      access: proxy
-      isDefault: false
