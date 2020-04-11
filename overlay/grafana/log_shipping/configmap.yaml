@@ -9,7 +9,7 @@ metadata:
   name: grafana-datasources
   namespace: #@ data.values.grafana.namespace
 data:
-  #@overlay/add
+  #@overlay/match missing_ok=True
   loki.yaml: |
     apiVersion: 1
     datasources:
