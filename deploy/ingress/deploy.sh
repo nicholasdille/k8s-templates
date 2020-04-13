@@ -23,13 +23,13 @@ fi
     -f overlay/traefik/prometheus/ \
     -f deploy/values.yaml \
     -v cloudflare.key=${CF_API_KEY} \
-| ./bin/kapp deploy --app traefik --file - --yes
+| ./bin/kapp deploy --app traefik-ingress --file - --yes
 
 if ${INGRESS_MONITORING_ENABLED}; then
     ./bin/ytt \
         -f overlay/traefik/prometheus/ \
         -f deploy/base/values.yaml \
-    | ./bin/kapp deploy --app traefik --file - --yes
+    | ./bin/kapp deploy --app traefik-monitoring --file - --yes
 fi
 
 if ${INGRESS_DASHBOARD_ENABLED}; then
@@ -38,5 +38,5 @@ if ${INGRESS_DASHBOARD_ENABLED}; then
         ${DASHBOARD_HTTPS_ARGS} \
         ${DASHBOARD_DNS_ARGS} \
         -f deploy/values.yaml \
-    | ./bin/kapp deploy --app traefik --file - --yes
+    | ./bin/kapp deploy --app traefik-dashboard --file - --yes
 fi

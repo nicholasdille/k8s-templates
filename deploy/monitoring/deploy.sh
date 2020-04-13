@@ -27,9 +27,9 @@ sleep 10
 
 if ${MONITORING_TARGETS_ENABLED}; then
     ./bin/ytt \
-        -f app/prometheus/servicemonitors/ \
+        -f app/prometheus/monitors/ \
         -f app/prometheus/operator/values.yaml \
-    | ./bin/kapp deploy --app servicemonitors --file - --yes
+    | ./bin/kapp deploy --app monitors --file - --yes
 fi
 
 if ${MONITORING_INGRESS_ENABLED}; then
