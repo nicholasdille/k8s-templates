@@ -12,9 +12,15 @@ DNS_ENABLED=false
 # Whether to deploy traefik
 INGRESS_ENABLED=true
 # Whether to deploy prometheus
-MONITORING_ENABLED=false
+MONITORING_ENABLED=true
 # Whether to deploy dex/gangway
 AUTH_ENABLED=false
+
+# Whether to deploy monitoring for cert-manager
+CERTIFICATE_MONITORING_ENABLED=${MONITORING_ENABLED}
+
+# Whether to deploy monitoring for external-dns
+DNS_MONITORING_ENABLED=${MONITORING_ENABLED}
 
 # Whether to deploy traefik dashboard
 INGRESS_DASHBOARD_ENABLED=true

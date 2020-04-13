@@ -33,7 +33,7 @@ fi
 source deploy/common.sh
 
 if ${CERTIFICATE_ENABLED}; then
-    source deploy/certificate/deploy.sh
+    source deploy/certificates/deploy.sh
 fi
 
 if ${DNS_ENABLED}; then
@@ -46,6 +46,18 @@ fi
 
 if ${MONITORING_ENABLED}; then
     source deploy/monitoring/deploy.sh
+
+    if ${CERTIFICATE_ENABLED}; then
+        source deploy/certificates/monitoring.sh
+    fi
+
+    if ${DNS_ENABLED}; then
+        source deploy/dns/monitoring.sh
+    fi
+
+    if ${INGRESS_ENABLED}; then
+        source deploy/ingress/monitoring.sh
+    fi
 fi
 
 if ${LOG_SHIPPING_ENABLED}; then

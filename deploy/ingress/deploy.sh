@@ -29,14 +29,6 @@ echo "### Deploying ingress"
     ${INGRESS_CLOUDFLARE_ARGS} \
 | ./bin/kapp deploy --app traefik-ingress --file - --yes
 
-if ${INGRESS_MONITORING_ENABLED}; then
-    echo "### Deploying ingress monitoring"
-    ./bin/ytt \
-        -f overlay/traefik/prometheus/ \
-        -f deploy/base/values.yaml \
-    | ./bin/kapp deploy --app traefik-monitoring --file - --yes
-fi
-
 if ${INGRESS_DASHBOARD_ENABLED}; then
     echo "### Deploying dashboard"
     ./bin/ytt \
