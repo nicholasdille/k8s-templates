@@ -3,11 +3,15 @@ set -o errexit
 
 if test "$#" != 1; then
     echo "Usage: $0 <config>"
+    exit 1
 fi
 CONFIG=$1
+if ! test -f deploy/config/${CONFIG}.sh; then
+    echo "ERROR: Uable to find configuration ${CONFIG}"
+    exit 1
+fi
 
-source common.sh
-source colors.sh
+source deploy/colors.sh
 
 if ! docker version 2>&1; then
     echo "Error: Docker not running"
@@ -20,11 +24,13 @@ fi
 
 make kind ytt kapp
 
-source config/${CONFIG}.sh
+source deploy/config/${CONFIG}.sh
 
 if ${KIND_DEPLOY}; then
     source deploy/kind/deploy.sh
 fi
+
+source deploy/common.sh
 
 if ${CERTIFICATE_ENABLED}; then
     source deploy/certificate/deploy.sh

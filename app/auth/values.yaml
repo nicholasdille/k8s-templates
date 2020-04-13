@@ -1,7 +1,10 @@
 #@data/values
 ---
+#@overlay/match missing_ok=True
 timezone: Europe/Berlin
+#@overlay/match missing_ok=True
 domain: example.com
+#@overlay/match missing_ok=True
 dex:
   namespace: dex
   matchLabels:
@@ -16,6 +19,7 @@ dex:
   github:
     id: 234bcd
     secret: 567efg
+#@overlay/match missing_ok=True
 gangway:
   namespace: gangway
   matchLabels:
@@ -28,6 +32,7 @@ gangway:
     secret: abc123
   session:
     secret: def456
+#@overlay/match missing_ok=True
 openldap:
   namespace: openldap
   domain:
@@ -40,6 +45,7 @@ openldap:
   dns:
     name: openldap
     lb: lb
+#@overlay/match missing_ok=True
 phpldapadmin:
   namespace: openldap
   matchLabels:

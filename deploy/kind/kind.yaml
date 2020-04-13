@@ -12,6 +12,7 @@ nodes:
       kubeletExtraArgs:
         node-labels: "(@= data.values.domain @)/node-type=loadbalancer,(@= data.values.domain @)/(@= data.values.traefikinitdns.label_name @)=(@= data.values.kind.master.ip @)"
         authorization-mode: "AlwaysAllow"
+  #@yaml/text-templated-strings
   - |
     kind: ClusterConfiguration
     apiServer:
@@ -24,6 +25,7 @@ nodes:
         oidc-client-id: gangway
         oidc-username-claim: email
         oidc-groups-claim: groups
+  #@yaml/text-templated-strings
   - |
     kind: KubeProxyConfiguration
     metricsBindAddress: "0.0.0.0:10249"

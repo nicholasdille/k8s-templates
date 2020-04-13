@@ -11,9 +11,11 @@ fi
 
 if ! kind get clusters | grep --quiet ${KIND_NAME}; then
     ./bin/ytt \
-        -f deploy/base/kind/kind.yaml \
-        -f app/traefik/init-dns/values.yaml \
-        -f deploy/base/values.yaml \
+        -f deploy/kind/kind.yaml \
+        -f app/traefik/values.yaml \
+        -f overlay/traefik/init-dns/values.yaml \
+        -f app/auth/values.yaml \
+        -f deploy/values.yaml \
         -v kind.master.ip=${IP} \
     | ./bin/kind create cluster --name ${KIND_NAME} --config -
 fi
