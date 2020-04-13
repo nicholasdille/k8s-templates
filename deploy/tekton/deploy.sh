@@ -2,7 +2,6 @@ if ${KIND_DEPLOY}; then
     : "${TEKTON_STORAGE_CLASS:=standard}"
 fi
 
-
 if test -z "${TEKTON_STORAGE_CLASS}"; then
     echo "ERROR: Missing TEKTON_STORAGE_CLASS."
     exit 1
