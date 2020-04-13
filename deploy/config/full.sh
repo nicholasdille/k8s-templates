@@ -43,3 +43,6 @@ GITLAB_ENABLED=true
 
 # Whether to deploy tekton pipelines
 TEKTON_ENABLED=true
+
+# Whether to deploy minecraft
+MINECRAFT_ENABLED=true

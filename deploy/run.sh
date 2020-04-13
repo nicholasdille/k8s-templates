@@ -61,3 +61,7 @@ fi
 if ${TEKTON_ENABLED}; then
     source deploy/tekton/deploy.sh
 fi
+
+if ${MINECRAFT_ENABLED}; then
+    source deploy/minecraft/deploy.sh
+fi

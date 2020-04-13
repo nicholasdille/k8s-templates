@@ -45,4 +45,4 @@ GITLAB_ENABLED=false
 TEKTON_ENABLED=false
 
 # Whether to deploy minecraft
-MINECRAFT_ENABLED=false
+MINECRAFT_ENABLED=true
