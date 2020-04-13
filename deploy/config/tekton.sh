@@ -6,15 +6,15 @@ KIND_NAME=demo
 KIND_INTERFACE=eth0
 
 # Whether to deploy external-dns
-CERTIFICATE_ENABLED=true
+CERTIFICATE_ENABLED=false
 # Whether to deploy cert-manager
-DNS_ENABLED=true
+DNS_ENABLED=false
 # Whether to deploy traefik
 INGRESS_ENABLED=true
 # Whether to deploy prometheus
-MONITORING_ENABLED=true
+MONITORING_ENABLED=false
 # Whether to deploy dex/gangway
-AUTH_ENABLED=true
+AUTH_ENABLED=false
 
 # Whether to deploy traefik dashboard
 INGRESS_DASHBOARD_ENABLED=true
@@ -26,17 +26,17 @@ INGRESS_DNS_ENABLED=${DNS_ENABLED}
 INGRESS_MONITORING_ENABLED=${MONITORING_ENABLED}
 
 # Whether to fix kube-proxy for monitoring
-MONITORING_FIX_KUBEPROXY_ENABLED=true
+MONITORING_FIX_KUBEPROXY_ENABLED=false
 # Whether to deploy service|pod monitors
-MONITORING_TARGETS_ENABLED=true
+MONITORING_TARGETS_ENABLED=false
 # Whether to deploy ingress for prometheus
 MONITORING_INGRESS_ENABLED=${INGRESS_ENABLED}
 
 # Whether to deploy log shipping
-LOG_SHIPPING_ENABLED=true
+LOG_SHIPPING_ENABLED=false
 
 # Whether to deploy grafana
-GRAFANA_ENABLED=true
+GRAFANA_ENABLED=false
 
 # Whether to deploy tekton pipelines
 TEKTON_ENABLED=true

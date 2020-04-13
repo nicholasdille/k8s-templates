@@ -4,6 +4,8 @@ XXX https://tekton.dev/
 
 XXX based on 0.10.1
 
+XXX must have `storageClass`
+
 XXX download CLI
 
 ```bash

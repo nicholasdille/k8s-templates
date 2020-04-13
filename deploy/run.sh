@@ -53,3 +53,7 @@ fi
 if ${AUTH_ENABLED}; then
     source deploy/auth/deploy.sh
 fi
+
+if ${TEKTON_ENABLED}; then
+    source deploy/tekton/deploy.sh
+fi
