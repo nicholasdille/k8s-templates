@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-grafana
+  namespace: #@ data.values.grafana.namespace
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: #@ data.values.grafana.volume.storageClass

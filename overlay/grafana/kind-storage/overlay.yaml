@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Deployment"}), overlay.subset({"metadata": {"name": "mysql-grafana"}})),expects="1+"
+---
+spec:
+  template:
+    spec:
+      volumes:
+      #@overlay/match by="name"
+      - name: data
+        #@overlay/remove
+        emptyDir:
+        #@overlay/match missing_ok=True
+        persistentVolumeClaim:
+          claimName: mysql-grafana

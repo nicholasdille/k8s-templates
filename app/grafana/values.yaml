@@ -21,3 +21,5 @@ grafana:
     lb: lb
   admin:
     password: test123
+  volume:
+    storageClass: test

@@ -45,7 +45,11 @@ spec:
         volumeMounts:
         - mountPath: /etc/mysql/conf.d/
           name: config
+        - mountPath: /var/lib/mysql
+          name: data
       volumes:
-      - configMap:
+      - name: config
+        configMap:
           name: mysql-grafana
-        name: config
+      - name: data
+        emptyDir: {}
