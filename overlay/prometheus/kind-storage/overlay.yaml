@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.and_op(overlay.subset({"kind": "Prometheus"}), overlay.subset({"metadata": {"name": "cluster"}})),expects="1+"
+---
+spec:
+  #@overlay/match missing_ok=True
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: #@ data.values.prometheus.volume.storageclass
+        resources:
+          requests:
+            storage: #@ data.values.prometheus.volume.size

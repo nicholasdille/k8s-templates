@@ -7,3 +7,6 @@ prometheus:
     matchLabels:
       app.kubernetes.io/component: controller
       app.kubernetes.io/name: prometheus-operator
+  volume:
+    storageclass: test
+    size: 1Gi

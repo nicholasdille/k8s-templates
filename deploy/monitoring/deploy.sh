@@ -6,6 +6,12 @@ if ${MONITORING_FIX_KUBEPROXY_ENABLED} && ./bin/kubectl -n kube-system get confi
     ./bin/kubectl -n kube-system get pod -l k8s-app=kube-proxy -o name | xargs ./bin/kubectl -n kube-system delete
 fi
 
+if ${KIND_DEPLOY}; then
+    MONITORING_STORAGE_ARGS="-f overlay/prometheus/kind-storage/"
+    : "${MONITORING_STORAGE_CLASS:=standard}"
+    : "${MONITORING_STORAGE_SIZE:=10Gi}"
+fi
+
 ./bin/ytt \
     -f app/prometheus/operator/ \
 | ./bin/kapp deploy --app prometheus-operator --file - --yes
@@ -14,6 +20,10 @@ sleep 10
 
 ./bin/ytt \
     -f app/prometheus/instance/ \
+    -f app/prometheus/operator/values.yaml \
+    ${MONITORING_STORAGE_ARGS} \
+    -v prometheus.volume.storageclass=${MONITORING_STORAGE_CLASS} \
+    -v prometheus.volume.size=${MONITORING_STORAGE_SIZE} \
 | ./bin/kapp deploy --app prometheus --file - --yes
 
 ./bin/ytt \
