@@ -38,5 +38,8 @@ LOG_SHIPPING_ENABLED=true
 # Whether to deploy grafana
 GRAFANA_ENABLED=true
 
+# Whether to deploy GitLab
+GITLAB_ENABLED=true
+
 # Whether to deploy tekton pipelines
 TEKTON_ENABLED=true

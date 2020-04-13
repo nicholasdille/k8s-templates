@@ -54,6 +54,10 @@ if ${AUTH_ENABLED}; then
     source deploy/auth/deploy.sh
 fi
 
+if ${GITLAB_ENABLED}; then
+    source deploy/gitlab/deploy.sh
+fi
+
 if ${TEKTON_ENABLED}; then
     source deploy/tekton/deploy.sh
 fi
