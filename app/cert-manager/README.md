@@ -1,8 +1,8 @@
-# `cert-manager`
+# App for `cert-manager`
 
-XXX
+XXX https://github.com/jetstack/cert-manager
 
-XXX based on 0.11 (0.13 has issues with TLS secret which is fixed in 0.14)
+XXX based on 0.14.2 (https://github.com/jetstack/cert-manager/releases/download/v0.14.2/cert-manager.yaml)
 
 ## Usage
 
