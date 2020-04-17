@@ -7,9 +7,9 @@ KIND_INTERFACE=eth0
 
 # Whether to deploy the Kubernetes dashboard
 DASHBOARD_ENABLED=true
-# Whether to deploy external-dns
-CERTIFICATE_ENABLED=true
 # Whether to deploy cert-manager
+CERTIFICATE_ENABLED=true
+# Whether to deploy external-dns
 DNS_ENABLED=true
 # Whether to deploy traefik
 INGRESS_ENABLED=true
