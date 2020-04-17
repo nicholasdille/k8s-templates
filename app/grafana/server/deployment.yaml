@@ -21,6 +21,9 @@ spec:
       - name: datasources
         configMap:
           name: grafana-datasources
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - name: grafana
         image: grafana/grafana:6.7.2
@@ -52,8 +55,6 @@ spec:
             secretKeyRef:
               key: database-pass
               name: grafana
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - containerPort: 3000
           name: http
@@ -63,3 +64,5 @@ spec:
           name: config
         - mountPath: /etc/grafana/provisioning/datasources/
           name: datasources
+        - name: tz-config
+          mountPath: /etc/localtime

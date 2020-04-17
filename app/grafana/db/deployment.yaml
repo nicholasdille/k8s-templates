@@ -36,8 +36,6 @@ spec:
             secretKeyRef:
               key: database-pass
               name: grafana
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - containerPort: 3306
           name: http
@@ -47,9 +45,14 @@ spec:
           name: config
         - mountPath: /var/lib/mysql
           name: data
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:
           name: mysql-grafana
       - name: data
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
