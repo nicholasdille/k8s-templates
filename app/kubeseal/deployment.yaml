@@ -52,6 +52,8 @@ spec:
         volumeMounts:
         - mountPath: /tmp
           name: tmp
+        - name: tz-config
+          mountPath: /etc/localtime
       securityContext:
         fsGroup: 65534
       serviceAccountName: sealed-secrets-controller
@@ -59,3 +61,6 @@ spec:
       volumes:
       - emptyDir: {}
         name: tmp
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
