@@ -3,25 +3,6 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: nginx-insecure
-  labels:
-    #@yaml/text-templated-strings
-    (@= data.values.domain @)/loadbalancer: default
-spec:
-  entryPoints:
-  - http
-  routes:
-  - match: #@ "Host(`{}`)".format(data.values.nginx.fqdn)
-    kind: Rule
-    priority: 12
-    services:
-    - name: nginx
-      port: #@ data.values.nginx.port
-      strategy: RoundRobin
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
-metadata:
   name: nginx-secure
   labels:
     #@yaml/text-templated-strings

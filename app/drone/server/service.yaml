@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: server
+  namespace: #@ data.values.drone.namespace
+spec:
+  selector: #@ data.values.drone.matchLabels
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
+  - name: other
+    port: 9000
+    targetPort: 9000

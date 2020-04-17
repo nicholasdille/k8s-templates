@@ -21,9 +21,13 @@ spec:
         - name: api
           containerPort: 5000
         volumeMounts:
+        - name: registry-data
+          mountPath: "/var/lib/registry"
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: registry-data
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone

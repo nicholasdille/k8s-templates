@@ -26,21 +26,13 @@ spec:
         - name: ROOT_URL
           value: #@ data.values.gitea.url
         volumeMounts:
+        - name: gitea-data
+          mountPath: "/var/lib/drone"
         - name: tz-config
           mountPath: /etc/localtime
       volumes:
+      - name: gitea-data
+        emptyDir: {}
       - name: tz-config
         hostPath:
           path: #@ "/usr/share/zoneinfo/" + data.values.timezone
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: gitea
-  namespace: #@ data.values.gitea.namespace
-spec:
-  selector: #@ data.values.gitea.matchLabels
-  ports:
-  - name: web
-    port: 80
-    targetPort: 3000
