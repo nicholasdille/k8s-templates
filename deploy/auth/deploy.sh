@@ -17,8 +17,7 @@ GANGWAY_CLIENT_SECRET=$(openssl rand -hex 32)
 
 ./bin/ytt \
     -f app/auth/ \
-    -f deploy/auth/values.yaml \
-    -f deploy/values.yaml
+    -f deploy/values.yaml \
     -v openldap.password.admin=${OPENLDAP_ADMIN_PASSWORD} \
     -v gangway.session.secret=${GANGWAY_SESSION_SECRET} \
     -v gangway.client.secret=${GANGWAY_CLIENT_SECRET} \
