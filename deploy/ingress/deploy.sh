@@ -2,8 +2,9 @@ echo "###"
 echo "### Deploy ingress started"
 echo "###"
 
+DASHBOARD_DASHBOARD_ARGS="-f overlay/traefik/dashboard-http/"
 if ${INGRESS_HTTPS_ENABLED}; then
-    DASHBOARD_HTTPS_ARGS="-f overlay/traefik/dashboard-https/"
+    DASHBOARD_DASHBOARD_ARGS="-f overlay/traefik/dashboard-https/"
 fi
 if ${INGRESS_DNS_ENABLED}; then
     if test -z "${CF_API_KEY}"; then
@@ -32,8 +33,7 @@ echo "### Deploying ingress"
 if ${INGRESS_DASHBOARD_ENABLED}; then
     echo "### Deploying dashboard"
     ./bin/ytt \
-        -f overlay/traefik/dashboard-http/ \
-        ${DASHBOARD_HTTPS_ARGS} \
+        ${DASHBOARD_DASHBOARD_ARGS} \
         ${DASHBOARD_DNS_ARGS} \
         -f app/traefik/values.yaml \
         -f deploy/values.yaml \

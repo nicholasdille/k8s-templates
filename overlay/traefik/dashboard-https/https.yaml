@@ -1,6 +1,19 @@
 #@ load("@ytt:data", "data")
 ---
 apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-auth
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  basicAuth:
+    realm: "traefik dashboard"
+    secret: traefik-dashboard
+---
+apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: traefik-dashboard
