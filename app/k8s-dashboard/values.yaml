@@ -1,0 +1,16 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+domain: example.com
+dashboard:
+  namespace: k8s-dashboard
+  matchLabels:
+    k8s-app: kubernetes-dashboard
+  scraper:
+    matchLabels:
+      k8s-app: dashboard-metrics-scraper
+  dns:
+    name: dashboard
+    lb: lb

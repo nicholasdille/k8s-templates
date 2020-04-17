@@ -1,0 +1,58 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: k8s-dashboard-redirect
+  namespace: #@ data.values.dashboard.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: k8s-dashboard-redirect
+  namespace: #@ data.values.dashboard.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  entryPoints:
+  - http
+  routes:
+  - match: #@ "Host(`{}.{}`)".format(data.values.dashboard.dns.name, data.values.domain)
+    kind: Rule
+    priority: 12
+    services:
+    - name: kubernetes-dashboard
+      port: 80
+      strategy: RoundRobin
+    middlewares:
+    - name: k8s-dashboard-redirect
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: k8s-dashboard
+  namespace: #@ data.values.dashboard.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  entryPoints:
+  - https
+  routes:
+  - match: #@ "Host(`{}.{}`)".format(data.values.dashboard.dns.name, data.values.domain)
+    kind: Rule
+    priority: 12
+    services:
+    - name: kubernetes-dashboard
+      port: 80
+      strategy: RoundRobin
+  tls:
+    secretName: certificate-k8s-dashboard

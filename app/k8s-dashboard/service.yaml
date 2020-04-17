@@ -1,0 +1,13 @@
+#@ load("@ytt:data", "data")
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-dashboard
+  namespace: #@ data.values.dashboard.namespace
+  labels: #@ data.values.dashboard.matchLabels
+spec:
+  ports:
+  - port: 80
+    targetPort: 9090
+  selector: #@ data.values.dashboard.matchLabels

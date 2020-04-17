@@ -44,6 +44,10 @@ if ${INGRESS_ENABLED}; then
     source deploy/ingress/deploy.sh
 fi
 
+if ${DASHBOARD_ENABLED}; then
+    source deploy/dashboard/deploy.sh
+fi
+
 if ${MONITORING_ENABLED}; then
     source deploy/monitoring/deploy.sh
 

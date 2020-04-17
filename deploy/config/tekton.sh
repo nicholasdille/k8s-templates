@@ -5,6 +5,8 @@ KIND_NAME=demo
 # Name of the primarys host interface
 KIND_INTERFACE=eth0
 
+# Whether to deploy the Kubernetes dashboard
+DASHBOARD_ENABLED=true
 # Whether to deploy external-dns
 CERTIFICATE_ENABLED=false
 # Whether to deploy cert-manager
