@@ -30,6 +30,8 @@ spec:
           mountPath: /certs
         - mountPath: /tmp
           name: tmp-volume
+        - name: tz-config
+          mountPath: /etc/localtime
         livenessProbe:
           httpGet:
             scheme: HTTP
@@ -48,6 +50,9 @@ spec:
           secretName: kubernetes-dashboard-certs
       - name: tmp-volume
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       serviceAccountName: kubernetes-dashboard
       nodeSelector:
         "beta.kubernetes.io/os": linux
