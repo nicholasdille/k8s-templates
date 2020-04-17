@@ -4,7 +4,7 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
   name: traefik-dashboard-redirect
-  namespace: #@ data.values.gangway.namespace
+  namespace: #@ data.values.traefik.namespace
   labels:
     #@yaml/text-templated-strings
     (@= data.values.domain @)/loadbalancer: default
