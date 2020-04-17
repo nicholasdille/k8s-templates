@@ -1,4 +1,5 @@
 **/result.txt
 **/diff.txt
 bin/*
+backup/*
 .env
