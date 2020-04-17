@@ -16,6 +16,9 @@ spec:
       volumes:
       - name: db
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - name: main
         image: #@ "postgres:{}".format(data.values.gitlab.db.version)
@@ -33,6 +36,8 @@ spec:
         - mountPath: "/var/lib/postgresql/data"
           name: db
           subPath: db-data
+        - name: tz-config
+          mountPath: /etc/localtime
         ports:
         - name: db
           containerPort: 5432

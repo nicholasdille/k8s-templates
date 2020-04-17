@@ -35,6 +35,11 @@ spec:
         - mountPath: "/var/log/gitlab"
           name: redis
           subPath: redis-log
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: redis
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
