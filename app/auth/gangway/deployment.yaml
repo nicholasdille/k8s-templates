@@ -19,6 +19,9 @@ spec:
         - name: gangway
           configMap:
             name: gangway
+        - name: tz-config
+          hostPath:
+            path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
         - name: gangway
           image: gcr.io/heptio-images/gangway:v3.2.0
@@ -49,6 +52,8 @@ spec:
           volumeMounts:
             - name: gangway
               mountPath: /gangway/
+            - name: tz-config
+              mountPath: /etc/localtime
           livenessProbe:
             httpGet:
               path: /

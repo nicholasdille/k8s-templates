@@ -35,6 +35,8 @@ spec:
         - name: data
           mountPath: /etc/ldap/slapd.d
           subPath: config-data
+        - name: tz-config
+          mountPath: /etc/localtime
         livenessProbe:
           tcpSocket:
             port: ldap-port
@@ -53,3 +55,6 @@ spec:
           medium: Memory
       - name: data
         emptyDir: {}
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

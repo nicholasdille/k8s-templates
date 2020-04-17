@@ -22,6 +22,9 @@ spec:
           items:
           - key: config.yaml
             path: config.yaml
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       containers:
       - image: quay.io/dexidp/dex:v2.23.0
         name: dex
@@ -53,3 +56,5 @@ spec:
         volumeMounts:
         - name: config
           mountPath: /etc/dex/cfg
+        - name: tz-config
+          mountPath: /etc/localtime
