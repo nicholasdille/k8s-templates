@@ -12,6 +12,16 @@ if ${KIND_DEPLOY}; then
     : "${MONITORING_STORAGE_SIZE:=10Gi}"
 fi
 
+if ${MONITORING_INGRESS_ENABLED}; then
+    MONITORING_INGRESS_ARGS="-f overlay/prometheus/ingress-http/"
+    if ${CERTIFICATE_ENABLED}; then
+        MONITORING_INGRESS_ARGS="-f overlay/prometheus/ingress-https/"
+    fi
+    if ${DNS_ENABLED}; then
+        MONITORING_DNS_ARGS="-f overlay/prometheus/dns/"
+    fi
+fi
+
 ./bin/ytt \
     -f app/prometheus/operator/ \
 | ./bin/kapp deploy --app prometheus-operator --file - --yes
@@ -22,6 +32,8 @@ sleep 10
     -f app/prometheus/instance/ \
     -f app/prometheus/operator/values.yaml \
     ${MONITORING_STORAGE_ARGS} \
+    ${MONITORING_INGRESS_ARGS} \
+    ${MONITORING_DNS_ARGS} \
     -v prometheus.volume.storageclass=${MONITORING_STORAGE_CLASS} \
     -v prometheus.volume.size=${MONITORING_STORAGE_SIZE} \
 | ./bin/kapp deploy --app prometheus --file - --yes
@@ -40,8 +52,4 @@ if ${MONITORING_TARGETS_ENABLED}; then
         -f app/prometheus/monitors/ \
         -f app/prometheus/operator/values.yaml \
     | ./bin/kapp deploy --app monitors --file - --yes
-fi
-
-if ${MONITORING_INGRESS_ENABLED}; then
-    echo "TODO: Flag MONITORNG_INGRESS_ENABLED not implemented yet."
 fi

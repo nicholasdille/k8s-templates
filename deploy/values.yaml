@@ -19,6 +19,9 @@ traefik:
   api:
     htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
 #@overlay/match missing_ok=True
+prometheus:
+  htpasswd: "admin:$apr1$d7MYuobF$f.sDKnX2B1VPyrRO.gVZh/"
+#@overlay/match missing_ok=True
 openldap:
   domain:
     dn: dc=inmylab,dc=de

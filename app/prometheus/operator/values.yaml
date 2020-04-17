@@ -1,12 +1,16 @@
 #@data/values
 ---
+#@overlay/match missing_ok=True
 timezone: Europe/Berlin
+#@overlay/match missing_ok=True
 prometheus:
+  #@overlay/match missing_ok=True
   operator:
     namespace: prometheus
     matchLabels:
       app.kubernetes.io/component: controller
       app.kubernetes.io/name: prometheus-operator
+  #@overlay/match missing_ok=True
   volume:
     storageclass: test
     size: 1Gi
