@@ -25,12 +25,38 @@ fi
 make kind ytt kapp
 
 source deploy/config/${CONFIG}.sh
+source deploy/common.sh
 
 if ${KIND_DEPLOY}; then
     source deploy/kind/deploy.sh
+else
+    kubectl --namespace kube-system get pod -l component=kube-apiserver -o json \
+    | jq --raw-output '.items[] | {name: .metadata.name, node: (.metadata.ownerReferences[] | select(.kind == "Node") | .name), hostip: .status.hostIP} | @base64' \
+    | while read BASE64; do
+        JSON=$(echo "${BASE64}" | base64 -d)
+
+        NODE=$(echo "${JSON}" | jq --raw-output '.node')
+        HOSTIP=$(echo "${JSON}" | jq --raw-output '.hostip')
+
+        kubectl label node $NODE dille.name/public-ip=$HOSTIP
+    done
 fi
 
-source deploy/common.sh
+kubectl get nodes -l dille.name/public-ip -o json \
+| jq  --raw-output '.items[] | {name: .metadata.name, hostip: .metadata.labels."dille.name/public-ip"} | @base64' \
+| while read BASE64; do
+    JSON=$(echo "${BASE64}" | base64 -d)
+
+    NAME=$(echo "${JSON}" | jq --raw-output '.name')
+    HOSTIP=$(echo "${JSON}" | jq --raw-output '.hostip')
+
+    ./bin/ytt \
+        -f deploy/kube-apiserver-dns-template.yaml \
+        -f deploy/values.yaml \
+        -v apiserver.name=${NAME} \
+        -v apiserver.hostip=${HOSTIP}
+done \
+| ./bin/kapp deploy --app kube-apiserver-dns --file - --yes
 
 if ${CERTIFICATE_ENABLED}; then
     source deploy/certificates/deploy.sh

@@ -10,7 +10,7 @@ nodes:
     kind: InitConfiguration
     nodeRegistration:
       kubeletExtraArgs:
-        node-labels: "(@= data.values.domain @)/node-type=loadbalancer,(@= data.values.domain @)/(@= data.values.traefikinitdns.label_name @)=(@= data.values.kind.master.ip @)"
+        node-labels: "(@= data.values.domain @)/node-type=loadbalancer,(@= data.values.domain @)/(@= data.values.traefikinitdns.label_name @)=(@= data.values.kind.master.ip @),dille.name/node-ip=(@= data.values.kind.master.ip @)"
         authorization-mode: "AlwaysAllow"
   #@yaml/text-templated-strings
   - |
