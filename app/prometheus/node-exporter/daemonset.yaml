@@ -5,7 +5,7 @@ kind: DaemonSet
 metadata:
   name: prometheus-node-exporter
   namespace: #@ data.values.prometheus.operator.namespace
-  labels:     
+  labels:
     app: prometheus-node-exporter
 spec:
   selector:
@@ -17,7 +17,7 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      labels:         
+      labels:
         app: prometheus-node-exporter
     spec:
       volumes:
@@ -27,6 +27,9 @@ spec:
       - name: sys
         hostPath:
           path: /sys
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       serviceAccountName: prometheus-node-exporter
       securityContext:
         runAsNonRoot: true
@@ -47,8 +50,6 @@ spec:
         env:
         - name: HOST_IP
           value: 0.0.0.0
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - name: metrics
           containerPort: 9100
@@ -70,3 +71,5 @@ spec:
         - name: sys
           mountPath: /host/sys
           readOnly: true
+        - name: tz-config
+          mountPath: /etc/localtime

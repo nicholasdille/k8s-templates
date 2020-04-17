@@ -37,6 +37,13 @@ spec:
             memory: 100Mi
         securityContext:
           allowPrivilegeEscalation: false
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       nodeSelector:
         beta.kubernetes.io/os: linux
       securityContext:

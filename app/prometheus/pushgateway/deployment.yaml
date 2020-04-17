@@ -48,6 +48,13 @@ spec:
             timeoutSeconds: 10
           resources:
             {}
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534
