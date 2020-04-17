@@ -35,11 +35,6 @@ spec:
         - mountPath: "/var/log/gitlab"
           name: gitaly
           subPath: gitaly-log
-        - mountPath: /etc/localtime
-          name: tz-config
       volumes:
       - name: gitaly
         emptyDir: {}
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

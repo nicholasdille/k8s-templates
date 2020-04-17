@@ -1,3 +1,4 @@
 ./bin/ytt \
     -f app/gitlab/ \
-| kapp deploy --app gitlab --file - --yes
+    -f deploy/values.yaml \
+| ./bin/kapp deploy --app gitlab --file - --yes

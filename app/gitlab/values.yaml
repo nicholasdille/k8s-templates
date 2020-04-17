@@ -3,7 +3,7 @@
 #@overlay/match missing_ok=True
 timezone: Europe/Berlin
 gitlab:
-  version: 12.7.5
+  version: 12.9.3
   namespace: gitlab
   server:
     matchLabels:

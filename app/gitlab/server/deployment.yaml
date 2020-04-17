@@ -29,11 +29,6 @@ spec:
         - mountPath: "/var/opt/gitlab"
           name: server
           subPath: server-data
-        - mountPath: /etc/localtime
-          name: tz-config
       volumes:
       - name: server
         emptyDir: {}
-      - name: tz-config
-        hostPath:
-          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
