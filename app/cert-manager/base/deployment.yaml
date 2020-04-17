@@ -42,6 +42,13 @@ spec:
                 fieldPath: metadata.namespace
           resources:
             {}
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -96,6 +103,13 @@ spec:
                 fieldPath: metadata.namespace
           resources:
             {}
+          volumeMounts:
+          - name: tz-config
+            mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -154,10 +168,15 @@ spec:
           volumeMounts:
           - name: certs
             mountPath: /certs
+          - name: tz-config
+            mountPath: /etc/localtime
       volumes:
       - name: certs
         secret:
           secretName: cert-manager-webhook-tls
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
 ---
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
