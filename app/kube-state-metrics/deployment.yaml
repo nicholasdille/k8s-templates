@@ -21,9 +21,6 @@ spec:
         image: quay.io/coreos/kube-state-metrics:v1.9.5
         securityContext:
           runAsUser: 65534
-        env:
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - containerPort: 8080
           name: http-metrics
@@ -41,3 +38,10 @@ spec:
             port: 8080
           initialDelaySeconds: 5
           timeoutSeconds: 5
+        volumeMounts:
+        - name: tz-config
+          mountPath: /etc/localtime
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
