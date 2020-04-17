@@ -21,9 +21,6 @@ spec:
         imagePullPolicy: IfNotPresent
         args:
         - -config.file=/etc/loki/loki.yaml
-        env:
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - containerPort: 3100
           name: http-metrics
@@ -51,7 +48,12 @@ spec:
         volumeMounts:
         - mountPath: /etc/loki
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:
           name: loki
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone

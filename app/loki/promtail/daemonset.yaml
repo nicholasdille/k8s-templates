@@ -33,8 +33,6 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
-        - name: TZ
-          value: #@ data.values.timezone
         ports:
         - containerPort: 3101
           name: http-metrics
@@ -64,6 +62,8 @@ spec:
         - mountPath: /var/log/pods
           name: pods
           readOnly: true
+        - name: tz-config
+          mountPath: /etc/localtime
       volumes:
       - name: config
         configMap:
@@ -77,3 +77,6 @@ spec:
       - name: pods
         hostPath:
           path: /var/log/pods
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
