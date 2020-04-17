@@ -1,3 +1,4 @@
-ytt \
+./bin/ytt \
     -f app/minecraft/server/ \
-| kapp deploy --app minecraft --file - --yes
+    -f deploy/values.yaml \
+| ./bin/kapp deploy --app minecraft --file - --yes
