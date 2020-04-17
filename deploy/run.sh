@@ -42,28 +42,28 @@ else
     done
 fi
 
-kubectl get nodes -l dille.name/public-ip -o json \
-| jq  --raw-output '.items[] | {name: .metadata.name, hostip: .metadata.labels."dille.name/public-ip"} | @base64' \
-| while read BASE64; do
-    JSON=$(echo "${BASE64}" | base64 -d)
-
-    NAME=$(echo "${JSON}" | jq --raw-output '.name')
-    HOSTIP=$(echo "${JSON}" | jq --raw-output '.hostip')
-
-    ./bin/ytt \
-        -f deploy/kube-apiserver-dns-template.yaml \
-        -f deploy/values.yaml \
-        -v apiserver.name=${NAME} \
-        -v apiserver.hostip=${HOSTIP}
-done \
-| ./bin/kapp deploy --app kube-apiserver-dns --file - --yes
-
 if ${CERTIFICATE_ENABLED}; then
     source deploy/certificates/deploy.sh
 fi
 
 if ${DNS_ENABLED}; then
     source deploy/dns/deploy.sh
+
+    kubectl get nodes -l dille.name/public-ip -o json \
+    | jq  --raw-output '.items[] | {name: .metadata.name, hostip: .metadata.labels."dille.name/public-ip"} | @base64' \
+    | while read BASE64; do
+        JSON=$(echo "${BASE64}" | base64 -d)
+
+        NAME=$(echo "${JSON}" | jq --raw-output '.name')
+        HOSTIP=$(echo "${JSON}" | jq --raw-output '.hostip')
+
+        ./bin/ytt \
+            -f deploy/kube-apiserver-dns-template.yaml \
+            -f deploy/values.yaml \
+            -v apiserver.name=${NAME} \
+            -v apiserver.hostip=${HOSTIP}
+    done \
+    | ./bin/kapp deploy --app kube-apiserver-dns --file - --yes
 fi
 
 if ${INGRESS_ENABLED}; then
