@@ -26,6 +26,8 @@ spec:
         volumeMounts:
         - mountPath: /etc/traefik
           name: config
+        - name: tz-config
+          mountPath: /etc/localtime
         ports:
         - name: http
           containerPort: 80
@@ -47,3 +49,6 @@ spec:
       - name: config
         configMap:
           name: traefik
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
