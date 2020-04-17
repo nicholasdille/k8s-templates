@@ -32,6 +32,8 @@ nodes:
   extraMounts:
   - hostPath: /local-path-provisioner
     containerPath: /var/local-path-provisioner
+  - hostPath: /usr/share/zoneinfo
+    containerPath: /usr/share/zoneinfo
   extraPortMappings:
   - containerPort: 6443
     hostPort: 6443
@@ -40,3 +42,6 @@ nodes:
   - containerPort: 443
     hostPort: 443
 - role: worker
+  extraMounts:
+  - hostPath: /usr/share/zoneinfo
+    containerPath: /usr/share/zoneinfo
