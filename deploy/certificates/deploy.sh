@@ -8,8 +8,16 @@ fi
     -f deploy/values.yaml \
 | ./bin/kapp deploy --app cert-manager --file - --yes
 
+if test -f backup/clusterissuers.yaml; then
+    kubectl apply -f backup/clusterissuers.yaml
+fi
+
 ./bin/ytt \
     -f app/cert-manager/letsencrypt-cloudflare/ \
     -f deploy/values.yaml \
     -v cloudflare.key=${CF_API_KEY} \
 | ./bin/kapp deploy --app cert-manager-issuer --file - --yes
+
+if test -f backup/certificates.yaml; then
+    kubectl apply -f backup/certificates.yaml
+fi
