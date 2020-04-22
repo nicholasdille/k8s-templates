@@ -12,7 +12,7 @@ flux:
     matchLabels:
       name: memcached
   git:
-    repository: git@github.com:yourhandlehere/flux-get-started
+    repository: git@github.com:your_handle_here/flux-get-started
     branch: master
-    user: yourhandlehere
-    email: yourhandlehere@users.noreply.github.com
+    user: your_handle_here
+    email: your_handle_here@users.noreply.github.com

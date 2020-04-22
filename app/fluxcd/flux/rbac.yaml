@@ -1,7 +1,5 @@
 #@ load("@ytt:data", "data")
 ---
-# The service account, cluster roles, and cluster role binding are
-# only needed for Kubernetes with role-based access control (RBAC).
 apiVersion: v1
 kind: ServiceAccount
 metadata:

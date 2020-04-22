@@ -13,3 +13,16 @@ curl -s https://api.github.com/repos/fluxcd/flux/releases/latest \
 chmod +x /usr/local/bin/fluxctl
 source <(fluxctl completion bash)
 ```
+
+## Example
+
+XXX
+
+```bash
+./bin/ytt \
+    -f app/fluxcd/ \
+    -v flux.git.repository=git@github.com:nicholasdille/flux-ytt \
+    -v flux.git.user=nicholasdille \
+    -v flux.git.email=nicholasdille@users.noreply.github.com \
+| ./bin/kapp deploy --app flux --file - --yes
+```
