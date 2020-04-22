@@ -68,4 +68,5 @@ spec:
         - --sync-garbage-collection
         - --git-poll-interval=120s
         - --sync-interval=120s
+        - --automation-interval=120s
         - --manifest-generation=true
