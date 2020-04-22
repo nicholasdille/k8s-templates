@@ -1,0 +1,18 @@
+#@data/values
+---
+#@overlay/match missing_ok=True
+timezone: Europe/Berlin
+#@overlay/match missing_ok=True
+flux:
+  namespace: flux
+  fluxd:
+    matchLabels:
+      name: flux
+  memcached:
+    matchLabels:
+      name: memcached
+  git:
+    repository: git@github.com:yourhandlehere/flux-get-started
+    branch: master
+    user: yourhandlehere
+    email: yourhandlehere@users.noreply.github.com

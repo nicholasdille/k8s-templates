@@ -2,6 +2,8 @@
 
 XXX https://github.com/fluxcd
 
+XXX https://github.com/fluxcd/flux/tree/v1.19.0/deploy
+
 XXX install `fluxctl`
 
 ```bash

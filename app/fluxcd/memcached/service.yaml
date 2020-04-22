@@ -1,0 +1,12 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcached
+  namespace: #@ data.values.flux.namespace
+spec:
+  ports:
+    - name: memcached
+      port: 11211
+  selector: #@ data.values.flux.memcached.matchLabels
