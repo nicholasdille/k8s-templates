@@ -1,0 +1,20 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: security
+  namespace: #@ data.values.traefik.namespace
+  labels:
+    #@yaml/text-templated-strings
+    (@= data.values.domain @)/loadbalancer: default
+spec:
+  headers:
+    frameDeny: true
+    sslRedirect: true
+    browserXssFilter: true
+    contentTypeNosniff: true
+    #HSTS
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 31536000

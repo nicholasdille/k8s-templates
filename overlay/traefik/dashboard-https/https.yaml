@@ -34,5 +34,8 @@ spec:
       strategy: RoundRobin
     middlewares:
     - name: traefik-dashboard-auth
+    - name: security
   tls:
     secretName: certificate-traefik-dashboard
+    options:
+      name: tls12
