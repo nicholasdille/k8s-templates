@@ -1,6 +1,6 @@
 # App Templates
 
-This repository contains templates for applications and overlay to use with [ytt](https://github.com/k14s/ytt) and [kapp](https://github.com/k14s/kapp)
+This repository contains templates for applications as well as overlays to modify them based on [ytt](https://github.com/k14s/ytt) and [kapp](https://github.com/k14s/kapp)
 
 ## Compiling manifests
 
