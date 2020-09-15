@@ -35,4 +35,4 @@ data:
         address: ":8080"
     providers:
       kubernetesCRD:
-        labelselector: "(@= data.values.domain @)/loadbalancer=(@= data.values.name @)"
+        labelselector: "(@= data.values.domain @)/loadbalancer=(@= data.values.traefik.name @)"
