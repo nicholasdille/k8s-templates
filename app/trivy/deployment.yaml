@@ -1,0 +1,36 @@
+#@ load("@ytt:data", "data")
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trivy
+  namespace: #@ data.values.trivy.namespace
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: #@ data.values.trivy.matchLabels
+  template:
+    metadata:
+      labels: #@ data.values.trivy.matchLabels
+    spec:
+      containers:
+      - name: main
+        image: aquasec/trivy:latest
+        imagePullPolicy: Always
+        args:
+        - server
+        - --listen
+        - 0.0.0.0:8080
+        env:
+        - name: TZ
+          value: #@ data.values.timezone
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+      volumes:
+      - name: tz-config
+        hostPath:
+          path: #@ "/usr/share/zoneinfo/" + data.values.timezone
