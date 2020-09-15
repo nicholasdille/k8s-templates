@@ -4,6 +4,8 @@ KIND_DEPLOY=true
 KIND_NAME=demo
 # Name of the primarys host interface
 KIND_INTERFACE=eth0
+# Name of the networking stack (supported values: default, calico)
+KIND_CNI=default
 
 # Whether to deploy the Kubernetes dashboard
 DASHBOARD_ENABLED=true
