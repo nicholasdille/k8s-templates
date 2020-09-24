@@ -3,7 +3,7 @@ echo "### Deploy DNS started"
 echo "###"
 
 if test -z "${CF_API_KEY}"; then
-    echo "ERROR: Missing API key for CloudFlare."
+    echo "ERROR: Missing API key for CloudFlare. Set CF_API_KEY."
     exit 1
 fi
 
