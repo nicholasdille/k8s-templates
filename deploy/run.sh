@@ -36,6 +36,7 @@ elif ${K3D_DEPLOY}; then
     source deploy/k3d/deploy.sh
 
 else
+    echo "### Labeling nodes"
     kubectl --namespace kube-system get pod -l component=kube-apiserver -o json \
     | jq --raw-output '.items[] | {name: .metadata.name, node: (.metadata.ownerReferences[] | select(.kind == "Node") | .name), hostip: .status.hostIP} | @base64' \
     | while read BASE64; do
@@ -44,7 +45,8 @@ else
         NODE=$(echo "${JSON}" | jq --raw-output '.node')
         HOSTIP=$(echo "${JSON}" | jq --raw-output '.hostip')
 
-        kubectl label node $NODE dille.name/public-ip=$HOSTIP
+        echo "### Labeling node ${NODE}"
+        kubectl label node ${NODE} dille.name/public-ip=${HOSTIP}
     done
 fi
 
