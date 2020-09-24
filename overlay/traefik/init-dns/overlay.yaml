@@ -10,7 +10,7 @@ spec:
       initContainers:
       #@overlay/match by="name",missing_ok=True
       - name: traefik-init-dns
-        image: nicholasdille/tools:stable
+        image: nicholasdille/tools:latest
         command:
         - sh
         args:
