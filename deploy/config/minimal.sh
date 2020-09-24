@@ -7,6 +7,13 @@ KIND_INTERFACE=eth0
 # Name of the networking stack (supported values: default, calico)
 KIND_CNI=calico
 
+# Whether to deploy a kind cluster
+K3D_DEPLOY=false
+# Name of the k3d cluster
+K3D_NAME=demo
+# Name of the primarys host interface
+K3D_INTERFACE=eth0
+
 # Whether to deploy the Kubernetes dashboard
 DASHBOARD_ENABLED=false
 # Whether to deploy cert-manager

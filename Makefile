@@ -82,7 +82,7 @@ docker: Dockerfile ; $(info $(M) Building tools...)
 	@docker build --tag tools --build-arg YTT_REF=$(YTT_REF) --file docker/Dockerfile docker
 
 .PHONY:
-tools: ytt kapp kind kubectl
+tools: ytt kapp kind kubectl k3d
 
 .PHONY:
 ytt: bin/ytt
@@ -110,8 +110,8 @@ kind: bin/kind
 bin/kind: bin ; $(info $(M) Installing kind...)
 	@set -o errexit; \
 	curl -s https://api.github.com/repos/kubernetes-sigs/kind/releases/latest | \
-    		jq --raw-output '.assets[] | select(.name == "kind-linux-amd64") | .browser_download_url' | \
-    		xargs curl -Lfo ./bin/kind; \
+		jq --raw-output '.assets[] | select(.name == "kind-linux-amd64") | .browser_download_url' | \
+		xargs curl -Lfo ./bin/kind; \
 	chmod +x ./bin/kind
 
 .PHONY:
@@ -131,3 +131,13 @@ bin/kubeyaml: bin docker ; $(info $(M) Installing kubeyaml...)
 	docker create --name tools tools; \
 	docker cp tools:/kubeyaml bin/; \
 	docker rm tools
+
+.PHONY:
+k3d: bin/k3d
+
+bin/k3d: bin ; $(info $(M) Installing k3d...)
+	@set -o errexit; \
+	curl --silent https://api.github.com/repos/rancher/k3d/releases/latest | \
+    	jq --raw-output '.assets[] | select(.name == "k3d-linux-amd64") | .browser_download_url' | \
+    	xargs curl --location --fail --output ./bin/k3d; \
+	chmod +x ./bin/k3d

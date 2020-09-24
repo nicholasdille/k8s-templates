@@ -29,6 +29,12 @@ source deploy/common.sh
 
 if ${KIND_DEPLOY}; then
     source deploy/kind/deploy.sh
+
+elif ${K3D_DEPLOY}; then
+    echo "TODO: Finish support for K3D"
+    exit 1
+    source deploy/k3d/deploy.sh
+
 else
     kubectl --namespace kube-system get pod -l component=kube-apiserver -o json \
     | jq --raw-output '.items[] | {name: .metadata.name, node: (.metadata.ownerReferences[] | select(.kind == "Node") | .name), hostip: .status.hostIP} | @base64' \
