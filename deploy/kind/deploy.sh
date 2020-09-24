@@ -34,9 +34,13 @@ if ! kind get clusters | grep --quiet ${KIND_NAME}; then
     | ./bin/kind create cluster --name ${KIND_NAME} --config -
 fi
 
-while kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.reason=="KubeletReady")].status}{"\n"}{end}' | grep -E "\sFalse$"; do
+echo -n "Waiting for nodes to be ready..."
+while kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.reason=="KubeletReady")].status}{"\n"}{end}' | grep -qE "\sFalse$"; do
+    echo -n "."
     sleep 5
 done
+echo " done."
+
 
 case "${KIND_CNI}" in
     calico)
@@ -45,6 +49,9 @@ case "${KIND_CNI}" in
     ;;
 esac
 
-while kubectl get pods --all-namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -E "\sFalse$"; do
+echo -n "Waiting for pods to be ready..."
+while kubectl --namespace=kube-system get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -qE "\sFalse$"; do
+    echo -n "."
     sleep 5
 done
+echo " done."
