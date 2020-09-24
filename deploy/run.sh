@@ -48,6 +48,9 @@ else
     done
 fi
 
+./bin/kubectl apply -f deploy/namespace.yaml
+export KAPP_NAMESPACE=kapp
+
 if ${CERTIFICATE_ENABLED}; then
     source deploy/certificates/deploy.sh
 fi
