@@ -30,6 +30,8 @@ AUTH_ENABLED=false
 # Whether to deploy monitoring for cert-manager
 CERTIFICATE_MONITORING_ENABLED=${MONITORING_ENABLED}
 
+# Whether to deploy DNS records for nodes
+DNS_NODES_ENABLED=false
 # Whether to deploy monitoring for external-dns
 DNS_MONITORING_ENABLED=${MONITORING_ENABLED}
 
