@@ -12,9 +12,11 @@ if ${INGRESS_DNS_ENABLED}; then
         exit 1
     fi
     INGRESS_CLOUDFLARE_ARGS="-v cloudflare.key=${CF_API_KEY}"
-    if ${DEPLOY_KIND}; then
+    if ${KIND_DEPLOY}; then
         INGRESS_KIND_ARGS="-f overlay/traefik/kind-affinity/"
-        INGRESS_DNS_ARGS="-f overlay/traefik/init-dns/"
+        if ${KIND_INIT_DNS}; then
+            INGRESS_DNS_ARGS="-f overlay/traefik/init-dns/"
+        fi
     else
         INGRESS_DNS_ARGS="-f overlay/traefik/external-dns/"
     fi

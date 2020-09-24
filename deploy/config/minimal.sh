@@ -6,6 +6,8 @@ KIND_NAME=demo
 KIND_INTERFACE=eth0
 # Name of the networking stack (supported values: default, calico)
 KIND_CNI=calico
+# Whether to use init container for DNS
+KIND_INIT_DNS=false
 
 # Whether to deploy a kind cluster
 K3D_DEPLOY=false
